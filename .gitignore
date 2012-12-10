@@ -7,14 +7,15 @@ lib-cov
 *.out
 *.pid
 *.gz
-
 pids
 logs
 results
 npm-debug.log
 
-/.idea/
 .DS_Store
-/.junit-output/
-/node_modules/
 _SpecRunner.html
+
+*.sublime*
+/.junit-output
+/.idea*
+/node_modules

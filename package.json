@@ -1,0 +1,17 @@
+{
+  "name": "Che",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app"
+  },
+  "dependencies": {
+    "express": "3.0.4",
+    "jade": "*",
+    "grunt-clean": ">= 0.3.0",
+    "grunt-docco": ">= 0.1.1",
+    "grunt-coffee": ">= 0.0.5",
+    "grunt-jade": ">= 0.3.2",
+    "grunt-jasmine-runner": ">=0.6.0"
+  }
+}

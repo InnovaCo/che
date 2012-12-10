@@ -1,3 +1,4 @@
+
 lib-cov
 *.seed
 *.log
@@ -10,5 +11,10 @@ lib-cov
 pids
 logs
 results
-
 npm-debug.log
+
+/.idea/
+.DS_Store
+/.junit-output/
+/node_modules/
+_SpecRunner.html

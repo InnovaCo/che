@@ -4,8 +4,8 @@ module.exports = function(grunt) {
     grunt.initConfig({
         coffee: {
             app: {
-                src: ['app/coffee/**/*.coffee'],
-                dest: 'app/javascripts/',
+                src: ['app/coffee/*.coffee', 'app/coffee/**/*.coffee'],
+                dest: 'app/js/',
                 options: {
                     bare: false,
                     preserve_dirs: true,
@@ -14,7 +14,7 @@ module.exports = function(grunt) {
             },
             tests: {
                 src: ['spec/coffee/**/*coffee'],
-                dest: 'spec/javascripts/',
+                dest: 'spec/js/',
                 options: {
                     bare: false,
                     preserve_dirs: true,
@@ -23,7 +23,7 @@ module.exports = function(grunt) {
             }
         },
         lint: {
-            files: ['app/javascripts/**/*.js','spec/javascripts/**/*.js']
+            files: ['app/js/*.js','app/js/**/*.js','spec/js/**/*.js']
         },
         watch: {
             files: ['<config:jasmine.specs>','src/**/*js'],
@@ -32,20 +32,20 @@ module.exports = function(grunt) {
         concat: {
           app: {
             src: [
-                'app/javascripts/che/app.js',
-                'app/javascripts/che/helpers/dom.js',
-                'app/javascripts/domReady.js',
-                'app/javascripts/che/preloader.js'
+                'app/js/app.js',
+                'app/js/helpers/dom.js',
+                'lib/js/domReady.js',
+                'app/js/preloader.js'
             ],
-            dest: 'app/javascripts/app.js'
+            dest: 'app/js/app-package.js'
           }
         },
         jasmine : {
             src : [
-                'lib/javascripts/**/*.js',
-                'app/javascripts/app.js'
+                'lib/js/**/*.js',
+                'app/js/app-package.js'
             ],
-            specs : 'spec/javascripts/**/*.js',
+            specs : 'spec/js/**/*.js',
             helpers : 'spec/helpers/*.js',
             timeout : 10000,
             junit : {

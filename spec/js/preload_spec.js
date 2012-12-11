@@ -34,7 +34,7 @@
         });
         return runs(function() {
           preloader.searchForWidgets();
-          expect(requireSpy.calls.length).toEqual(11);
+          expect(requireSpy.calls.length).toEqual(10);
           return expect(requireSpy.mostRecentCall.args[0][0]).toBe('module_9');
         });
       });

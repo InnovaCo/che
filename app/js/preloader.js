@@ -10,7 +10,6 @@
       if (!widgetName) {
         return false;
       }
-      console.log(require);
       return require([widgetName], function(widget) {
         return widget.init(domElement);
       });

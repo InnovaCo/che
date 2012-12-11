@@ -4,17 +4,21 @@ module.exports = function(grunt) {
     grunt.initConfig({
         coffee: {
             app: {
-                src: ['app/coffee/*.coffee'],
+                src: ['app/coffee/**/*.coffee'],
                 dest: 'app/javascripts/',
                 options: {
-                    bare: false
+                    bare: false,
+                    preserve_dirs: true,
+                    base_path: 'app/coffee'
                 }
             },
             tests: {
                 src: ['spec/coffee/**/*coffee'],
                 dest: 'spec/javascripts/',
                 options: {
-                    bare: false
+                    bare: false,
+                    preserve_dirs: true,
+                    base_path: 'spec/coffee'
                 }
             }
         },
@@ -25,8 +29,22 @@ module.exports = function(grunt) {
             files: ['<config:jasmine.specs>','src/**/*js'],
             tasks: 'jasmine'
         },
+        concat: {
+          app: {
+            src: [
+                'app/javascripts/che/app.js',
+                'app/javascripts/che/helpers/dom.js',
+                'app/javascripts/domReady.js',
+                'app/javascripts/che/preloader.js'
+            ],
+            dest: 'app/javascripts/app.js'
+          }
+        },
         jasmine : {
-            src : ['app/javascripts/**/*.js', 'lib/javascripts/**/*.js'],
+            src : [
+                'lib/javascripts/**/*.js',
+                'app/javascripts/app.js'
+            ],
             specs : 'spec/javascripts/**/*.js',
             helpers : 'spec/helpers/*.js',
             timeout : 10000,
@@ -63,6 +81,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-jasmine-runner');
 
 
-    grunt.registerTask('spec', 'coffee jasmine');
-    grunt.registerTask('spec-server', 'coffee jasmine-server');
+    grunt.registerTask('spec', 'coffee concat jasmine');
+    grunt.registerTask('spec-server', 'coffee concat jasmine-server');
 };

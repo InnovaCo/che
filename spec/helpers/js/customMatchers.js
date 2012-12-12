@@ -1,7 +1,6 @@
 (function() {
 
   beforeEach(function() {
-    console.log("append");
     return this.addMatchers({
       toBeFunction: function() {
         return _.isFunction(this.actual);

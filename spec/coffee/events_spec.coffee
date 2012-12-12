@@ -4,12 +4,6 @@ describe "events module", ->
 
     beforeEach ->
       events = null
-      @addMatchers ->
-        toBeFunction: ->
-          _.isFunction(@actual)
-
-        toBeArray: ->
-          _.isArray(@actual)
       require ["events"], (eventsModule) ->
         events = eventsModule
         events._data.previousArgs = {}

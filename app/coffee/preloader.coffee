@@ -4,7 +4,7 @@
 # Модуль для предварительной загрузки виджетов
 #
 
-define 'preloader', ['dom', 'domReady'], (dom, domReady) ->
+define ['helpers/dom', 'lib/domReady'], (dom, domReady) ->
   widgetClassName = 'widget'
   widgetAttributName = 'data-js-module'
 

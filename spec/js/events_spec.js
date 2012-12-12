@@ -6,23 +6,13 @@
       events = null;
       beforeEach(function() {
         events = null;
-        this.addMatchers(function() {
-          return {
-            toBeFunction: function() {
-              return _.isFunction(this.actual);
-            },
-            toBeArray: function() {
-              return _.isArray(this.actual);
-            }
-          };
-        });
         return require(["events"], function(eventsModule) {
           events = eventsModule;
           events._data.previousArgs = {};
           return events._data.handlers = {};
         });
       });
-      return it("should contain once, bind, unbind, trigger functions", function() {
+      return it("should contain once, bind, unbind, trigger, pub, sub, unsub functions", function() {
         waitsFor(function() {
           return events !== null;
         });

@@ -1,6 +1,6 @@
 (function() {
 
-  define('dom', function() {
+  define(function() {
     var getElementByClass;
     getElementByClass = function(class_name, node) {
       var classElements, element, elements, pattern, _i, _len;

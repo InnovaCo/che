@@ -1,4 +1,4 @@
-define "events", [], ->
+define [], ->
   eventsData =
     handlers: {}
     previousArgs: {}

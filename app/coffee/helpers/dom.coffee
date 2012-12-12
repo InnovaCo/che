@@ -4,7 +4,7 @@
 # Содержит вспомогательные функции для обхода DOM-дерева пока jquery еще не готов
 #
 
-define 'dom', ->
+define ->
   #### getElementByClass(elements, attribute_name)
   #
   #---

@@ -5,7 +5,7 @@
 #
 
 requirejs.config
-  baseUrl: 'app/javascripts/che'
+  baseUrl: 'app/js'
 
 requirejs ['preloader'], (preloader) ->
   # nothing to do

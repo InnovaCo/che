@@ -20,6 +20,13 @@ module.exports = function(grunt) {
                     preserve_dirs: true,
                     base_path: 'spec/coffee'
                 }
+            },
+            jasmine_helpers: {
+                src: ['spec/helpers/**/*coffee'],
+                dest: 'spec/helpers/',
+                options: {
+                    bare: false
+                }
             }
         },
         lint: {
@@ -32,17 +39,21 @@ module.exports = function(grunt) {
         concat: {
           app: {
             src: [
+                'lib/js/underscore-1.4.3.js',
                 'app/js/app.js',
                 'app/js/helpers/dom.js',
                 'lib/js/domReady.js',
-                'app/js/preloader.js'
+                'app/js/preloader.js',
+                'app/js/events.js'
             ],
             dest: 'app/js/app-package.js'
           }
         },
         jasmine : {
             src : [
-                'lib/js/**/*.js',
+                'lib/js/require-2.1.2.js',
+                'lib/js/jquery-1.8.3.js', // affix needs jquery (for jasmine fixtures)
+                'lib/js/underscore-1.4.3.js', // for custom matchers
                 'app/js/app-package.js'
             ],
             specs : 'spec/js/**/*.js',

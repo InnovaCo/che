@@ -1,7 +1,7 @@
 (function() {
 
   requirejs.config({
-    baseUrl: 'app/javascripts/che'
+    baseUrl: 'app/js'
   });
 
   requirejs(['preloader'], function(preloader) {});

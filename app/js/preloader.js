@@ -1,6 +1,6 @@
 (function() {
 
-  define('preloader', ['dom', 'domReady'], function(dom, domReady) {
+  define(['helpers/dom', 'lib/domReady'], function(dom, domReady) {
     var loadWidgetModule, preloader, searchForWidgets, widgetAttributName, widgetClassName;
     widgetClassName = 'widget';
     widgetAttributName = 'data-js-module';

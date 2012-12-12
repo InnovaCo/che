@@ -1,6 +1,6 @@
 (function() {
 
-  define("events", [], function() {
+  define([], function() {
     var events, eventsData, handlerCall;
     eventsData = {
       handlers: {},

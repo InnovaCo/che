@@ -6,16 +6,6 @@
       events = null;
       beforeEach(function() {
         events = null;
-        this.addMatchers(function() {
-          return {
-            toBeFunction: function() {
-              return _.isFunction(this.actual);
-            },
-            toBeArray: function() {
-              return _.isArray(this.actual);
-            }
-          };
-        });
         return require(["events"], function(eventsModule) {
           events = eventsModule;
           events._data.previousArgs = {};

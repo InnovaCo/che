@@ -22,7 +22,7 @@
           return events._data.handlers = {};
         });
       });
-      return it("should contain once, bind, unbind, trigger functions", function() {
+      return it("should contain once, bind, unbind, trigger, pub, sub, unsub functions", function() {
         waitsFor(function() {
           return events !== null;
         });

@@ -4,7 +4,7 @@
 #---
 # Модуль для хранения временных данных, нужных другим модулям.
 #
-define 'storage', () ->
+define () ->
   #
   # Работа с самим LocalStorage и SessionStorage
   #
@@ -71,7 +71,7 @@ define 'storage', () ->
   createVarName = (moduleName, varName) ->
     "#{moduleName}/#{varName}"
 
-    removeItem: (sKey, sPath) ->
+  removeItem: (sKey, sPath) ->
 
   getKeysFromCookies =  ->
     keys = document.cookie.replace(/((?:^|\s*;)[^\=]+)(?=;|$)|^\s*|\s*(?:\=[^;]*)?(?:\1|$)/g, "").split(/\s*(?:\=[^;]*)?;\s*/)
@@ -82,18 +82,18 @@ define 'storage', () ->
     objToReturn
 
   # Делаем открытый API, чтобы было удобно отлаживать и тестировать
-  window.inn.storage = 
+  returnObj = 
     save: (moduleName, varName, value, isSessionOnly) ->
-      return off if typeof value isnt "string"
-      return saveToLocalStorage( createVarName(moduleName, varName), value, isSessionOnly) if _isLocalStorageAvailable()
+      value = value.toString() if typeof value isnt "string"
+      return saveToLocalStorage( createVarName(moduleName, varName), value, isSessionOnly) if isLocalStorageAvailable()
       return saveToCookie createVarName(moduleName, varName, isSessionOnly), value
 
     get: (moduleName, varName) ->
-      return getFromLocalStorage(createVarName moduleName, varName) if _isLocalStorageAvailable()
+      return getFromLocalStorage(createVarName moduleName, varName) if isLocalStorageAvailable()
       return getFromCookie createVarName moduleName, varName
 
     remove: (moduleName, varName) ->
-      return removeFromLocalStorage(createVarName moduleName, varName) if _isLocalStorageAvailable()
+      return removeFromLocalStorage(createVarName moduleName, varName) if isLocalStorageAvailable()
       return removeFromCookie createVarName moduleName, varName
 
     # исключительно для тестирования и отладки
@@ -103,4 +103,4 @@ define 'storage', () ->
         sessionStorage: getKeysFromLocalStorage true
         cookies: getKeysFromCookies()
 
-  return window.inn.storage
+  return returnObj

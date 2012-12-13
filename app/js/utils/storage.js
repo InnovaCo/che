@@ -1,7 +1,7 @@
 (function() {
 
-  define('storage', function() {
-    var createVarName, getFromCookie, getFromLocalStorage, getKeysFromCookies, getKeysFromLocalStorage, isLocalStorageAvailable, removeFromCookie, removeFromLocalStorage, saveToCookie, saveToLocalStorage, _localStorage, _sessionStorage;
+  define(function() {
+    var createVarName, getFromCookie, getFromLocalStorage, getKeysFromCookies, getKeysFromLocalStorage, isLocalStorageAvailable, removeFromCookie, removeFromLocalStorage, returnObj, saveToCookie, saveToLocalStorage, _localStorage, _sessionStorage;
     _localStorage = window.localStorage;
     _sessionStorage = window.sessionStorage;
     getFromLocalStorage = function(varName) {
@@ -65,11 +65,11 @@
       return typeof _localStorage !== "undefined";
     };
     createVarName = function(moduleName, varName) {
-      "" + moduleName + "/" + varName;
-      return {
-        removeItem: function(sKey, sPath) {}
-      };
+      return "" + moduleName + "/" + varName;
     };
+    ({
+      removeItem: function(sKey, sPath) {}
+    });
     getKeysFromCookies = function() {
       var index, keys, objToReturn, _i, _ref;
       keys = document.cookie.replace(/((?:^|\s*;)[^\=]+)(?=;|$)|^\s*|\s*(?:\=[^;]*)?(?:\1|$)/g, "").split(/\s*(?:\=[^;]*)?;\s*/);
@@ -79,24 +79,24 @@
       }
       return objToReturn;
     };
-    window.inn.storage = {
+    returnObj = {
       save: function(moduleName, varName, value, isSessionOnly) {
         if (typeof value !== "string") {
-          return false;
+          value = value.toString();
         }
-        if (_isLocalStorageAvailable()) {
+        if (isLocalStorageAvailable()) {
           return saveToLocalStorage(createVarName(moduleName, varName), value, isSessionOnly);
         }
         return saveToCookie(createVarName(moduleName, varName, isSessionOnly), value);
       },
       get: function(moduleName, varName) {
-        if (_isLocalStorageAvailable()) {
+        if (isLocalStorageAvailable()) {
           return getFromLocalStorage(createVarName(moduleName, varName));
         }
         return getFromCookie(createVarName(moduleName, varName));
       },
       remove: function(moduleName, varName) {
-        if (_isLocalStorageAvailable()) {
+        if (isLocalStorageAvailable()) {
           return removeFromLocalStorage(createVarName(moduleName, varName));
         }
         return removeFromCookie(createVarName(moduleName, varName));
@@ -110,7 +110,7 @@
         };
       }
     };
-    return window.inn.storage;
+    return returnObj;
   });
 
 }).call(this);

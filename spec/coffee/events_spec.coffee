@@ -108,6 +108,57 @@ describe "events module", ->
           testData: 'testData'
 
         expect(handler.calls.length).not.toBeGreaterThan(1)
+  describe "binding handler to compound events", ->
+    events = null
+
+    beforeEach ->
+      events = null
+      require ["events"], (eventsModule) ->
+        events = eventsModule
+        events._data.previousArgs = {}
+        events._data.handlers = {}
+
+    it "should call handler only after calling all events from list", ->
+      waitsFor ->
+        events isnt null
+      runs ->
+        handler = jasmine.createSpy("compoundHandler")
+
+        events.bind "one, two, three", handler,
+          isSync: true
+
+        events.pub 'one',
+          data: "one"
+
+        expect(handler).not.toHaveBeenCalled()
+
+        events.pub 'two',
+          data: "two"
+
+        expect(handler).not.toHaveBeenCalled()
+
+        events.pub 'three',
+          data: "three"
+
+        expect(handler).toHaveBeenCalled()
+        expect(handler.mostRecentCall.args[0]).toEqual
+          one:
+            0:
+              data: 'one'
+            1:
+              name: 'one'
+          two:
+            0:
+              data : 'two'
+            1:
+              name : 'two'
+          three:
+            0:
+              data: 'three'
+            1:
+              name: 'three'
+
+
 
   describe "calling handlers", ->
     events = null

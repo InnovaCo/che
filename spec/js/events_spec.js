@@ -128,6 +128,68 @@
         });
       });
     });
+    describe("binding handler to compound events", function() {
+      var events;
+      events = null;
+      beforeEach(function() {
+        events = null;
+        return require(["events"], function(eventsModule) {
+          events = eventsModule;
+          events._data.previousArgs = {};
+          return events._data.handlers = {};
+        });
+      });
+      return it("should call handler only after calling all events from list", function() {
+        waitsFor(function() {
+          return events !== null;
+        });
+        return runs(function() {
+          var handler;
+          handler = jasmine.createSpy("compoundHandler");
+          events.bind("one, two, three", handler, {
+            isSync: true
+          });
+          events.pub('one', {
+            data: "one"
+          });
+          expect(handler).not.toHaveBeenCalled();
+          events.pub('two', {
+            data: "two"
+          });
+          expect(handler).not.toHaveBeenCalled();
+          events.pub('three', {
+            data: "three"
+          });
+          expect(handler).toHaveBeenCalled();
+          return expect(handler.mostRecentCall.args[0]).toEqual({
+            one: {
+              0: {
+                data: 'one'
+              },
+              1: {
+                name: 'one'
+              }
+            },
+            two: {
+              0: {
+                data: 'two'
+              },
+              1: {
+                name: 'two'
+              }
+            },
+            three: {
+              0: {
+                data: 'three'
+              },
+              1: {
+                name: 'three'
+              }
+            }
+          });
+        });
+      });
+    });
     describe("calling handlers", function() {
       var events;
       events = null;

@@ -1,7 +1,7 @@
 (function() {
 
   define([], function() {
-    var events, eventsData, handlerCall;
+    var bindHandlerToEvent, events, eventsData, handlerCall;
     eventsData = {
       handlers: {},
       previousArgs: {}
@@ -23,6 +23,15 @@
         return "async";
       }
     };
+    bindHandlerToEvent = function(eventName, handler, options) {
+      handler.id = handler.id || _.uniqueId(eventName + "_handler_");
+      handler.options = handler.options || options || {};
+      eventsData.handlers[eventName] = eventsData.handlers[eventName] || {};
+      eventsData.handlers[eventName][handler.id] = handler;
+      if (eventsData.previousArgs[eventName] && options.remember) {
+        return handlerCall(handler, eventName, eventsData.previousArgs[eventName]);
+      }
+    };
     events = {
       _data: eventsData,
       once: function(eventName, handler, options) {
@@ -34,14 +43,34 @@
         onceHandler.id = _.uniqueId(eventName + "_once_handler_");
         return events.bind(eventName, onceHandler, options);
       },
-      bind: function(eventName, handler, options) {
-        handler.id = handler.id || _.uniqueId(eventName + "_handler_");
-        handler.options = options || {};
-        eventsData.handlers[eventName] = eventsData.handlers[eventName] || {};
-        eventsData.handlers[eventName][handler.id] = handler;
-        if (eventsData.previousArgs[eventName] && options.remember) {
-          return handlerCall(handler, eventName, eventsData.previousArgs[eventName]);
+      bind: function(eventsNames, handler, options) {
+        var compoundArguments, eventHandler, eventName, eventsList, _i, _len, _results;
+        eventsList = _.compact(eventsNames.split(/\,+\s*|\s+/));
+        if (/\,+/.test(eventsNames)) {
+          compoundArguments = {};
+          eventHandler = function() {
+            var eventData;
+            eventData = this;
+            compoundArguments[eventData.name] = arguments;
+            if (_.contains(eventsList, eventData.name)) {
+              eventsList = _.without(eventsList, eventData.name);
+            }
+            if (eventsList.length === 0) {
+              handler.call(this, compoundArguments);
+            }
+            return console.log(eventsList, eventsList.length);
+          };
+        } else {
+          eventHandler = handler;
         }
+        _results = [];
+        for (_i = 0, _len = eventsList.length; _i < _len; _i++) {
+          eventName = eventsList[_i];
+          _results.push((function(eventName) {
+            return bindHandlerToEvent(eventName, eventHandler, options);
+          })(eventName));
+        }
+        return _results;
       },
       unbind: function(eventName, handler) {
         var id;

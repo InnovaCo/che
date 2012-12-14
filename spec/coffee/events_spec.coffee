@@ -6,20 +6,34 @@ describe "events module", ->
       events = null
       require ["events"], (eventsModule) ->
         events = eventsModule
-        events._data.previousArgs = {}
-        events._data.handlers = {}
+        events.list = {}
 
-    it "should contain once, bind, unbind, trigger, pub, sub, unsub functions", ->
+    it "should contain 'once', 'bind', 'unbind', 'trigger', 'create' functions", ->
       waitsFor ->
         events isnt null
       runs ->
+        expect(events.create).toBeFunction()
         expect(events.once).toBeFunction()
         expect(events.bind).toBeFunction()
         expect(events.unbind).toBeFunction()
         expect(events.trigger).toBeFunction()
-        expect(events.pub).toBeFunction()
-        expect(events.sub).toBeFunction()
-        expect(events.unsub).toBeFunction()
+
+  describe "creating new Event", ->
+    events = null
+
+    beforeEach ->
+      events = null
+      require ["events"], (eventsModule) ->
+        events = eventsModule
+        events.list = {}
+    it "events.create should return CustomEvent", ->
+      waitsFor ->
+        events isnt null
+      runs ->
+        CustomEvent = events.create "testEvent"
+        expect(CustomEvent).toBeObject()
+        expect(CustomEvent.name).toBe "testEvent"
+        expect(CustomEvent._handlers).toBeEmpty()
 
   describe "binding handlers to events", ->
     events = null
@@ -30,8 +44,7 @@ describe "events module", ->
       events = null
       require ["events"], (eventsModule) ->
         events = eventsModule
-        events._data.previousArgs = {}
-        events._data.handlers = {}
+        events.list = {}
         bindSpy = spyOn(events, "bind").andCallThrough()
         onceSpy = spyOn(events, "once").andCallThrough()
 
@@ -40,11 +53,11 @@ describe "events module", ->
         events isnt null
       runs ->
         handler = ->
-        events.bind "testEvent", handler, {}
+        testEvent = events.bind "bindTestEvent", handler, {}
         expect(handler.id).toBeDefined()
-        expect(events._data.handlers["testEvent"]).toBeDefined()
-        expect(events._data.handlers["testEvent"][handler.id].options).toBeDefined()
-        expect(events._data.handlers["testEvent"][handler.id].id).toBe(handler.id)
+        expect(events.list['bindTestEvent']._handlers).toBeDefined()
+        expect(events.list['bindTestEvent']._handlers[handler.id].options).toBeDefined()
+        expect(events.list['bindTestEvent']._handlers[handler.id].id).toBe(handler.id)
 
     it "should unbind handler", ->
       waitsFor ->
@@ -52,35 +65,35 @@ describe "events module", ->
       runs ->
         handler = ->
         events.bind "testEvent", handler, {}
-        expect(events._data.handlers["testEvent"][handler.id].id).toBe(handler.id)
+        expect(events.list['testEvent']._handlers[handler.id].id).toBe(handler.id)
         events.unbind "testEvent", handler
-        expect(events._data.handlers["testEvent"][handler.id]).not.toBeDefined()
+        expect(events.list['testEvent']._handlers[handler.id]).not.toBeDefined()
 
-    it "should call handler after binding (remember option is true)", ->
+    it "should call handler after binding (recall option is true)", ->
       waitsFor ->
         events isnt null
       runs ->
         handler = jasmine.createSpy("handler")
 
-        events.pub 'testEvent',
+        events.trigger 'testEvent',
           testData: 'testData'
 
-        events.bind "testEvent", handler, 
+        events.bind "testEvent", handler, {},
           isSync: true # to call handler syncronously, tests for isSync option are coming separately
-          remember: true
+          recall: true
 
         expect(handler).toHaveBeenCalled()
 
-    it "shouldn't call handler after binding (remember option is false)", ->
+    it "shouldn't call handler after binding (recall option is false)", ->
       waitsFor ->
         events isnt null
       runs ->
         handler = jasmine.createSpy("handler")
 
-        events.pub 'testEvent',
+        events.trigger 'testEvent',
           testData: 'testData'
 
-        events.bind "testEvent", handler, 
+        events.bind "testEvent", handler, {},
           isSync: true # to call handler syncronously, tests for isSync option are coming separately
 
         expect(handler).not.toHaveBeenCalled()
@@ -93,18 +106,18 @@ describe "events module", ->
         handler = jasmine.createSpy("handler").andCallFake ->
           handlerIsCalled = true
 
-        events.once 'testEvent', handler, 
+        events.once 'testEvent', handler, {},
           isSync: true # to call handler syncronously, tests for isSync option are coming separately
 
         expect(handler).not.toHaveBeenCalled()
 
         # calling event twice
-        events.pub 'testEvent',
+        events.trigger 'testEvent',
           testData: 'testData'
 
         expect(handler).toHaveBeenCalled()
 
-        events.pub 'testEvent',
+        events.trigger 'testEvent',
           testData: 'testData'
 
         expect(handler.calls.length).not.toBeGreaterThan(1)
@@ -115,32 +128,32 @@ describe "events module", ->
       events = null
       require ["events"], (eventsModule) ->
         events = eventsModule
-        events._data.previousArgs = {}
-        events._data.handlers = {}
+        events.list = {}
 
-    it "should call handler only after calling all events from list", ->
+    it "should call handler after calling all events from list", ->
       waitsFor ->
         events isnt null
       runs ->
         handler = jasmine.createSpy("compoundHandler")
 
-        events.bind "one, two, three", handler,
+        events.bind "one, two, three", handler, {},
           isSync: true
 
-        events.pub 'one',
+        events.trigger 'one',
           data: "one"
 
         expect(handler).not.toHaveBeenCalled()
 
-        events.pub 'two',
+        events.trigger 'two',
           data: "two"
 
         expect(handler).not.toHaveBeenCalled()
 
-        events.pub 'three',
+        events.trigger 'three',
           data: "three"
 
         expect(handler).toHaveBeenCalled()
+        expect(handler.calls.length).toBe(1)
         expect(handler.mostRecentCall.args[0]).toEqual
           one:
             0:
@@ -158,6 +171,67 @@ describe "events module", ->
             1:
               name: 'three'
 
+    it "should call handler every time after calling all events from list", ->
+      waitsFor ->
+        events isnt null
+      runs ->
+        handler = jasmine.createSpy("compoundHandler")
+
+        events.bind "one, two, three", handler, {},
+          isSync: true
+
+        events.trigger 'one',
+          data: "one"
+
+        expect(handler).not.toHaveBeenCalled()
+
+        events.trigger 'two',
+          data: "two"
+
+        expect(handler).not.toHaveBeenCalled()
+
+        events.trigger 'three',
+          data: "three"
+
+        expect(handler).toHaveBeenCalled()
+        expect(handler.calls.length).toBe(1)
+
+        events.trigger 'one',
+          data: "one"
+
+        events.trigger 'two',
+          data: "two"
+
+
+        expect(handler.calls.length).toBe(1)
+
+        events.trigger 'one',
+          data: "one"
+
+        events.trigger 'two',
+          data: "two"
+
+        events.trigger 'three',
+          data: "three"
+
+        expect(handler.calls.length).toBe(2)
+
+        events.trigger 'one',
+          data: "one"
+
+        events.trigger 'two',
+          data: "two"
+
+        events.trigger 'three',
+          data: "three"
+
+        expect(handler.calls.length).toBe(3)
+
+        events.trigger 'three',
+          data: "three"
+
+        expect(handler.calls.length).toBe(3)
+
 
 
   describe "calling handlers", ->
@@ -167,8 +241,7 @@ describe "events module", ->
       events = null
       require ["events"], (eventsModule) ->
         events = eventsModule
-        events._data.previousArgs = {}
-        events._data.handlers = {}
+        events.list = {}
 
     it "should call handler syncronously (isSync option is true)", ->
       waitsFor ->
@@ -176,10 +249,10 @@ describe "events module", ->
       runs ->
         syncHandler = jasmine.createSpy("syncHandler")
 
-        events.bind "testEvent", syncHandler, 
+        events.bind "testEvent", syncHandler, {},
           isSync: true
 
-        events.pub 'testEvent',
+        events.trigger 'testEvent',
           testData: 'testData'
 
         expect(syncHandler).toHaveBeenCalled()
@@ -192,7 +265,7 @@ describe "events module", ->
 
         events.bind "testEvent", asyncHandler
 
-        events.pub 'testEvent',
+        events.trigger 'testEvent',
           testData: 'testData'
 
         expect(asyncHandler).not.toHaveBeenCalled()
@@ -210,8 +283,7 @@ describe "events module", ->
       events = null
       require ["events"], (eventsModule) ->
         events = eventsModule
-        events._data.previousArgs = {}
-        events._data.handlers = {}
+        events.list = {}
 
     it "should call handlers after triggering event", ->
       waitsFor ->
@@ -225,7 +297,7 @@ describe "events module", ->
         handlers.push jasmine.createSpy("handler_5")
 
         bind = (handler) ->
-          events.bind "testEvent", handler, 
+          events.bind "testEvent", handler, {},
             isSync: true
 
         bind handler for handler in handlers
@@ -243,10 +315,12 @@ describe "events module", ->
       waitsFor ->
         events isnt null
       runs ->
-        expect(events._data.previousArgs["testEvent"]).not.toBeDefined()
+        expect(events.list['testEvent']).not.toBeDefined()
 
         events.trigger "testEvent", 
           testData: "testData"
 
-        expect(events._data.previousArgs["testEvent"]).toBeDefined()
-        expect(events._data.previousArgs["testEvent"].testData).toBe("testData")
+        expect(events.list['testEvent']).toBeDefined()
+        expect(events.list['testEvent']._lastArgs[0].testData).toBe("testData")
+
+

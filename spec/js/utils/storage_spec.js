@@ -87,7 +87,7 @@
           return expect(window.localStorage.getItem("testModule/testKey")).toBe(null);
         });
       });
-      return it("should'nt save to anywahere given key/value pair with 'moduleName'-prefix if 'value' isn't string", function() {
+      return it("should'nt save to anywhere given key/value pair with 'moduleName'-prefix if 'value' isn't string (?)", function() {
         waitsFor(function() {
           return storage !== null;
         });

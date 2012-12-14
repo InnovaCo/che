@@ -8,22 +8,42 @@
         events = null;
         return require(["events"], function(eventsModule) {
           events = eventsModule;
-          events._data.previousArgs = {};
-          return events._data.handlers = {};
+          return events.list = {};
         });
       });
-      return it("should contain once, bind, unbind, trigger, pub, sub, unsub functions", function() {
+      return it("should contain 'once', 'bind', 'unbind', 'trigger', 'create' functions", function() {
         waitsFor(function() {
           return events !== null;
         });
         return runs(function() {
+          expect(events.create).toBeFunction();
           expect(events.once).toBeFunction();
           expect(events.bind).toBeFunction();
           expect(events.unbind).toBeFunction();
-          expect(events.trigger).toBeFunction();
-          expect(events.pub).toBeFunction();
-          expect(events.sub).toBeFunction();
-          return expect(events.unsub).toBeFunction();
+          return expect(events.trigger).toBeFunction();
+        });
+      });
+    });
+    describe("creating new Event", function() {
+      var events;
+      events = null;
+      beforeEach(function() {
+        events = null;
+        return require(["events"], function(eventsModule) {
+          events = eventsModule;
+          return events.list = {};
+        });
+      });
+      return it("events.create should return CustomEvent", function() {
+        waitsFor(function() {
+          return events !== null;
+        });
+        return runs(function() {
+          var CustomEvent;
+          CustomEvent = events.create("testEvent");
+          expect(CustomEvent).toBeObject();
+          expect(CustomEvent.name).toBe("testEvent");
+          return expect(CustomEvent._handlers).toBeEmpty();
         });
       });
     });
@@ -36,8 +56,7 @@
         events = null;
         return require(["events"], function(eventsModule) {
           events = eventsModule;
-          events._data.previousArgs = {};
-          events._data.handlers = {};
+          events.list = {};
           bindSpy = spyOn(events, "bind").andCallThrough();
           return onceSpy = spyOn(events, "once").andCallThrough();
         });
@@ -47,13 +66,13 @@
           return events !== null;
         });
         return runs(function() {
-          var handler;
+          var handler, testEvent;
           handler = function() {};
-          events.bind("testEvent", handler, {});
+          testEvent = events.bind("bindTestEvent", handler, {});
           expect(handler.id).toBeDefined();
-          expect(events._data.handlers["testEvent"]).toBeDefined();
-          expect(events._data.handlers["testEvent"][handler.id].options).toBeDefined();
-          return expect(events._data.handlers["testEvent"][handler.id].id).toBe(handler.id);
+          expect(events.list['bindTestEvent']._handlers).toBeDefined();
+          expect(events.list['bindTestEvent']._handlers[handler.id].options).toBeDefined();
+          return expect(events.list['bindTestEvent']._handlers[handler.id].id).toBe(handler.id);
         });
       });
       it("should unbind handler", function() {
@@ -64,39 +83,39 @@
           var handler;
           handler = function() {};
           events.bind("testEvent", handler, {});
-          expect(events._data.handlers["testEvent"][handler.id].id).toBe(handler.id);
+          expect(events.list['testEvent']._handlers[handler.id].id).toBe(handler.id);
           events.unbind("testEvent", handler);
-          return expect(events._data.handlers["testEvent"][handler.id]).not.toBeDefined();
+          return expect(events.list['testEvent']._handlers[handler.id]).not.toBeDefined();
         });
       });
-      it("should call handler after binding (remember option is true)", function() {
+      it("should call handler after binding (recall option is true)", function() {
         waitsFor(function() {
           return events !== null;
         });
         return runs(function() {
           var handler;
           handler = jasmine.createSpy("handler");
-          events.pub('testEvent', {
+          events.trigger('testEvent', {
             testData: 'testData'
           });
-          events.bind("testEvent", handler, {
+          events.bind("testEvent", handler, {}, {
             isSync: true,
-            remember: true
+            recall: true
           });
           return expect(handler).toHaveBeenCalled();
         });
       });
-      it("shouldn't call handler after binding (remember option is false)", function() {
+      it("shouldn't call handler after binding (recall option is false)", function() {
         waitsFor(function() {
           return events !== null;
         });
         return runs(function() {
           var handler;
           handler = jasmine.createSpy("handler");
-          events.pub('testEvent', {
+          events.trigger('testEvent', {
             testData: 'testData'
           });
-          events.bind("testEvent", handler, {
+          events.bind("testEvent", handler, {}, {
             isSync: true
           });
           return expect(handler).not.toHaveBeenCalled();
@@ -113,15 +132,15 @@
             var handlerIsCalled;
             return handlerIsCalled = true;
           });
-          events.once('testEvent', handler, {
+          events.once('testEvent', handler, {}, {
             isSync: true
           });
           expect(handler).not.toHaveBeenCalled();
-          events.pub('testEvent', {
+          events.trigger('testEvent', {
             testData: 'testData'
           });
           expect(handler).toHaveBeenCalled();
-          events.pub('testEvent', {
+          events.trigger('testEvent', {
             testData: 'testData'
           });
           return expect(handler.calls.length).not.toBeGreaterThan(1);
@@ -135,32 +154,32 @@
         events = null;
         return require(["events"], function(eventsModule) {
           events = eventsModule;
-          events._data.previousArgs = {};
-          return events._data.handlers = {};
+          return events.list = {};
         });
       });
-      return it("should call handler only after calling all events from list", function() {
+      it("should call handler after calling all events from list", function() {
         waitsFor(function() {
           return events !== null;
         });
         return runs(function() {
           var handler;
           handler = jasmine.createSpy("compoundHandler");
-          events.bind("one, two, three", handler, {
+          events.bind("one, two, three", handler, {}, {
             isSync: true
           });
-          events.pub('one', {
+          events.trigger('one', {
             data: "one"
           });
           expect(handler).not.toHaveBeenCalled();
-          events.pub('two', {
+          events.trigger('two', {
             data: "two"
           });
           expect(handler).not.toHaveBeenCalled();
-          events.pub('three', {
+          events.trigger('three', {
             data: "three"
           });
           expect(handler).toHaveBeenCalled();
+          expect(handler.calls.length).toBe(1);
           return expect(handler.mostRecentCall.args[0]).toEqual({
             one: {
               0: {
@@ -189,6 +208,62 @@
           });
         });
       });
+      return it("should call handler every time after calling all events from list", function() {
+        waitsFor(function() {
+          return events !== null;
+        });
+        return runs(function() {
+          var handler;
+          handler = jasmine.createSpy("compoundHandler");
+          events.bind("one, two, three", handler, {}, {
+            isSync: true
+          });
+          events.trigger('one', {
+            data: "one"
+          });
+          expect(handler).not.toHaveBeenCalled();
+          events.trigger('two', {
+            data: "two"
+          });
+          expect(handler).not.toHaveBeenCalled();
+          events.trigger('three', {
+            data: "three"
+          });
+          expect(handler).toHaveBeenCalled();
+          expect(handler.calls.length).toBe(1);
+          events.trigger('one', {
+            data: "one"
+          });
+          events.trigger('two', {
+            data: "two"
+          });
+          expect(handler.calls.length).toBe(1);
+          events.trigger('one', {
+            data: "one"
+          });
+          events.trigger('two', {
+            data: "two"
+          });
+          events.trigger('three', {
+            data: "three"
+          });
+          expect(handler.calls.length).toBe(2);
+          events.trigger('one', {
+            data: "one"
+          });
+          events.trigger('two', {
+            data: "two"
+          });
+          events.trigger('three', {
+            data: "three"
+          });
+          expect(handler.calls.length).toBe(3);
+          events.trigger('three', {
+            data: "three"
+          });
+          return expect(handler.calls.length).toBe(3);
+        });
+      });
     });
     describe("calling handlers", function() {
       var events;
@@ -197,8 +272,7 @@
         events = null;
         return require(["events"], function(eventsModule) {
           events = eventsModule;
-          events._data.previousArgs = {};
-          return events._data.handlers = {};
+          return events.list = {};
         });
       });
       it("should call handler syncronously (isSync option is true)", function() {
@@ -208,10 +282,10 @@
         return runs(function() {
           var syncHandler;
           syncHandler = jasmine.createSpy("syncHandler");
-          events.bind("testEvent", syncHandler, {
+          events.bind("testEvent", syncHandler, {}, {
             isSync: true
           });
-          events.pub('testEvent', {
+          events.trigger('testEvent', {
             testData: 'testData'
           });
           return expect(syncHandler).toHaveBeenCalled();
@@ -225,7 +299,7 @@
           var asyncHandler;
           asyncHandler = jasmine.createSpy("asyncHandler");
           events.bind("testEvent", asyncHandler);
-          events.pub('testEvent', {
+          events.trigger('testEvent', {
             testData: 'testData'
           });
           expect(asyncHandler).not.toHaveBeenCalled();
@@ -245,8 +319,7 @@
         events = null;
         return require(["events"], function(eventsModule) {
           events = eventsModule;
-          events._data.previousArgs = {};
-          return events._data.handlers = {};
+          return events.list = {};
         });
       });
       it("should call handlers after triggering event", function() {
@@ -262,7 +335,8 @@
           handlers.push(jasmine.createSpy("handler_4"));
           handlers.push(jasmine.createSpy("handler_5"));
           bind = function(handler) {
-            return events.bind("testEvent", handler, {
+            console.log("bind events");
+            return events.bind("testEvent", handler, {}, {
               isSync: true
             });
           };
@@ -270,6 +344,7 @@
             handler = handlers[_i];
             bind(handler);
           }
+          console.log("trigger events");
           events.trigger("testEvent", {
             testData: "testData"
           });
@@ -285,12 +360,12 @@
           return events !== null;
         });
         return runs(function() {
-          expect(events._data.previousArgs["testEvent"]).not.toBeDefined();
+          expect(events.list['testEvent']).not.toBeDefined();
           events.trigger("testEvent", {
             testData: "testData"
           });
-          expect(events._data.previousArgs["testEvent"]).toBeDefined();
-          return expect(events._data.previousArgs["testEvent"].testData).toBe("testData");
+          expect(events.list['testEvent']).toBeDefined();
+          return expect(events.list['testEvent']._lastArgs[0].testData).toBe("testData");
         });
       });
     });

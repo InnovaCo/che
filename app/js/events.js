@@ -1,97 +1,130 @@
 (function() {
 
   define([], function() {
-    var bindHandlerToEvent, events, eventsData, handlerCall;
-    eventsData = {
-      handlers: {},
-      previousArgs: {}
-    };
-    handlerCall = function(handler, eventName, args) {
-      var eventData, handlerArgs;
-      eventData = {
-        name: eventName
-      };
-      handlerArgs = _.isArray(args) ? args : [args];
-      handlerArgs.push(eventData);
-      if (handler.options.isSync) {
-        handler.apply(eventData, handlerArgs);
-        return "sync";
-      } else {
-        _.delay(function() {
-          return handler.apply(eventData, handlerArgs);
-        });
-        return "async";
+    var Oops, events;
+    Oops = function(name) {
+      if (events.list[name]) {
+        return events.list[name];
       }
+      this.name = name;
+      this._handlers = {};
+      return events.list[this.name] = this;
     };
-    bindHandlerToEvent = function(eventName, handler, options) {
-      handler.id = handler.id || _.uniqueId(eventName + "_handler_");
-      handler.options = handler.options || options || {};
-      eventsData.handlers[eventName] = eventsData.handlers[eventName] || {};
-      eventsData.handlers[eventName][handler.id] = handler;
-      if (eventsData.previousArgs[eventName] && options.remember) {
-        return handlerCall(handler, eventName, eventsData.previousArgs[eventName]);
+    Oops.prototype = {
+      _data: function() {
+        return {
+          name: this.name
+        };
+      },
+      _handlerCaller: function(handler) {
+        var result;
+        result = handler.apply(handler.context, this._lastArgs);
+        console.log(result);
+        if (result === false) {
+          return this._handlersCallOrder = [];
+        }
+      },
+      _nextHandlerCall: function() {
+        var handler, handlerId, self;
+        handlerId = this._handlersCallOrder.shift();
+        console.log("handler call", handlerId, this._handlers[handlerId], this._handlersCallOrder.concat([]));
+        if (handlerId) {
+          handler = this._handlers[handlerId];
+          self = this;
+          if (handler.options.isSync) {
+            this._handlerCaller(handler);
+          } else {
+            _.delay(function() {
+              return self._handlerCaller(handler);
+            });
+          }
+          return this._nextHandlerCall();
+        }
+      },
+      dispatch: function(args) {
+        this._handlersCallOrder = _.keys(this._handlers).sort();
+        console.log("order", this._handlersCallOrder);
+        this._lastArgs = _.isArray(args) ? args : [args];
+        this._lastArgs.push(this._data());
+        this._nextHandlerCall();
+        return this;
+      },
+      bind: function(handler, context, options) {
+        handler.id = handler.id || +_.uniqueId();
+        console.log(handler, context, options, handler.id);
+        handler.context = context;
+        handler.options = handler.options || options || {};
+        this._handlers[handler.id] = handler;
+        console.log("bind", this._handlers);
+        if (handler.options.recall && this._lastArgs) {
+          this._handlerCaller(handler);
+        }
+        return this;
+      },
+      once: function(handler, context, options) {
+        var onceHandler, self;
+        self = this;
+        onceHandler = function() {
+          events.unbind(self.name, onceHandler);
+          return handler.apply(this, arguments);
+        };
+        this.bind(onceHandler, context, options);
+        return this;
+      },
+      unbind: function(handler) {
+        var id;
+        id = handler.id;
+        if (id && this._handlers[id]) {
+          delete this._handlers[id];
+        }
+        return this;
       }
     };
     events = {
-      _data: eventsData,
-      once: function(eventName, handler, options) {
-        var onceHandler;
-        onceHandler = function() {
-          handler.apply(this, arguments);
-          return events.unbind(eventName, onceHandler);
-        };
-        onceHandler.id = _.uniqueId(eventName + "_once_handler_");
-        return events.bind(eventName, onceHandler, options);
+      list: {},
+      create: function(name) {
+        return new Oops(name);
       },
-      bind: function(eventsNames, handler, options) {
-        var compoundArguments, eventHandler, eventName, eventsList, _i, _len, _results;
-        eventsList = _.compact(eventsNames.split(/\,+\s*|\s+/));
+      once: function(name, handler, context, options) {
+        return new Oops(name).once(handler, context, options);
+      },
+      bind: function(eventsNames, handler, context, options) {
+        var bindEventsList, compoundArguments, eventHandler, eventName, undispatchedEvents, _fn, _i, _len;
+        bindEventsList = _.compact(eventsNames.split(/\,+\s*|\s+/));
         if (/\,+/.test(eventsNames)) {
           compoundArguments = {};
+          undispatchedEvents = bindEventsList.concat([]);
           eventHandler = function() {
             var eventData;
-            eventData = this;
+            eventData = _.last(arguments);
             compoundArguments[eventData.name] = arguments;
-            if (_.contains(eventsList, eventData.name)) {
-              eventsList = _.without(eventsList, eventData.name);
+            if (_.contains(undispatchedEvents, eventData.name)) {
+              undispatchedEvents = _.without(undispatchedEvents, eventData.name);
             }
-            if (eventsList.length === 0) {
-              handler.call(this, compoundArguments);
+            if (undispatchedEvents.length === 0) {
+              undispatchedEvents = bindEventsList.concat([]);
+              return handler.call(this, compoundArguments);
             }
-            return console.log(eventsList, eventsList.length);
           };
         } else {
           eventHandler = handler;
         }
-        _results = [];
-        for (_i = 0, _len = eventsList.length; _i < _len; _i++) {
-          eventName = eventsList[_i];
-          _results.push((function(eventName) {
-            return bindHandlerToEvent(eventName, eventHandler, options);
-          })(eventName));
-        }
-        return _results;
-      },
-      unbind: function(eventName, handler) {
-        var id;
-        id = handler.id;
-        if (id && eventsData.handlers[eventName] && eventsData.handlers[eventName][id]) {
-          return delete eventsData.handlers[eventName][id];
-        }
-      },
-      trigger: function(eventName, args, options) {
-        var caller, handlersList;
-        handlersList = eventsData.handlers[eventName] || {};
-        eventsData.previousArgs[eventName] = args;
-        caller = function(handler) {
-          return handlerCall(handler, eventName, args);
+        _fn = function(eventName) {
+          return new Oops(eventName).bind(eventHandler, context, options);
         };
-        return _.each(handlersList, caller);
+        for (_i = 0, _len = bindEventsList.length; _i < _len; _i++) {
+          eventName = bindEventsList[_i];
+          _fn(eventName);
+        }
+        return new Oops(bindEventsList[0]);
+      },
+      unbind: function(name, handler) {
+        return new Oops(name).unbind(handler);
+      },
+      trigger: function(name, args) {
+        return new Oops(name).dispatch(args);
       }
     };
-    events.pub = events.trigger;
-    events.sub = events.bind;
-    events.unsub = events.unbind;
     return events;
   });
 

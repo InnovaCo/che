@@ -19,7 +19,7 @@ describe "preloader  module", ->
       runs ->
         preloader.searchForWidgets()
         expect(loadSpy.calls.length).toEqual(10)
-        expect(loadSpy.mostRecentCall.args[0].getAttribute 'data-js-module').toBe('module_9')
+        expect(loadSpy.mostRecentCall.args[0].name).toBe('module_9')
 
     it "should load all found widgets", ->
       waitsFor ->

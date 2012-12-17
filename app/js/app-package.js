@@ -3213,38 +3213,6 @@ var requirejs, require, define;
 
 }).call(this);
 
-(function() {
-
-  define('helpers/dom',[],function() {
-    var getElementByClass;
-    getElementByClass = function(class_name, node) {
-      var classElements, element, elements, pattern, _i, _len;
-      node = node || document;
-      if (node.getElementByClassName) {
-        getElementByClass = function(class_name, node) {
-          return (node || document).getElementByClassName(class_name);
-        };
-        return node.getElementByClassName(class_name);
-      } else {
-        classElements = [];
-        elements = node.getElementsByTagName("*");
-        pattern = new RegExp("(^|\\s)" + class_name + "(\\s|$)");
-        for (_i = 0, _len = elements.length; _i < _len; _i++) {
-          element = elements[_i];
-          if (pattern.test(element.className)) {
-            classElements.push(element);
-          }
-        }
-        return classElements;
-      }
-    };
-    return {
-      getElementByClass: getElementByClass
-    };
-  });
-
-}).call(this);
-
 /**
  * @license RequireJS domReady 2.0.1 Copyright (c) 2010-2012, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
@@ -3376,27 +3344,96 @@ define('lib/domReady',[],function () {
 });
 (function() {
 
-  define('preloader',['helpers/dom', 'lib/domReady'], function(dom, domReady) {
-    var loadWidgetModule, preloader, searchForWidgets, widgetAttributName, widgetClassName;
+  define('helpers/dom',[],function() {
+    var getElementsByClass;
+    getElementsByClass = function(class_name, node) {
+      var classElements, element, elements, pattern, _i, _len;
+      node = node || document;
+      if (node.getElementsByClassName) {
+        getElementsByClass = function(class_name, node) {
+          return (node || document).getElementByClassName(class_name);
+        };
+        return node.getElementsByClassName(class_name);
+      } else {
+        classElements = [];
+        elements = node.getElementsByTagName("*");
+        pattern = new RegExp("(^|\\s)" + class_name + "(\\s|$)");
+        for (_i = 0, _len = elements.length; _i < _len; _i++) {
+          element = elements[_i];
+          if (pattern.test(element.className)) {
+            classElements.push(element);
+          }
+        }
+        return classElements;
+      }
+    };
+    return {
+      getElementsByClass: getElementsByClass
+    };
+  });
+
+}).call(this);
+
+(function() {
+
+  define('htmlParser',['helpers/dom'], function(dom) {
+    var createDomElement, getWidgetElements, parser, saveTo, widgetAttributName, widgetClassName;
     widgetClassName = 'widget';
     widgetAttributName = 'data-js-module';
-    loadWidgetModule = function(domElement) {
-      var widgetName;
-      widgetName = domElement.getAttribute(widgetAttributName);
-      if (!widgetName) {
-        return false;
+    createDomElement = function(plainHtml) {
+      var div;
+      div = document.createElement('DIV');
+      div.innerHTML = plainHtml;
+      return div;
+    };
+    getWidgetElements = function(domElement) {
+      return dom.getElementsByClass(widgetClassName, domElement);
+    };
+    saveTo = function(arrayOfPairs, element) {
+      var moduleName, names, _i, _len;
+      names = (element.getAttribute(widgetAttributName)).replace(/^\s|\s$/, '').split(/\s*,\s*/);
+      for (_i = 0, _len = names.length; _i < _len; _i++) {
+        moduleName = names[_i];
+        arrayOfPairs.push({
+          name: moduleName,
+          element: element
+        });
       }
-      return require([widgetName], function(widget) {
-        return widget.init(domElement);
+      return arrayOfPairs;
+    };
+    parser = function(html) {
+      var arrayOfPairs, domElement, element, _i, _len, _ref;
+      domElement = _.isString(html) ? createDomElement(html) : html;
+      arrayOfPairs = [];
+      _ref = getWidgetElements(domElement);
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        element = _ref[_i];
+        saveTo(arrayOfPairs, element);
+      }
+      return arrayOfPairs;
+    };
+    parser._save = saveTo;
+    return parser;
+  });
+
+}).call(this);
+
+(function() {
+
+  define('preloader',['lib/domReady', 'htmlParser'], function(domReady, htmlParser) {
+    var loadWidgetModule, preloader, searchForWidgets;
+    loadWidgetModule = function(widgetData) {
+      return require([widgetData.name], function(widget) {
+        return widget.init(widgetData.element);
       });
     };
     searchForWidgets = function() {
-      var element, _i, _len, _ref, _results;
-      _ref = dom.getElementByClass(widgetClassName);
+      var widgetData, _i, _len, _ref, _results;
+      _ref = htmlParser(document);
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        element = _ref[_i];
-        _results.push(preloader.loadWidgetModule(element));
+        widgetData = _ref[_i];
+        _results.push(preloader.loadWidgetModule(widgetData));
       }
       return _results;
     };
@@ -3439,7 +3476,6 @@ define("app", function(){});
       _handlerCaller: function(handler) {
         var result;
         result = handler.apply(handler.context, this._lastArgs);
-        console.log(result);
         if (result === false) {
           return this._handlersCallOrder = [];
         }
@@ -3447,7 +3483,6 @@ define("app", function(){});
       _nextHandlerCall: function() {
         var handler, handlerId, self;
         handlerId = this._handlersCallOrder.shift();
-        console.log("handler call", handlerId, this._handlers[handlerId], this._handlersCallOrder.concat([]));
         if (handlerId) {
           handler = this._handlers[handlerId];
           self = this;
@@ -3463,7 +3498,6 @@ define("app", function(){});
       },
       dispatch: function(args) {
         this._handlersCallOrder = _.keys(this._handlers).sort();
-        console.log("order", this._handlersCallOrder);
         this._lastArgs = _.isArray(args) ? args : [args];
         this._lastArgs.push(this._data());
         this._nextHandlerCall();
@@ -3471,11 +3505,9 @@ define("app", function(){});
       },
       bind: function(handler, context, options) {
         handler.id = handler.id || +_.uniqueId();
-        console.log(handler, context, options, handler.id);
         handler.context = context;
         handler.options = handler.options || options || {};
         this._handlers[handler.id] = handler;
-        console.log("bind", this._handlers);
         if (handler.options.recall && this._lastArgs) {
           this._handlerCaller(handler);
         }

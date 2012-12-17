@@ -19,7 +19,6 @@
       _handlerCaller: function(handler) {
         var result;
         result = handler.apply(handler.context, this._lastArgs);
-        console.log(result);
         if (result === false) {
           return this._handlersCallOrder = [];
         }
@@ -27,7 +26,6 @@
       _nextHandlerCall: function() {
         var handler, handlerId, self;
         handlerId = this._handlersCallOrder.shift();
-        console.log("handler call", handlerId, this._handlers[handlerId], this._handlersCallOrder.concat([]));
         if (handlerId) {
           handler = this._handlers[handlerId];
           self = this;
@@ -43,7 +41,6 @@
       },
       dispatch: function(args) {
         this._handlersCallOrder = _.keys(this._handlers).sort();
-        console.log("order", this._handlersCallOrder);
         this._lastArgs = _.isArray(args) ? args : [args];
         this._lastArgs.push(this._data());
         this._nextHandlerCall();
@@ -51,11 +48,9 @@
       },
       bind: function(handler, context, options) {
         handler.id = handler.id || +_.uniqueId();
-        console.log(handler, context, options, handler.id);
         handler.context = context;
         handler.options = handler.options || options || {};
         this._handlers[handler.id] = handler;
-        console.log("bind", this._handlers);
         if (handler.options.recall && this._lastArgs) {
           this._handlerCaller(handler);
         }

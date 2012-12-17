@@ -25,7 +25,7 @@
         return runs(function() {
           preloader.searchForWidgets();
           expect(loadSpy.calls.length).toEqual(10);
-          return expect(loadSpy.mostRecentCall.args[0].getAttribute('data-js-module')).toBe('module_9');
+          return expect(loadSpy.mostRecentCall.args[0].name).toBe('module_9');
         });
       });
       return it("should load all found widgets", function() {

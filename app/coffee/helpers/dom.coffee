@@ -10,14 +10,14 @@ define ->
   #---
   # Возвращает элементы определенного класса внутри указанного узла, либо из документа
   #
-  getElementByClass = (class_name, node) ->
+  getElementsByClass = (class_name, node) ->
     node = node or document
     
-    if node.getElementByClassName
-      getElementByClass = (class_name, node) ->
+    if node.getElementsByClassName
+      getElementsByClass = (class_name, node) ->
         (node or document).getElementByClassName class_name
 
-      return node.getElementByClassName class_name
+      return node.getElementsByClassName class_name
     else
       classElements = []
       elements = node.getElementsByTagName "*"
@@ -26,4 +26,4 @@ define ->
       return classElements
         
 
-  getElementByClass: getElementByClass
+  getElementsByClass: getElementsByClass

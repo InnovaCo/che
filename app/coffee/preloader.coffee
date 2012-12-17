@@ -4,28 +4,22 @@
 # Модуль для предварительной загрузки виджетов
 #
 
-define ['helpers/dom', 'lib/domReady'], (dom, domReady) ->
-  widgetClassName = 'widget'
-  widgetAttributName = 'data-js-module'
+define ['lib/domReady', 'htmlParser'], (domReady, htmlParser) ->
 
-  ##### loadWidgetModule(domElement)
+  ##### loadWidgetModule(widgetData)
   #
   #---
-  # загружает js-скрипты для виджета, на основе указанного data-аттрибута
-  loadWidgetModule = (domElement) ->
-    widgetName = domElement.getAttribute widgetAttributName
-    if not widgetName
-      return no
-      
-    require [widgetName], (widget) ->
-      widget.init(domElement)
+  # загружает js-скрипты для виджета, на основе данных о виджете
+  loadWidgetModule = (widgetData) ->
+    require [widgetData.name], (widget) ->
+      widget.init(widgetData.element)
 
   ##### loadWidgetModule()
   #
   #---
   # ищет все блоки виджетов и отдает их на загрузку в loadWidgetModule
   searchForWidgets = ->
-    preloader.loadWidgetModule element for element in dom.getElementByClass widgetClassName
+    preloader.loadWidgetModule widgetData for widgetData in htmlParser(document)
 
   # for easier module testing
   preloader =

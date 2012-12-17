@@ -1,6 +1,6 @@
 (function() {
 
-  define([], function() {
+  define(['widgets'], function(widgets) {
     var instances, loader, registerModuleInstance;
     instances = {};
     registerModuleInstance = function(name, instance) {
@@ -11,8 +11,8 @@
       return require([widgetName], function(widget) {
         var instance;
         if (!domElement.getAttribute('data-widget-' + widgetName)) {
-          instance = new widget.init(domElement);
-          instance.id = instance.id || +(new Date);
+          instance = widgets.create(widget(domElement));
+          instance.id = instance.id || +_.uniqueId;
           registerModuleInstance(widgetName, instance);
           return domElement.setAttribute('data-widget-' + widgetName, instance.id);
         }

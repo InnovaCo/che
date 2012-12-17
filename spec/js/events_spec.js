@@ -335,7 +335,6 @@
           handlers.push(jasmine.createSpy("handler_4"));
           handlers.push(jasmine.createSpy("handler_5"));
           bind = function(handler) {
-            console.log("bind events");
             return events.bind("testEvent", handler, {}, {
               isSync: true
             });
@@ -344,7 +343,6 @@
             handler = handlers[_i];
             bind(handler);
           }
-          console.log("trigger events");
           events.trigger("testEvent", {
             testData: "testData"
           });

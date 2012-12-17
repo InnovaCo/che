@@ -1,15 +1,15 @@
 (function() {
 
   define(function() {
-    var getElementByClass;
-    getElementByClass = function(class_name, node) {
+    var getElementsByClass;
+    getElementsByClass = function(class_name, node) {
       var classElements, element, elements, pattern, _i, _len;
       node = node || document;
-      if (node.getElementByClassName) {
-        getElementByClass = function(class_name, node) {
+      if (node.getElementsByClassName) {
+        getElementsByClass = function(class_name, node) {
           return (node || document).getElementByClassName(class_name);
         };
-        return node.getElementByClassName(class_name);
+        return node.getElementsByClassName(class_name);
       } else {
         classElements = [];
         elements = node.getElementsByTagName("*");
@@ -24,7 +24,7 @@
       }
     };
     return {
-      getElementByClass: getElementByClass
+      getElementsByClass: getElementsByClass
     };
   });
 

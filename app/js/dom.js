@@ -116,7 +116,8 @@
     };
     domQuery = function(selector) {
       var elements, self;
-      if (!window.FORGET_JQUERY && window.jQuery) {
+      console.log(domQuery.prototype._forget_jquery, "FORGET");
+      if (!domQuery.prototype._forget_jquery && window.jQuery) {
         domQuery = window.jQuery;
         return domQuery.apply(this, arguments);
       }
@@ -135,11 +136,11 @@
       }
     };
     domQuery.prototype = {
-      notjQuery: true,
+      _forget_jquery: window.FORGET_JQUERY,
       on: function(selector, eventName, handler) {
         var args, binder;
         binder = arguments.length === 3 ? delegateEvent : bindEvent;
-        args = arguments;
+        args = Array.prototype.slice.call(arguments);
         return _.each(this.get(), function(node, index) {
           return binder.apply(this, [node].concat(args));
         });
@@ -153,18 +154,18 @@
         });
       },
       find: function(selector) {
-        if (!window.FORGET_JQUERY && window.jQuery) {
+        if (!domQuery.prototype._forget_jquery && window.jQuery) {
           return window.jQuery(this.get()).find(selector);
         } else {
           return domQuery(query(selector, this.get()));
         }
       },
       get: function(index) {
-        index = Math.max(0, Math.min(index, this.length - 1));
-        if (!index) {
-          return Array.prototype.slice.call(this);
-        } else {
+        if (index != null) {
+          index = Math.max(0, Math.min(index, this.length - 1));
           return this[index];
+        } else {
+          return Array.prototype.slice.call(this);
         }
       }
     };

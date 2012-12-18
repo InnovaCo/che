@@ -92,7 +92,7 @@ define ["utils/guid"], (guid) ->
 
 
   domQuery = (selector) ->
-    if not window.FORGET_JQUERY and window.jQuery
+    if not domQuery::_forget_jquery and window.jQuery
       domQuery = window.jQuery
       return domQuery.apply this, arguments
 
@@ -108,10 +108,11 @@ define ["utils/guid"], (guid) ->
       new domQuery selector
 
   domQuery:: =
-    notjQuery: true
+    _forget_jquery: window.FORGET_JQUERY #for testing
+
     on: (selector, eventName, handler) ->
       binder = if arguments.length is 3 then delegateEvent else bindEvent
-      args = arguments
+      args = Array.prototype.slice.call(arguments)
       _.each @get() , (node, index) ->
         binder.apply @, [node].concat(args)
 
@@ -122,16 +123,17 @@ define ["utils/guid"], (guid) ->
         unbinder.apply @, [node].concat(args)
 
     find: (selector) ->
-      if not window.FORGET_JQUERY and window.jQuery
+      if not domQuery::_forget_jquery and window.jQuery
         return window.jQuery(@get()).find selector
       else
         return domQuery query selector, @get()
 
     get: (index) ->
-      index = Math.max 0, Math.min index, @length - 1
-      if not index
-        return Array.prototype.slice.call @
-      else
+      if index?
+        index = Math.max 0, Math.min index, @length - 1
         @[index]
+      else
+        return Array.prototype.slice.call @
+        
         
   domQuery

@@ -4,7 +4,7 @@
 # Модуль для получения данных о необходимых модулях из dom-элементов, либо html-текста
 #
 
-define ['helpers/dom'], (dom) ->
+define ['dom'], (dom) ->
   widgetClassName = 'widget'
   widgetAttributName = 'data-js-module'
 
@@ -22,7 +22,7 @@ define ['helpers/dom'], (dom) ->
   #---
   # возаращает все элементы, для которых могут понадобится js-модули
   getWidgetElements = (domElement) ->
-    dom.getElementsByClass widgetClassName, domElement
+    dom(domElement).find("." + widgetClassName).get()
 
 
   ##### saveTo(arrayOfPairs, element)

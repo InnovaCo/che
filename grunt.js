@@ -39,7 +39,7 @@ module.exports = function(grunt) {
         options: {
           baseUrl: "app/js",
           name: "app",
-          include: ["preloader", "events"],
+          include: ["loader", "events"],
           out: "app/js/app-require-optimized.js",
           optimize: "none"
         }

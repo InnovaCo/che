@@ -1,6 +1,6 @@
 (function() {
 
-  define('log', ["logWriter"], function() {
+  define(["logWriter"], function() {
     return {
       log: _log,
       info: _info,

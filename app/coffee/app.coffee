@@ -4,5 +4,6 @@
 # Точка входа для приложения
 #
 
-requirejs ['preloader'], (preloader) ->
+requirejs ['loader', 'lib/domReady'], (loader, domReady) ->
+  domReady loader.searchForWidgets
   # nothing to do

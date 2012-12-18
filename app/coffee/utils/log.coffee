@@ -2,7 +2,7 @@
 #
 #
 
-define 'log', ["logWriter"], () ->
+define ["logWriter"], () ->
 
 
   return {

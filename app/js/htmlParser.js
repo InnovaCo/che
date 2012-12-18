@@ -1,6 +1,6 @@
 (function() {
 
-  define(['helpers/dom'], function(dom) {
+  define(['dom'], function(dom) {
     var createDomElement, getWidgetElements, parser, saveTo, widgetAttributName, widgetClassName;
     widgetClassName = 'widget';
     widgetAttributName = 'data-js-module';
@@ -11,7 +11,7 @@
       return div;
     };
     getWidgetElements = function(domElement) {
-      return dom.getElementsByClass(widgetClassName, domElement);
+      return dom(domElement).find("." + widgetClassName).get();
     };
     saveTo = function(arrayOfPairs, element) {
       var moduleName, names, _i, _len;

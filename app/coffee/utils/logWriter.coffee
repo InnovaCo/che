@@ -2,7 +2,7 @@
 #
 #
 
-define 'logWriter', () ->
+define () ->
 
 
 

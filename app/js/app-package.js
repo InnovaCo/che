@@ -3213,6 +3213,512 @@ var requirejs, require, define;
 
 }).call(this);
 
+(function() {
+
+  define('utils/guid',[], function() {
+    var S4;
+    S4 = function() {
+      return Math.floor(Math.random() * 0x10000).toString(16);
+    };
+    return function() {
+      return S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4();
+    };
+  });
+
+}).call(this);
+
+(function() {
+
+  define('dom',["utils/guid"], function(guid) {
+    var bindEvent, callEventHandlers, checkIsElementMatchSelector, delegateEvent, domQuery, query, unbindEvent, undelegateEvent;
+    checkIsElementMatchSelector = function(selector, element) {
+      var listOfElemevents;
+      listOfElemevents = domQuery(selector).get();
+      return _.find(listOfElemevents, function(elementFromlist) {
+        return _.isEqual(elementFromlist, element);
+      });
+    };
+    callEventHandlers = function(handlers, eventObj) {
+      return _.each(handlers, function(handler) {
+        return _.delay(handler, eventObj);
+      });
+    };
+    query = function(selector, root) {
+      if (document.querySelectorAll != null) {
+        query = function(selector, root) {
+          var result;
+          if (_.isString(selector)) {
+            root = !root || root.length === 0 ? document : root;
+            if (!root.length) {
+              root = [root];
+            }
+            result = [];
+            _.each(root, function(root) {
+              return result = result.concat(Array.prototype.slice.call(root.querySelectorAll(selector)));
+            });
+            return result;
+          } else {
+            return selector;
+          }
+        };
+      } else {
+        query = function() {
+          return typeof console !== "undefined" && console !== null ? console.log("haven't tools for selecting node (module helpers/dom)") : void 0;
+        };
+      }
+      return query.apply(this, arguments);
+    };
+    unbindEvent = function() {};
+    bindEvent = function(node, eventName, handler) {
+      if (node.addEventListener) {
+        bindEvent = function(node, eventName, handler) {
+          return node.addEventListener(eventName, handler, false);
+        };
+        unbindEvent = function(node, eventName, handler) {
+          return node.removeEventListener(eventName, handler, false);
+        };
+      } else if (node.attachEvent) {
+        bindEvent = function(node, eventName, handler) {
+          return node.attachEvent("on" + eventName, handler);
+        };
+        unbindEvent = function(node, eventName, handler) {
+          return node.detachEvent(eventName, handler);
+        };
+      } else {
+        bindEvent = function() {
+          return typeof console !== "undefined" && console !== null ? console.log("cannot bind event (module helpers/dom)") : void 0;
+        };
+      }
+      return bindEvent.apply(this, arguments);
+    };
+    delegateEvent = function(node, selector, eventName, handler) {
+      var delegateHandler;
+      if (!node.domQueryDelegateHandler) {
+        delegateHandler = function(e) {
+          var eventObject, handlers, target;
+          eventObject = e || window.event;
+          target = eventObject.target || eventObject.srcElement;
+          if (target.nodeType === 3) {
+            target = target.parentNode;
+          }
+          if (node.domQueryHandlers[eventObject.type]) {
+            handlers = node.domQueryHandlers[eventObject.type];
+            return _.each(handlers(function(handler, selector) {
+              if (checkIsElementMatchSelector(selector, target)) {
+                return callEventHandlers(handlers, eventObject);
+              }
+            }));
+          }
+        };
+        bindEvent(node(eventName(delegateHandler)));
+        node.domQueryDelegateHandler = delegateHandler;
+      }
+      handler.guid = handler.guid || guid();
+      node.domQueryHandlers = node.domQueryHandlers || {};
+      node.domQueryHandlers[eventName] = node.domQueryHandlers[eventName] || {};
+      node.domQueryHandlers[eventName][selector] = node.domQueryHandlers[eventName][selector] || [];
+      return node.domQueryHandlers[eventName][selector].push(handler);
+    };
+    undelegateEvent = function(node, selector, eventName, handler) {
+      var handlers, index;
+      if (!handler.guid) {
+        return false;
+      }
+      if (!node.domQueryHandlers) {
+        return false;
+      }
+      if (!node.domQueryHandlers[eventName]) {
+        return false;
+      }
+      if (!node.domQueryHandlers[eventName][selector]) {
+        return false;
+      }
+      handlers = node.domQueryHandlers[eventName][selector];
+      index = null;
+      _.find(handlers, function(delegateHandler, handlerIndex) {
+        index = handlerIndex;
+        return delegateHandler.guid === handler.guid;
+      });
+      if (index) {
+        return node.domQueryHandlers[eventName][selector](handlers.splice(index, 1));
+      }
+    };
+    domQuery = function(selector) {
+      var elements, self;
+      if (!window.FORGET_JQUERY && window.jQuery) {
+        domQuery = window.jQuery;
+        return domQuery.apply(this, arguments);
+      }
+      if (this instanceof domQuery) {
+        elements = query(selector);
+        self = this;
+        if (!elements.length) {
+          elements = [elements];
+        }
+        this.length = elements.length;
+        return _.each(elements, function(element, index) {
+          return self[index] = element;
+        });
+      } else {
+        return new domQuery(selector);
+      }
+    };
+    domQuery.prototype = {
+      notjQuery: true,
+      on: function(selector, eventName, handler) {
+        var args, binder;
+        binder = arguments.length === 3 ? delegateEvent : bindEvent;
+        args = arguments;
+        return _.each(this.get(), function(node, index) {
+          return binder.apply(this, [node].concat(args));
+        });
+      },
+      off: function(selector, eventName, handler) {
+        var args, unbinder;
+        unbinder = arguments.length === 3 ? undelegateEvent : unbindEvent;
+        args = arguments;
+        return _.each(this.get(), function(node, index) {
+          return unbinder.apply(this, [node].concat(args));
+        });
+      },
+      find: function(selector) {
+        if (!window.FORGET_JQUERY && window.jQuery) {
+          return window.jQuery(this.get()).find(selector);
+        } else {
+          return domQuery(query(selector, this.get()));
+        }
+      },
+      get: function(index) {
+        index = Math.max(0, Math.min(index, this.length - 1));
+        if (!index) {
+          return Array.prototype.slice.call(this);
+        } else {
+          return this[index];
+        }
+      }
+    };
+    return domQuery;
+  });
+
+}).call(this);
+
+(function() {
+
+  define('htmlParser',['dom'], function(dom) {
+    var createDomElement, getWidgetElements, parser, saveTo, widgetAttributName, widgetClassName;
+    widgetClassName = 'widget';
+    widgetAttributName = 'data-js-module';
+    createDomElement = function(plainHtml) {
+      var div;
+      div = document.createElement('DIV');
+      div.innerHTML = plainHtml;
+      return div;
+    };
+    getWidgetElements = function(domElement) {
+      return dom(domElement).find("." + widgetClassName).get();
+    };
+    saveTo = function(arrayOfPairs, element) {
+      var moduleName, names, _i, _len;
+      names = (element.getAttribute(widgetAttributName)).replace(/^\s|\s$/, '').split(/\s*,\s*/);
+      for (_i = 0, _len = names.length; _i < _len; _i++) {
+        moduleName = names[_i];
+        arrayOfPairs.push({
+          name: moduleName,
+          element: element
+        });
+      }
+      return arrayOfPairs;
+    };
+    parser = function(html) {
+      var arrayOfPairs, domElement, element, _i, _len, _ref;
+      domElement = _.isString(html) ? createDomElement(html) : html;
+      arrayOfPairs = [];
+      _ref = getWidgetElements(domElement);
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        element = _ref[_i];
+        saveTo(arrayOfPairs, element);
+      }
+      return arrayOfPairs;
+    };
+    parser._save = saveTo;
+    return parser;
+  });
+
+}).call(this);
+
+(function() {
+
+  define('events',[], function() {
+    var Oops, events;
+    Oops = function(name) {
+      if (events.list[name]) {
+        return events.list[name];
+      }
+      this.name = name;
+      this._handlers = {};
+      return events.list[this.name] = this;
+    };
+    Oops.prototype = {
+      _data: function() {
+        return {
+          name: this.name
+        };
+      },
+      _handlerCaller: function(handler) {
+        var result;
+        result = handler.apply(handler.context, this._lastArgs);
+        if (result === false) {
+          return this._handlersCallOrder = [];
+        }
+      },
+      _nextHandlerCall: function() {
+        var handler, handlerId, self;
+        handlerId = this._handlersCallOrder.shift();
+        if (handlerId) {
+          handler = this._handlers[handlerId];
+          self = this;
+          if (handler.options.isSync) {
+            this._handlerCaller(handler);
+          } else {
+            _.delay(function() {
+              return self._handlerCaller(handler);
+            });
+          }
+          return this._nextHandlerCall();
+        }
+      },
+      dispatch: function(args) {
+        this._handlersCallOrder = _.keys(this._handlers).sort();
+        this._lastArgs = _.isArray(args) ? args : [args];
+        this._lastArgs.push(this._data());
+        this._nextHandlerCall();
+        return this;
+      },
+      bind: function(handler, context, options) {
+        handler.id = handler.id || +_.uniqueId();
+        handler.context = context;
+        handler.options = handler.options || options || {};
+        this._handlers[handler.id] = handler;
+        if (handler.options.recall && this._lastArgs) {
+          this._handlerCaller(handler);
+        }
+        return this;
+      },
+      once: function(handler, context, options) {
+        var onceHandler, self;
+        self = this;
+        onceHandler = function() {
+          events.unbind(self.name, onceHandler);
+          return handler.apply(this, arguments);
+        };
+        this.bind(onceHandler, context, options);
+        return this;
+      },
+      unbind: function(handler) {
+        var id;
+        id = handler.id;
+        if (id && this._handlers[id]) {
+          delete this._handlers[id];
+        }
+        return this;
+      }
+    };
+    events = {
+      list: {},
+      create: function(name) {
+        return new Oops(name);
+      },
+      once: function(name, handler, context, options) {
+        return new Oops(name).once(handler, context, options);
+      },
+      bind: function(eventsNames, handler, context, options) {
+        var bindEventsList, compoundArguments, eventHandler, eventName, undispatchedEvents, _fn, _i, _len;
+        bindEventsList = _.compact(eventsNames.split(/\,+\s*|\s+/));
+        if (/\,+/.test(eventsNames)) {
+          compoundArguments = {};
+          undispatchedEvents = bindEventsList.concat([]);
+          eventHandler = function() {
+            var eventData;
+            eventData = _.last(arguments);
+            compoundArguments[eventData.name] = arguments;
+            if (_.contains(undispatchedEvents, eventData.name)) {
+              undispatchedEvents = _.without(undispatchedEvents, eventData.name);
+            }
+            if (undispatchedEvents.length === 0) {
+              undispatchedEvents = bindEventsList.concat([]);
+              return handler.call(this, compoundArguments);
+            }
+          };
+        } else {
+          eventHandler = handler;
+        }
+        _fn = function(eventName) {
+          return new Oops(eventName).bind(eventHandler, context, options);
+        };
+        for (_i = 0, _len = bindEventsList.length; _i < _len; _i++) {
+          eventName = bindEventsList[_i];
+          _fn(eventName);
+        }
+        return new Oops(bindEventsList[0]);
+      },
+      unbind: function(name, handler) {
+        return new Oops(name).unbind(handler);
+      },
+      trigger: function(name, args) {
+        return new Oops(name).dispatch(args);
+      }
+    };
+    return events;
+  });
+
+}).call(this);
+
+(function() {
+
+  define('utils/destroyer',[], function() {
+    return function(object) {
+      return _.each(object, function(property, name) {
+        if (object.hasOwnProperty(name)) {
+          if (_.isObject(property)) {
+            _.delay(destroyer, property);
+          }
+          return delete object[name];
+        }
+      });
+    };
+  });
+
+}).call(this);
+
+(function() {
+
+  define('widgets',["events", "dom", "utils/destroyer"], function(events, dom, destroyer) {
+    var Widget, eventSplitter, widgets, widgetsInstances;
+    widgetsInstances = {};
+    eventSplitter = /^(\S+)\s*(.*)$/;
+    ({
+      bindWidgetDomEvents: function(eventsList, widget) {
+        var elem;
+        elem = dom(widget.element);
+        return _.each(eventsList, function(eventDescr, handler) {
+          var name, selector, splittedDescr;
+          splittedDescr = eventDescr.split(eventSplitter);
+          name = splittedDescr[1];
+          selector = splittedDescr[2];
+          handler = _.isString(handler) ? widget[handler] : handler;
+          eventsList[eventDescr] = handler;
+          return elem.on(name, selector, handler);
+        });
+      },
+      unbindWidgetDomEvents: function(eventsData, widget) {
+        return _.each(eventsData, function(eventDescr, handler) {
+          var name, selector, splittedDescr;
+          splittedDescr = eventDescr.split(eventSplitter);
+          name = splittedDescr[1];
+          selector = splittedDescr[2];
+          return elem.off(name, selector, handler);
+        });
+      },
+      bindWidgetModuleEvents: function(eventsList, widget) {
+        return _.each(eventsList, function(handler, name) {
+          handler = _.isString(handler) ? widget[handler] : handler;
+          events.bind(name, handler, widget);
+          return eventsList[name] = handler;
+        });
+      },
+      unbindWidgetModuleEvents: function(eventsList) {
+        return _.each(eventsList, function(handler, name) {
+          return events.unbind(name, handler);
+        });
+      }
+    });
+    Widget = function(name, element, _widget) {
+      var id;
+      this.name = name;
+      id = this.element.getAttribute("data-widget-" + this.name + "-id");
+      if (id) {
+        return widgetsInstances[id];
+      }
+      _.extend(this, _widget);
+      this.id = _.uniqueId("widget_");
+      this.element = element;
+      this.init();
+      this.isInitialized = true;
+      this.element.getAttribute("data-widget-" + this.name + "-id", this.id);
+      return widgetsInstances[this.id] = this;
+    };
+    Widget.prototype = {
+      init: function() {
+        if (this.isInitialized) {
+          return this;
+        }
+        this.turnOn();
+        return this;
+      },
+      turnOn: function() {
+        if (this._isOn) {
+          return;
+        }
+        bindWidgetDomEvents(this.domEvents, this);
+        bindWidgetModuleEvents(this.moduleEvents, this);
+        this._isOn = true;
+        return this;
+      },
+      turnOff: function() {
+        if (!this._isOn) {
+          return;
+        }
+        unbindWidgetDomEvents(this.domEvents);
+        unbindWidgetModuleEvents(this.moduleEvents);
+        this._isOn = false;
+        return this;
+      },
+      destroy: function() {
+        var _base;
+        this.turnOff();
+        delete widgetsInstances[this.id];
+        if (typeof (_base = this._widget).destroy === "function") {
+          _base.destroy();
+        }
+        return destroyer(this);
+      }
+    };
+    return widgets = {
+      create: function(widgetData) {
+        return require([widgetData.name], function(widget) {
+          return new Widget(widgetData.name, widgetData.element, widget);
+        });
+      }
+    };
+  });
+
+}).call(this);
+
+(function() {
+
+  define('loader',['htmlParser', 'widgets'], function(htmlParser, widgets) {
+    var loadWidgetModule, loader, searchForWidgets;
+    loadWidgetModule = function(widgetData) {
+      return widgets.create(widgetData);
+    };
+    searchForWidgets = function(node) {
+      var widgetData, _i, _len, _ref, _results;
+      _ref = htmlParser(node || document);
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        widgetData = _ref[_i];
+        _results.push(loader.loadWidgetModule(widgetData));
+      }
+      return _results;
+    };
+    return loader = {
+      loadWidgetModule: loadWidgetModule,
+      searchForWidgets: searchForWidgets
+    };
+  });
+
+}).call(this);
+
 /**
  * @license RequireJS domReady 2.0.1 Copyright (c) 2010-2012, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
@@ -3344,240 +3850,10 @@ define('lib/domReady',[],function () {
 });
 (function() {
 
-  define('helpers/dom',[],function() {
-    var getElementsByClass;
-    getElementsByClass = function(class_name, node) {
-      var classElements, element, elements, pattern, _i, _len;
-      node = node || document;
-      if (node.getElementsByClassName) {
-        getElementsByClass = function(class_name, node) {
-          return (node || document).getElementByClassName(class_name);
-        };
-        return node.getElementsByClassName(class_name);
-      } else {
-        classElements = [];
-        elements = node.getElementsByTagName("*");
-        pattern = new RegExp("(^|\\s)" + class_name + "(\\s|$)");
-        for (_i = 0, _len = elements.length; _i < _len; _i++) {
-          element = elements[_i];
-          if (pattern.test(element.className)) {
-            classElements.push(element);
-          }
-        }
-        return classElements;
-      }
-    };
-    return {
-      getElementsByClass: getElementsByClass
-    };
+  requirejs(['loader', 'lib/domReady'], function(loader, domReady) {
+    return domReady(loader.searchForWidgets);
   });
-
-}).call(this);
-
-(function() {
-
-  define('htmlParser',['helpers/dom'], function(dom) {
-    var createDomElement, getWidgetElements, parser, saveTo, widgetAttributName, widgetClassName;
-    widgetClassName = 'widget';
-    widgetAttributName = 'data-js-module';
-    createDomElement = function(plainHtml) {
-      var div;
-      div = document.createElement('DIV');
-      div.innerHTML = plainHtml;
-      return div;
-    };
-    getWidgetElements = function(domElement) {
-      return dom.getElementsByClass(widgetClassName, domElement);
-    };
-    saveTo = function(arrayOfPairs, element) {
-      var moduleName, names, _i, _len;
-      names = (element.getAttribute(widgetAttributName)).replace(/^\s|\s$/, '').split(/\s*,\s*/);
-      for (_i = 0, _len = names.length; _i < _len; _i++) {
-        moduleName = names[_i];
-        arrayOfPairs.push({
-          name: moduleName,
-          element: element
-        });
-      }
-      return arrayOfPairs;
-    };
-    parser = function(html) {
-      var arrayOfPairs, domElement, element, _i, _len, _ref;
-      domElement = _.isString(html) ? createDomElement(html) : html;
-      arrayOfPairs = [];
-      _ref = getWidgetElements(domElement);
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        element = _ref[_i];
-        saveTo(arrayOfPairs, element);
-      }
-      return arrayOfPairs;
-    };
-    parser._save = saveTo;
-    return parser;
-  });
-
-}).call(this);
-
-(function() {
-
-  define('preloader',['lib/domReady', 'htmlParser'], function(domReady, htmlParser) {
-    var loadWidgetModule, preloader, searchForWidgets;
-    loadWidgetModule = function(widgetData) {
-      return require([widgetData.name], function(widget) {
-        return widget.init(widgetData.element);
-      });
-    };
-    searchForWidgets = function() {
-      var widgetData, _i, _len, _ref, _results;
-      _ref = htmlParser(document);
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        widgetData = _ref[_i];
-        _results.push(preloader.loadWidgetModule(widgetData));
-      }
-      return _results;
-    };
-    preloader = {
-      loadWidgetModule: loadWidgetModule,
-      searchForWidgets: searchForWidgets
-    };
-    domReady(searchForWidgets);
-    return preloader;
-  });
-
-}).call(this);
-
-(function() {
-
-  requirejs(['preloader'], function(preloader) {});
 
 }).call(this);
 
 define("app", function(){});
-
-(function() {
-
-  define('events',[], function() {
-    var Oops, events;
-    Oops = function(name) {
-      if (events.list[name]) {
-        return events.list[name];
-      }
-      this.name = name;
-      this._handlers = {};
-      return events.list[this.name] = this;
-    };
-    Oops.prototype = {
-      _data: function() {
-        return {
-          name: this.name
-        };
-      },
-      _handlerCaller: function(handler) {
-        var result;
-        result = handler.apply(handler.context, this._lastArgs);
-        if (result === false) {
-          return this._handlersCallOrder = [];
-        }
-      },
-      _nextHandlerCall: function() {
-        var handler, handlerId, self;
-        handlerId = this._handlersCallOrder.shift();
-        if (handlerId) {
-          handler = this._handlers[handlerId];
-          self = this;
-          if (handler.options.isSync) {
-            this._handlerCaller(handler);
-          } else {
-            _.delay(function() {
-              return self._handlerCaller(handler);
-            });
-          }
-          return this._nextHandlerCall();
-        }
-      },
-      dispatch: function(args) {
-        this._handlersCallOrder = _.keys(this._handlers).sort();
-        this._lastArgs = _.isArray(args) ? args : [args];
-        this._lastArgs.push(this._data());
-        this._nextHandlerCall();
-        return this;
-      },
-      bind: function(handler, context, options) {
-        handler.id = handler.id || +_.uniqueId();
-        handler.context = context;
-        handler.options = handler.options || options || {};
-        this._handlers[handler.id] = handler;
-        if (handler.options.recall && this._lastArgs) {
-          this._handlerCaller(handler);
-        }
-        return this;
-      },
-      once: function(handler, context, options) {
-        var onceHandler, self;
-        self = this;
-        onceHandler = function() {
-          events.unbind(self.name, onceHandler);
-          return handler.apply(this, arguments);
-        };
-        this.bind(onceHandler, context, options);
-        return this;
-      },
-      unbind: function(handler) {
-        var id;
-        id = handler.id;
-        if (id && this._handlers[id]) {
-          delete this._handlers[id];
-        }
-        return this;
-      }
-    };
-    events = {
-      list: {},
-      create: function(name) {
-        return new Oops(name);
-      },
-      once: function(name, handler, context, options) {
-        return new Oops(name).once(handler, context, options);
-      },
-      bind: function(eventsNames, handler, context, options) {
-        var bindEventsList, compoundArguments, eventHandler, eventName, undispatchedEvents, _fn, _i, _len;
-        bindEventsList = _.compact(eventsNames.split(/\,+\s*|\s+/));
-        if (/\,+/.test(eventsNames)) {
-          compoundArguments = {};
-          undispatchedEvents = bindEventsList.concat([]);
-          eventHandler = function() {
-            var eventData;
-            eventData = _.last(arguments);
-            compoundArguments[eventData.name] = arguments;
-            if (_.contains(undispatchedEvents, eventData.name)) {
-              undispatchedEvents = _.without(undispatchedEvents, eventData.name);
-            }
-            if (undispatchedEvents.length === 0) {
-              undispatchedEvents = bindEventsList.concat([]);
-              return handler.call(this, compoundArguments);
-            }
-          };
-        } else {
-          eventHandler = handler;
-        }
-        _fn = function(eventName) {
-          return new Oops(eventName).bind(eventHandler, context, options);
-        };
-        for (_i = 0, _len = bindEventsList.length; _i < _len; _i++) {
-          eventName = bindEventsList[_i];
-          _fn(eventName);
-        }
-        return new Oops(bindEventsList[0]);
-      },
-      unbind: function(name, handler) {
-        return new Oops(name).unbind(handler);
-      },
-      trigger: function(name, args) {
-        return new Oops(name).dispatch(args);
-      }
-    };
-    return events;
-  });
-
-}).call(this);

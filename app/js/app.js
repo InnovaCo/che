@@ -1,5 +1,7 @@
 (function() {
 
-  requirejs(['preloader'], function(preloader) {});
+  requirejs(['loader', 'lib/domReady'], function(loader, domReady) {
+    return domReady(loader.searchForWidgets);
+  });
 
 }).call(this);

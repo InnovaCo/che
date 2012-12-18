@@ -110,7 +110,6 @@
           var modulesNames, pairs;
           pairs = parser($('body')[0]);
           modulesNames = _.pluck(pairs, "name");
-          console.log(modulesNames);
           expect(pairs.length).toBe(18);
           expect(modulesNames).toContain("module_0");
           expect(modulesNames).toContain("module_2");

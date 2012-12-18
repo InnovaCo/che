@@ -1,31 +1,31 @@
-describe "preloader  module", -> 
+describe "loader  module", -> 
   describe "searching for widgets", ->
-    preloader = null
+    loader = null
     loadSpy = null
     requireSpy = null
 
     beforeEach ->
-      preloader = null
+      loader = null
       for index in [0..9]
         affix 'div.widget[data-js-module="module_' + index + '"]'
-      require ["preloader"], (preloaderModule) ->
+      require ["loader"], (preloaderModule) ->
         requireSpy = spyOn(window, "require").andCallThrough()
-        preloader = preloaderModule
-        loadSpy = spyOn(preloader, "loadWidgetModule").andCallThrough()
+        loader = preloaderModule
+        loadSpy = spyOn(loader, "loadWidgetModule").andCallThrough()
       
     it "should find all widgets on page", ->
       waitsFor ->
-        preloader isnt null
+        loader isnt null
       runs ->
-        preloader.searchForWidgets()
+        loader.searchForWidgets()
         expect(loadSpy.calls.length).toEqual(10)
         expect(loadSpy.mostRecentCall.args[0].name).toBe('module_9')
 
     it "should load all found widgets", ->
       waitsFor ->
-        preloader isnt null
+        loader isnt null
       runs ->
-        preloader.searchForWidgets()
+        loader.searchForWidgets()
         expect(requireSpy.calls.length).toEqual(10)
         expect(requireSpy.mostRecentCall.args[0][0]).toBe('module_9')
       

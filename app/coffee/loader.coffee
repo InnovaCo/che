@@ -1,31 +1,26 @@
-#### *module* preloader
+#### *module* loader
 #
 #---
 # Модуль для предварительной загрузки виджетов
 #
 
-define ['lib/domReady', 'htmlParser'], (domReady, htmlParser) ->
+define ['htmlParser', 'widgets'], (htmlParser, widgets) ->
 
   ##### loadWidgetModule(widgetData)
   #
   #---
   # загружает js-скрипты для виджета, на основе данных о виджете
   loadWidgetModule = (widgetData) ->
-    require [widgetData.name], (widget) ->
-      widget.init(widgetData.element)
+    widgets.create widgetData
 
-  ##### loadWidgetModule()
+  ##### searchForWidgets()
   #
   #---
   # ищет все блоки виджетов и отдает их на загрузку в loadWidgetModule
-  searchForWidgets = ->
-    preloader.loadWidgetModule widgetData for widgetData in htmlParser(document)
+  searchForWidgets = (node) ->
+    loader.loadWidgetModule widgetData for widgetData in htmlParser(node or document)
 
   # for easier module testing
-  preloader =
+  loader =
     loadWidgetModule: loadWidgetModule,
     searchForWidgets: searchForWidgets
-
-  domReady searchForWidgets
-    
-  preloader

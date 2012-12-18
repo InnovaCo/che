@@ -57,7 +57,7 @@ module.exports = function(grunt) {
       src: [
         'app/js/lib/require-2.1.2.js',
         'app/js/lib/underscore-1.4.3.js',
-        'app/js/app-require-congif.js',
+        'app/js/app-require-config.js',
         'app/js/app-require-optimized.js'
       ],
       dest: 'app/js/app-package.js'

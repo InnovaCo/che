@@ -56,7 +56,6 @@
           domObject = dom("div.test ul li a");
           expect(_.isEqual(DOMelement, domObject[0])).toBe(true);
           expect(domObject.length).toBe(1);
-          console.log(domObject, dom);
           return expect(domObject instanceof dom).toBeTruthy();
         });
       });

@@ -1,6 +1,6 @@
 (function() {
 
-  define(function() {
+  define([], function() {
     var createVarName, getFromCookie, getFromLocalStorage, getKeysFromCookies, getKeysFromLocalStorage, isLocalStorageAvailable, removeFromCookie, removeFromLocalStorage, returnObj, saveToCookie, saveToLocalStorage, _localStorage, _sessionStorage;
     _localStorage = window.localStorage;
     _sessionStorage = window.sessionStorage;

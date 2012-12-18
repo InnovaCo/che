@@ -3212,6 +3212,14 @@ var requirejs, require, define;
   });
 
 }).call(this);
+(function() {
+
+  require.config({
+    baseUrl: "app/js"
+  });
+
+}).call(this);
+
 
 (function() {
 
@@ -3345,7 +3353,6 @@ var requirejs, require, define;
     };
     domQuery = function(selector) {
       var elements, self;
-      console.log(domQuery.prototype._forget_jquery, "FORGET");
       if (!domQuery.prototype._forget_jquery && window.jQuery) {
         domQuery = window.jQuery;
         return domQuery.apply(this, arguments);

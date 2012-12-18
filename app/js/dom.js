@@ -116,7 +116,6 @@
     };
     domQuery = function(selector) {
       var elements, self;
-      console.log(domQuery.prototype._forget_jquery, "FORGET");
       if (!domQuery.prototype._forget_jquery && window.jQuery) {
         domQuery = window.jQuery;
         return domQuery.apply(this, arguments);

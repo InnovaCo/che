@@ -3,7 +3,7 @@
   define(['htmlParser', 'widgets'], function(htmlParser, widgets) {
     var loadWidgetModule, loader, searchForWidgets;
     loadWidgetModule = function(widgetData) {
-      return widgets.create(widgetData);
+      return widgets.create(widgetData.name, widgetData.element);
     };
     searchForWidgets = function(node) {
       var widgetData, _i, _len, _ref, _results;

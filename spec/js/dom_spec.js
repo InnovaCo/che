@@ -59,7 +59,7 @@
           return expect(domObject instanceof dom).toBeTruthy();
         });
       });
-      return it('should return empty object without when called with invalidselector', function() {
+      return it('should return empty object when called with invalidselector', function() {
         waitsFor(function() {
           return dom != null;
         });
@@ -135,7 +135,7 @@
         });
       });
     });
-    describe('finding objects', function() {
+    return describe('finding objects', function() {
       var DOMelement;
       DOMelement = null;
       beforeEach(function() {
@@ -163,27 +163,6 @@
           obj = dom('div.test');
           return expect(obj instanceof dom).toBeTruthy();
         });
-      });
-    });
-    return describe('replace with jQuery', function() {
-      var realDomQuery;
-      realDomQuery = null;
-      it('should return jQuery instead of domQuery', function() {
-        waitsFor(function() {
-          return dom != null;
-        });
-        return runs(function() {
-          var obj;
-          affix("div.test ul li a#test");
-          realDomQuery = dom;
-          dom.prototype._forget_jquery = false;
-          obj = dom('div.test');
-          expect(obj instanceof dom).toBeFalsy();
-          return expect(obj instanceof window.jQuery).toBeTruthy();
-        });
-      });
-      return afterEach(function() {
-        return dom = realDomQuery;
       });
     });
   });

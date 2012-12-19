@@ -11,33 +11,35 @@
     };
     callEventHandlers = function(handlers, eventObj) {
       return _.each(handlers, function(handler) {
+        console.log(handler, handler.identity);
         return _.delay(handler, eventObj);
       });
     };
     query = function(selector, root) {
-      if (document.querySelectorAll != null) {
+      var result;
+      if (window.jQuery) {
         query = function(selector, root) {
-          var result;
-          if (_.isString(selector)) {
-            root = !root || root.length === 0 ? document : root;
-            if (!root.length) {
-              root = [root];
-            }
-            result = [];
-            _.each(root, function(root) {
-              return result = result.concat(Array.prototype.slice.call(root.querySelectorAll(selector)));
-            });
-            return result;
-          } else {
-            return selector;
-          }
+          return window.jQuery(root || document).find(selector).get();
         };
-      } else {
-        query = function() {
-          return typeof console !== "undefined" && console !== null ? console.log("haven't tools for selecting node (module helpers/dom)") : void 0;
-        };
+        return query.apply(this, arguments);
       }
-      return query.apply(this, arguments);
+      if (document.querySelectorAll != null) {
+        if (_.isString(selector)) {
+          root = !root || root.length === 0 ? document : root;
+          if (!root.length) {
+            root = [root];
+          }
+          result = [];
+          _.each(root, function(root) {
+            return result = result.concat(Array.prototype.slice.call(root.querySelectorAll(selector)));
+          });
+          return result;
+        } else {
+          return selector;
+        }
+      } else {
+        return typeof console !== "undefined" && console !== null ? console.log("haven't tools for selecting node (module helpers/dom)") : void 0;
+      }
     };
     unbindEvent = function() {};
     bindEvent = function(node, eventName, handler) {
@@ -64,6 +66,7 @@
     };
     delegateEvent = function(node, selector, eventName, handler) {
       var delegateHandler;
+      console.log(arguments, "delegate");
       if (!node.domQueryDelegateHandler) {
         delegateHandler = function(e) {
           var eventObject, handlers, target;
@@ -72,9 +75,11 @@
           if (target.nodeType === 3) {
             target = target.parentNode;
           }
+          console.log("datahandler delegate", eventObject.type, node.domQueryHandlers[eventObject.type], node, target);
           if (node.domQueryHandlers[eventObject.type]) {
             handlers = node.domQueryHandlers[eventObject.type];
             return _.each(handlers, function(handlers, selector) {
+              console.log(checkIsElementMatchSelector(selector, target), selector, target);
               if (checkIsElementMatchSelector(selector, target)) {
                 return callEventHandlers(handlers, eventObject);
               }
@@ -116,12 +121,11 @@
     };
     domQuery = function(selector) {
       var elements, self;
-      if (!domQuery.prototype._forget_jquery && window.jQuery) {
-        domQuery = window.jQuery;
-        return domQuery.apply(this, arguments);
-      }
       if (this instanceof domQuery) {
-        elements = query(selector || []);
+        if (selector instanceof domQuery) {
+          return selector;
+        }
+        elements = _.isString(selector) ? query(selector) : selector || [];
         self = this;
         if (elements.length === void 0) {
           elements = [elements];
@@ -135,7 +139,6 @@
       }
     };
     domQuery.prototype = {
-      _forget_jquery: window.FORGET_JQUERY,
       on: function(selector, eventName, handler) {
         var args, binder;
         binder = arguments.length === 3 ? delegateEvent : bindEvent;
@@ -153,11 +156,7 @@
         });
       },
       find: function(selector) {
-        if (!domQuery.prototype._forget_jquery && window.jQuery) {
-          return window.jQuery(this.get()).find(selector);
-        } else {
-          return domQuery(query(selector, this.get()));
-        }
+        return domQuery(query(selector, this.get()));
       },
       get: function(index) {
         if (index != null) {

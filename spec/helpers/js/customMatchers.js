@@ -13,6 +13,9 @@
       },
       toBeObject: function() {
         return _.isObject(this.actual);
+      },
+      toBeEqual: function() {
+        return _.isEqual(this.actual);
       }
     });
   });

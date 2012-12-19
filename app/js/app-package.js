@@ -3248,33 +3248,35 @@ var requirejs, require, define;
     };
     callEventHandlers = function(handlers, eventObj) {
       return _.each(handlers, function(handler) {
+        console.log(handler, handler.identity);
         return _.delay(handler, eventObj);
       });
     };
     query = function(selector, root) {
-      if (document.querySelectorAll != null) {
+      var result;
+      if (window.jQuery) {
         query = function(selector, root) {
-          var result;
-          if (_.isString(selector)) {
-            root = !root || root.length === 0 ? document : root;
-            if (!root.length) {
-              root = [root];
-            }
-            result = [];
-            _.each(root, function(root) {
-              return result = result.concat(Array.prototype.slice.call(root.querySelectorAll(selector)));
-            });
-            return result;
-          } else {
-            return selector;
-          }
+          return window.jQuery(root || document).find(selector).get();
         };
-      } else {
-        query = function() {
-          return typeof console !== "undefined" && console !== null ? console.log("haven't tools for selecting node (module helpers/dom)") : void 0;
-        };
+        return query.apply(this, arguments);
       }
-      return query.apply(this, arguments);
+      if (document.querySelectorAll != null) {
+        if (_.isString(selector)) {
+          root = !root || root.length === 0 ? document : root;
+          if (!root.length) {
+            root = [root];
+          }
+          result = [];
+          _.each(root, function(root) {
+            return result = result.concat(Array.prototype.slice.call(root.querySelectorAll(selector)));
+          });
+          return result;
+        } else {
+          return selector;
+        }
+      } else {
+        return typeof console !== "undefined" && console !== null ? console.log("haven't tools for selecting node (module helpers/dom)") : void 0;
+      }
     };
     unbindEvent = function() {};
     bindEvent = function(node, eventName, handler) {
@@ -3301,6 +3303,7 @@ var requirejs, require, define;
     };
     delegateEvent = function(node, selector, eventName, handler) {
       var delegateHandler;
+      console.log(arguments, "delegate");
       if (!node.domQueryDelegateHandler) {
         delegateHandler = function(e) {
           var eventObject, handlers, target;
@@ -3309,9 +3312,11 @@ var requirejs, require, define;
           if (target.nodeType === 3) {
             target = target.parentNode;
           }
+          console.log("datahandler delegate", eventObject.type, node.domQueryHandlers[eventObject.type], node, target);
           if (node.domQueryHandlers[eventObject.type]) {
             handlers = node.domQueryHandlers[eventObject.type];
             return _.each(handlers, function(handlers, selector) {
+              console.log(checkIsElementMatchSelector(selector, target), selector, target);
               if (checkIsElementMatchSelector(selector, target)) {
                 return callEventHandlers(handlers, eventObject);
               }
@@ -3353,12 +3358,11 @@ var requirejs, require, define;
     };
     domQuery = function(selector) {
       var elements, self;
-      if (!domQuery.prototype._forget_jquery && window.jQuery) {
-        domQuery = window.jQuery;
-        return domQuery.apply(this, arguments);
-      }
       if (this instanceof domQuery) {
-        elements = query(selector || []);
+        if (selector instanceof domQuery) {
+          return selector;
+        }
+        elements = _.isString(selector) ? query(selector) : selector || [];
         self = this;
         if (elements.length === void 0) {
           elements = [elements];
@@ -3372,7 +3376,6 @@ var requirejs, require, define;
       }
     };
     domQuery.prototype = {
-      _forget_jquery: window.FORGET_JQUERY,
       on: function(selector, eventName, handler) {
         var args, binder;
         binder = arguments.length === 3 ? delegateEvent : bindEvent;
@@ -3390,11 +3393,7 @@ var requirejs, require, define;
         });
       },
       find: function(selector) {
-        if (!domQuery.prototype._forget_jquery && window.jQuery) {
-          return window.jQuery(this.get()).find(selector);
-        } else {
-          return domQuery(query(selector, this.get()));
-        }
+        return domQuery(query(selector, this.get()));
       },
       get: function(index) {
         if (index != null) {
@@ -3584,7 +3583,8 @@ var requirejs, require, define;
 (function() {
 
   define('utils/destroyer',[], function() {
-    return function(object) {
+    var destroyer;
+    destroyer = function(object) {
       return _.each(object, function(property, name) {
         if (object.hasOwnProperty(name)) {
           if (_.isObject(property)) {
@@ -3594,6 +3594,7 @@ var requirejs, require, define;
         }
       });
     };
+    return destroyer;
   });
 
 }).call(this);
@@ -3601,72 +3602,70 @@ var requirejs, require, define;
 (function() {
 
   define('widgets',["events", "dom", "utils/destroyer"], function(events, dom, destroyer) {
-    var Widget, eventSplitter, widgets, widgetsInstances;
+    var Widget, bindWidgetDomEvents, bindWidgetModuleEvents, eventSplitter, unbindWidgetDomEvents, unbindWidgetModuleEvents, widgets, widgetsInstances;
     widgetsInstances = {};
     eventSplitter = /^(\S+)\s*(.*)$/;
-    ({
-      bindWidgetDomEvents: function(eventsList, widget) {
-        var elem;
-        elem = dom(widget.element);
-        return _.each(eventsList, function(eventDescr, handler) {
-          var name, selector, splittedDescr;
-          splittedDescr = eventDescr.split(eventSplitter);
-          name = splittedDescr[1];
-          selector = splittedDescr[2];
-          handler = _.isString(handler) ? widget[handler] : handler;
-          eventsList[eventDescr] = handler;
-          return elem.on(name, selector, handler);
-        });
-      },
-      unbindWidgetDomEvents: function(eventsData, widget) {
-        return _.each(eventsData, function(eventDescr, handler) {
-          var name, selector, splittedDescr;
-          splittedDescr = eventDescr.split(eventSplitter);
-          name = splittedDescr[1];
-          selector = splittedDescr[2];
-          return elem.off(name, selector, handler);
-        });
-      },
-      bindWidgetModuleEvents: function(eventsList, widget) {
-        return _.each(eventsList, function(handler, name) {
-          handler = _.isString(handler) ? widget[handler] : handler;
-          events.bind(name, handler, widget);
-          return eventsList[name] = handler;
-        });
-      },
-      unbindWidgetModuleEvents: function(eventsList) {
-        return _.each(eventsList, function(handler, name) {
-          return events.unbind(name, handler);
-        });
-      }
-    });
+    bindWidgetDomEvents = function(eventsList, widget) {
+      var elem;
+      elem = dom(widget.element);
+      return _.each(eventsList, function(handler, eventDescr) {
+        var name, selector, splittedDescr;
+        splittedDescr = eventDescr.split(eventSplitter);
+        name = splittedDescr[1];
+        selector = splittedDescr[2];
+        handler = _.isString(handler) ? widget[handler] : handler;
+        eventsList[eventDescr] = handler;
+        return elem.on(selector, name, handler);
+      });
+    };
+    unbindWidgetDomEvents = function(eventsData, widget) {
+      var elem;
+      elem = dom(widget.element);
+      return _.each(eventsData, function(handler, eventDescr) {
+        var name, selector, splittedDescr;
+        splittedDescr = eventDescr.split(eventSplitter);
+        name = splittedDescr[1];
+        selector = splittedDescr[2];
+        return elem.off(selector, name, handler);
+      });
+    };
+    bindWidgetModuleEvents = function(eventsList, widget) {
+      return _.each(eventsList, function(handler, name) {
+        handler = _.isString(handler) ? widget[handler] : handler;
+        events.bind(name, handler, widget);
+        return eventsList[name] = handler;
+      });
+    };
+    unbindWidgetModuleEvents = function(eventsList) {
+      return _.each(eventsList, function(handler, name) {
+        return events.unbind(name, handler);
+      });
+    };
     Widget = function(name, element, _widget) {
       var id;
       this.name = name;
+      this.element = element;
+      console.log(element);
       id = this.element.getAttribute("data-widget-" + this.name + "-id");
-      if (id) {
+      if (id && widgetsInstances[id]) {
         return widgetsInstances[id];
       }
       _.extend(this, _widget);
       this.id = _.uniqueId("widget_");
-      this.element = element;
-      this.init();
+      if (typeof this.init === "function") {
+        this.init(this.element);
+      }
+      this.turnOn();
       this.isInitialized = true;
-      this.element.getAttribute("data-widget-" + this.name + "-id", this.id);
+      this.element.setAttribute("data-widget-" + this.name + "-id", this.id);
       return widgetsInstances[this.id] = this;
     };
     Widget.prototype = {
-      init: function() {
-        if (this.isInitialized) {
-          return this;
-        }
-        this.turnOn();
-        return this;
-      },
       turnOn: function() {
         if (this._isOn) {
           return;
         }
+        console.log("turn on");
         bindWidgetDomEvents(this.domEvents, this);
         bindWidgetModuleEvents(this.moduleEvents, this);
         this._isOn = true;
@@ -3676,25 +3675,25 @@ var requirejs, require, define;
         if (!this._isOn) {
           return;
         }
-        unbindWidgetDomEvents(this.domEvents);
-        unbindWidgetModuleEvents(this.moduleEvents);
+        console.log("turn off");
+        unbindWidgetDomEvents(this.domEvents, this);
+        unbindWidgetModuleEvents(this.moduleEvents, this);
         this._isOn = false;
         return this;
       },
       destroy: function() {
-        var _base;
         this.turnOff();
+        this.element.removeAttribute("data-widget-" + this.name + "-id");
         delete widgetsInstances[this.id];
-        if (typeof (_base = this._widget).destroy === "function") {
-          _base.destroy();
-        }
         return destroyer(this);
       }
     };
     return widgets = {
-      create: function(widgetData) {
-        return require([widgetData.name], function(widget) {
-          return new Widget(widgetData.name, widgetData.element, widget);
+      _instances: widgetsInstances,
+      _constructor: Widget,
+      create: function(name, element, ready) {
+        return require([name], function(widget) {
+          return ready(new Widget(name, element, widget));
         });
       }
     };
@@ -3707,7 +3706,7 @@ var requirejs, require, define;
   define('loader',['htmlParser', 'widgets'], function(htmlParser, widgets) {
     var loadWidgetModule, loader, searchForWidgets;
     loadWidgetModule = function(widgetData) {
-      return widgets.create(widgetData);
+      return widgets.create(widgetData.name, widgetData.element);
     };
     searchForWidgets = function(node) {
       var widgetData, _i, _len, _ref, _results;

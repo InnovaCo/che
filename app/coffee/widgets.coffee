@@ -10,59 +10,55 @@ define ["events", "dom", "utils/destroyer"], (events, dom, destroyer)->
   #   turnOn: ->
   #   turnOff: ->
 
-  bindWidgetDomEvents: (eventsList, widget) ->
+  bindWidgetDomEvents = (eventsList, widget) ->
     elem = dom widget.element
 
-    _.each eventsList, (eventDescr, handler) ->
+    _.each eventsList, (handler, eventDescr) ->
       splittedDescr = eventDescr.split(eventSplitter)
       name = splittedDescr[1]
       selector = splittedDescr[2]
       handler = if _.isString handler then widget[handler] else handler
       eventsList[eventDescr] = handler
-      elem.on name, selector, handler
+      elem.on selector, name, handler
 
-  unbindWidgetDomEvents: (eventsData, widget) ->
-    _.each eventsData, (eventDescr, handler) ->
+  unbindWidgetDomEvents = (eventsData, widget) ->
+    elem = dom widget.element
+
+    _.each eventsData, (handler, eventDescr) ->
       splittedDescr = eventDescr.split eventSplitter
       name = splittedDescr[1]
       selector = splittedDescr[2]
-      elem.off name, selector, handler
+      elem.off selector, name, handler
 
-  bindWidgetModuleEvents: (eventsList, widget) ->
+  bindWidgetModuleEvents = (eventsList, widget) ->
     _.each eventsList, (handler, name) ->
       handler = if _.isString handler then widget[handler] else handler
       events.bind name, handler, widget
       eventsList[name] = handler
 
-  unbindWidgetModuleEvents: (eventsList) ->
+  unbindWidgetModuleEvents = (eventsList) ->
     _.each eventsList, (handler, name) ->
       events.unbind name, handler
       
 
-  Widget = (@name, element, _widget) ->
+  Widget = (@name, @element, _widget) ->
+    console.log element
     id = @element.getAttribute "data-widget-" + @name + "-id"
-    return widgetsInstances[id] if id
+    return widgetsInstances[id] if id and widgetsInstances[id]
 
     _.extend @, _widget
     @id = _.uniqueId "widget_"
-    @element = element
-    @init()
+    @init?(@element)
+    @turnOn()
     @isInitialized = yes
-    @element.getAttribute "data-widget-" + @name + "-id", @id
+    @element.setAttribute "data-widget-" + @name + "-id", @id
     widgetsInstances[@id] = @
 
   Widget:: =
-    init: ->
-      if @isInitialized
-        return @
-
-      @turnOn()
-      @
-
     turnOn: ->
       if @_isOn
         return
-
+      console.log "turn on"
       bindWidgetDomEvents @domEvents, @
       bindWidgetModuleEvents @moduleEvents, @
       @_isOn = yes
@@ -71,21 +67,25 @@ define ["events", "dom", "utils/destroyer"], (events, dom, destroyer)->
     turnOff: ->
       if not @_isOn
         return
-        
-      unbindWidgetDomEvents @domEvents
-      unbindWidgetModuleEvents @moduleEvents
+      
+      console.log "turn off"
+      unbindWidgetDomEvents @domEvents, @
+      unbindWidgetModuleEvents @moduleEvents, @
       @_isOn = no
       @
 
     destroy: ->
       @turnOff()
+      @element.removeAttribute "data-widget-" + @name + "-id"
       delete widgetsInstances[@id]
-      @_widget.destroy?()
       destroyer(@)
 
 
     # @_widget.init.apply(this, [element])
   widgets =
-    create: (widgetData) ->
-      require [widgetData.name], (widget) ->
-        new Widget(widgetData.name, widgetData.element, widget)
+    _instances: widgetsInstances
+    _constructor: Widget
+    create: (name, element, ready) ->
+      require [name], (widget) ->
+        ready new Widget(name, element, widget)
+

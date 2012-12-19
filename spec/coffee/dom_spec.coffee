@@ -128,22 +128,3 @@ describe 'dom module', ->
         obj = dom('div.test')
         expect(obj instanceof dom).toBeTruthy()
 
-
-  describe 'replace with jQuery', ->
-    realDomQuery = null
-
-    it 'should return jQuery instead of domQuery', ->
-      waitsFor ->
-        dom?
-      runs ->
-        affix "div.test ul li a#test"
-        realDomQuery = dom
-        dom::_forget_jquery = false
-        obj = dom('div.test')
-        expect(obj instanceof dom).toBeFalsy()
-        expect(obj instanceof window.jQuery).toBeTruthy()
-
-    afterEach ->
-      dom = realDomQuery
-
-

@@ -13,26 +13,30 @@ define ["utils/guid"], (guid) ->
 
   callEventHandlers = (handlers, eventObj) ->
     _.each handlers, (handler) ->
+      console.log handler, handler.identity
       _.delay(handler, eventObj)
+        
 
   query = (selector, root) ->
-    if document.querySelectorAll?
+    if window.jQuery
       query = (selector, root) ->
-        if _.isString selector
-          root = if not root or root.length is 0 then document else root
-          if not root.length
-            root = [root]
-          result = []
-          _.each root, (root) ->
-            result = result.concat(Array.prototype.slice.call root.querySelectorAll(selector))
-          return result
-        else 
-          return selector
-    else
-      query = ->
-        console?.log "haven't tools for selecting node (module helpers/dom)"
+        return window.jQuery(root or document).find(selector).get()
 
-    query.apply this, arguments
+      return query.apply this, arguments
+
+    if document.querySelectorAll?
+      if _.isString selector
+        root = if not root or root.length is 0 then document else root
+        if not root.length
+          root = [root]
+        result = []
+        _.each root, (root) ->
+          result = result.concat(Array.prototype.slice.call root.querySelectorAll(selector))
+        return result
+      else 
+        return selector
+    else
+      console?.log "haven't tools for selecting node (module helpers/dom)"
 
   unbindEvent =  ->
   bindEvent = (node, eventName, handler) ->
@@ -54,16 +58,20 @@ define ["utils/guid"], (guid) ->
 
   
   delegateEvent = (node, selector, eventName, handler) ->
+    console.log arguments, "delegate"
     if not node.domQueryDelegateHandler
       delegateHandler = (e) ->
+
         eventObject = e or window.event
         target = eventObject.target or eventObject.srcElement
         if target.nodeType is 3 # defeat Safari bug
           target = target.parentNode
         
+        console.log "datahandler delegate", eventObject.type, node.domQueryHandlers[eventObject.type], node, target
         if node.domQueryHandlers[eventObject.type]
           handlers = node.domQueryHandlers[eventObject.type]
           _.each handlers, (handlers, selector) ->
+            console.log checkIsElementMatchSelector(selector, target), selector, target
             if checkIsElementMatchSelector selector, target
               callEventHandlers handlers, eventObject
 
@@ -92,12 +100,9 @@ define ["utils/guid"], (guid) ->
 
 
   domQuery = (selector) ->
-    if not domQuery::_forget_jquery and window.jQuery
-      domQuery = window.jQuery
-      return domQuery.apply this, arguments
-
     if this instanceof domQuery
-      elements = query selector or []
+      return selector if selector instanceof domQuery
+      elements = if _.isString(selector) then query selector else selector or []
       self = @
       if elements.length is undefined
         elements = [elements]
@@ -108,8 +113,6 @@ define ["utils/guid"], (guid) ->
       new domQuery selector
 
   domQuery:: =
-    _forget_jquery: window.FORGET_JQUERY #for testing
-
     on: (selector, eventName, handler) ->
       binder = if arguments.length is 3 then delegateEvent else bindEvent
       args = Array.prototype.slice.call(arguments)
@@ -123,11 +126,8 @@ define ["utils/guid"], (guid) ->
         unbinder.apply @, [node].concat(args)
 
     find: (selector) ->
-      if not domQuery::_forget_jquery and window.jQuery
-        return window.jQuery(@get()).find selector
-      else
-        return domQuery query selector, @get()
-
+      return domQuery query selector, @get()
+        
     get: (index) ->
       if index?
         index = Math.max 0, Math.min index, @length - 1

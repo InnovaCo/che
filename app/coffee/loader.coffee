@@ -11,7 +11,7 @@ define ['htmlParser', 'widgets'], (htmlParser, widgets) ->
   #---
   # загружает js-скрипты для виджета, на основе данных о виджете
   loadWidgetModule = (widgetData) ->
-    widgets.create widgetData
+    widgets.create widgetData.name, widgetData.element
 
   ##### searchForWidgets()
   #

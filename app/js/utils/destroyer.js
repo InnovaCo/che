@@ -1,7 +1,8 @@
 (function() {
 
   define([], function() {
-    return function(object) {
+    var destroyer;
+    destroyer = function(object) {
       return _.each(object, function(property, name) {
         if (object.hasOwnProperty(name)) {
           if (_.isObject(property)) {
@@ -11,6 +12,7 @@
         }
       });
     };
+    return destroyer;
   });
 
 }).call(this);

@@ -47,7 +47,6 @@
         anotherEventHandler: anotherEventHandlerSpy,
         someProperty: "someProperty",
         init: function(element) {
-          console.log(element);
           return dom(element).find("div")[0].setAttribute('data-check-check', 'check');
         }
       };
@@ -66,7 +65,6 @@
         return runs(function() {
           var element, widgetInstance;
           element = dom("div.widget").get(0);
-          console.log(dom("div.widget"));
           widgetInstance = new widgets._constructor('sampleWidget', element, sampleWidget);
           expect(widgetInstance.init).toBeFunction();
           expect(widgetInstance.turnOff).toBeFunction();
@@ -164,7 +162,6 @@
           triggerMouseEvent("click", dom("div.mouser")[0]);
           events.trigger("sampleEvent", {});
           events.trigger("anotherEvent", {});
-          console.log("TICK");
           _.delay = old_delay;
           expect(clickSpy).toHaveBeenCalled();
           expect(clickHandlerSpy).toHaveBeenCalled();

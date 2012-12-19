@@ -5,10 +5,8 @@
       var guid;
       guid = null;
       beforeEach(function() {
-        console.log('wait');
         guid = null;
         return require(['utils/guid'], function(guidModule) {
-          console.log("guid", guidModule);
           return guid = guidModule;
         });
       });

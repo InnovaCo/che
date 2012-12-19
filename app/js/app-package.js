@@ -3311,14 +3311,14 @@ var requirejs, require, define;
           }
           if (node.domQueryHandlers[eventObject.type]) {
             handlers = node.domQueryHandlers[eventObject.type];
-            return _.each(handlers(function(handler, selector) {
+            return _.each(handlers, function(handlers, selector) {
               if (checkIsElementMatchSelector(selector, target)) {
                 return callEventHandlers(handlers, eventObject);
               }
-            }));
+            });
           }
         };
-        bindEvent(node(eventName(delegateHandler)));
+        bindEvent(node, eventName, delegateHandler);
         node.domQueryDelegateHandler = delegateHandler;
       }
       handler.guid = handler.guid || guid();
@@ -3358,9 +3358,9 @@ var requirejs, require, define;
         return domQuery.apply(this, arguments);
       }
       if (this instanceof domQuery) {
-        elements = query(selector);
+        elements = query(selector || []);
         self = this;
-        if (!elements.length) {
+        if (elements.length === void 0) {
           elements = [elements];
         }
         this.length = elements.length;
@@ -3384,7 +3384,7 @@ var requirejs, require, define;
       off: function(selector, eventName, handler) {
         var args, unbinder;
         unbinder = arguments.length === 3 ? undelegateEvent : unbindEvent;
-        args = arguments;
+        args = Array.prototype.slice.call(arguments);
         return _.each(this.get(), function(node, index) {
           return unbinder.apply(this, [node].concat(args));
         });

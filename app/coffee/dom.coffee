@@ -63,11 +63,11 @@ define ["utils/guid"], (guid) ->
         
         if node.domQueryHandlers[eventObject.type]
           handlers = node.domQueryHandlers[eventObject.type]
-          _.each handlers (handler, selector) ->
+          _.each handlers, (handlers, selector) ->
             if checkIsElementMatchSelector selector, target
               callEventHandlers handlers, eventObject
 
-      bindEvent node eventName delegateHandler
+      bindEvent node, eventName, delegateHandler
       node.domQueryDelegateHandler = delegateHandler
 
     handler.guid = handler.guid or guid()
@@ -97,9 +97,9 @@ define ["utils/guid"], (guid) ->
       return domQuery.apply this, arguments
 
     if this instanceof domQuery
-      elements = query selector
+      elements = query selector or []
       self = @
-      if not elements.length
+      if elements.length is undefined
         elements = [elements]
       @length = elements.length
       _.each elements, (element, index) ->
@@ -118,7 +118,7 @@ define ["utils/guid"], (guid) ->
 
     off: (selector, eventName, handler) ->
       unbinder = if arguments.length is 3 then undelegateEvent else unbindEvent
-      args = arguments
+      args = Array.prototype.slice.call(arguments)
       _.each @get(), (node, index) ->
         unbinder.apply @, [node].concat(args)
 

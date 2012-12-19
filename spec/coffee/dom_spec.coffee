@@ -46,6 +46,14 @@ describe 'dom module', ->
         expect(domObject.length).toBe(1)
         expect(domObject instanceof dom).toBeTruthy()
 
+    it 'should return empty object when called with invalidselector', ->
+      waitsFor ->
+        dom?
+      runs ->
+        domObject = dom(".selectorForNoresults")
+        expect(domObject.length).toBe(0)
+        expect(domObject[0]).toBeUndefined()
+
 
   describe 'binding events', ->
     beforeEach ->
@@ -69,7 +77,11 @@ describe 'dom module', ->
         dom("div.test").on 'ul li a', 'click', bindSpy
 
         triggerMouseEvent("click", dom("div.test ul li a").get(0))
-        expect(bindSpy).toHaveBeenCalled()
+        waitsFor ->
+          0 < bindSpy.calls.length
+        runs ->
+          expect(bindSpy).toHaveBeenCalled()
+        
 
   describe 'unbinding events', ->
     beforeEach ->
@@ -84,8 +96,7 @@ describe 'dom module', ->
         dom("div.test ul li a").off 'click', bindSpy
 
         triggerMouseEvent("click", dom("div.test ul li a").get(0))
-
-        expect(bindSpy).not.toHaveBeenCalled()
+        
 
     it 'should delegate event handler to element', ->
       waitsFor ->
@@ -102,14 +113,14 @@ describe 'dom module', ->
     DOMelement = null
     beforeEach ->
       fixture = affix "div.test ul li a#test"
-      DOMelement = fixture.getElementById('test')
+      DOMelement = document.getElementById('test')
     it 'should find element inside', ->
       waitsFor ->
         dom?
       runs ->
         obj = dom('div.test')
         foundObj = obj.find('a#test')
-        expect(foundObj.get(0)).toBeEqual(DOMelement)
+        expect(_.isEqual(foundObj.get(0), DOMelement)).toBeTruthy()
     it 'find should return instance of domQuery', ->
       waitsFor ->
         dom?

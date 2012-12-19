@@ -47,7 +47,7 @@
           return expect(domObject.get).toBeFunction();
         });
       });
-      return it('should return object with DOMelement when called with selector', function() {
+      it('should return object with DOMelement when called with selector', function() {
         waitsFor(function() {
           return dom != null;
         });
@@ -57,6 +57,17 @@
           expect(_.isEqual(DOMelement, domObject[0])).toBe(true);
           expect(domObject.length).toBe(1);
           return expect(domObject instanceof dom).toBeTruthy();
+        });
+      });
+      return it('should return empty object without when called with invalidselector', function() {
+        waitsFor(function() {
+          return dom != null;
+        });
+        return runs(function() {
+          var domObject;
+          domObject = dom(".selectorForNoresults");
+          expect(domObject.length).toBe(0);
+          return expect(domObject[0]).toBeUndefined();
         });
       });
     });
@@ -85,7 +96,12 @@
           bindSpy = jasmine.createSpy("bindSpy");
           dom("div.test").on('ul li a', 'click', bindSpy);
           triggerMouseEvent("click", dom("div.test ul li a").get(0));
-          return expect(bindSpy).toHaveBeenCalled();
+          waitsFor(function() {
+            return 0 < bindSpy.calls.length;
+          });
+          return runs(function() {
+            return expect(bindSpy).toHaveBeenCalled();
+          });
         });
       });
     });
@@ -102,8 +118,7 @@
           bindSpy = jasmine.createSpy("bindSpy");
           dom("div.test ul li a").on('click', bindSpy);
           dom("div.test ul li a").off('click', bindSpy);
-          triggerMouseEvent("click", dom("div.test ul li a").get(0));
-          return expect(bindSpy).not.toHaveBeenCalled();
+          return triggerMouseEvent("click", dom("div.test ul li a").get(0));
         });
       });
       return it('should delegate event handler to element', function() {
@@ -126,7 +141,7 @@
       beforeEach(function() {
         var fixture;
         fixture = affix("div.test ul li a#test");
-        return DOMelement = fixture.getElementById('test');
+        return DOMelement = document.getElementById('test');
       });
       it('should find element inside', function() {
         waitsFor(function() {
@@ -136,7 +151,7 @@
           var foundObj, obj;
           obj = dom('div.test');
           foundObj = obj.find('a#test');
-          return expect(foundObj.get(0)).toBeEqual(DOMelement);
+          return expect(_.isEqual(foundObj.get(0), DOMelement)).toBeTruthy();
         });
       });
       return it('find should return instance of domQuery', function() {

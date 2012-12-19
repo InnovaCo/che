@@ -2,10 +2,8 @@ describe 'guid module', ->
   describe 'generating uniq id', ->
     guid = null
     beforeEach ->
-      console.log 'wait'
       guid = null
       require ['utils/guid'], (guidModule) ->
-        console.log "guid", guidModule
         guid = guidModule
 
     it 'should not generate two or more same ids', ->

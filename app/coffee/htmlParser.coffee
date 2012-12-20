@@ -1,33 +1,34 @@
 #### *module* htmlParser
 #
-#---
 # Модуль для получения данных о необходимых модулях из dom-элементов, либо html-текста
 #
+
+# Требует модуль dom для прохода по DOM-элеметам
 
 define ['dom'], (dom) ->
   widgetClassName = 'widget'
   widgetAttributName = 'data-js-module'
 
-  ##### createDomElement(plainHtml)
+  
+  #### createDomElement(plainHtml)
   #
-  #---
   # превращает html-текст в dom-элемент, оборачивает в div
   createDomElement = (plainHtml) ->
     div = document.createElement('DIV')
     div.innerHTML = plainHtml
     return div
 
-  ##### getWidgetElements(domElement)
+  
+  #### getWidgetElements(domElement)
   #
-  #---
   # возаращает все элементы, для которых могут понадобится js-модули
   getWidgetElements = (domElement) ->
     dom(domElement).find("." + widgetClassName).get()
 
 
-  ##### saveTo(arrayOfPairs, element)
+  
+  #### saveTo(arrayOfPairs, element)
   #
-  #---
   # сохраняет в массив данные о виджете для переданного элемента
   saveTo = (arrayOfPairs, element) ->
     names = (element.getAttribute widgetAttributName).replace(///^\s|\s$///, '').split(///\s*,\s*///)
@@ -38,9 +39,9 @@ define ['dom'], (dom) ->
 
     arrayOfPairs
 
-  ##### parser(html)
+  
+  #### parser(html)
   #
-  #---
   # ищет все блоки виджетов внутри dom-элемента, либо просто текста в формате html и возвращает массив пар {name: 'moduleName', element: 'domElement'}
   parser = (html) ->
     domElement = if _.isString html then createDomElement html else html

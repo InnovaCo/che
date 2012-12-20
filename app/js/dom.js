@@ -2,16 +2,15 @@
 
   define(["utils/guid"], function(guid) {
     var bindEvent, callEventHandlers, checkIsElementMatchSelector, delegateEvent, domQuery, query, unbindEvent, undelegateEvent;
-    checkIsElementMatchSelector = function(selector, element) {
+    checkIsElementMatchSelector = function(selector, element, root) {
       var listOfElemevents;
-      listOfElemevents = domQuery(selector).get();
+      listOfElemevents = domQuery(root || document).find(selector).get();
       return _.find(listOfElemevents, function(elementFromlist) {
         return _.isEqual(elementFromlist, element);
       });
     };
     callEventHandlers = function(handlers, eventObj) {
       return _.each(handlers, function(handler) {
-        console.log(handler, handler.identity);
         return _.delay(handler, eventObj);
       });
     };
@@ -66,7 +65,6 @@
     };
     delegateEvent = function(node, selector, eventName, handler) {
       var delegateHandler;
-      console.log(arguments, "delegate");
       if (!node.domQueryDelegateHandler) {
         delegateHandler = function(e) {
           var eventObject, handlers, target;
@@ -75,11 +73,9 @@
           if (target.nodeType === 3) {
             target = target.parentNode;
           }
-          console.log("datahandler delegate", eventObject.type, node.domQueryHandlers[eventObject.type], node, target);
           if (node.domQueryHandlers[eventObject.type]) {
             handlers = node.domQueryHandlers[eventObject.type];
             return _.each(handlers, function(handlers, selector) {
-              console.log(checkIsElementMatchSelector(selector, target), selector, target);
               if (checkIsElementMatchSelector(selector, target)) {
                 return callEventHandlers(handlers, eventObject);
               }

@@ -3239,16 +3239,15 @@ var requirejs, require, define;
 
   define('dom',["utils/guid"], function(guid) {
     var bindEvent, callEventHandlers, checkIsElementMatchSelector, delegateEvent, domQuery, query, unbindEvent, undelegateEvent;
-    checkIsElementMatchSelector = function(selector, element) {
+    checkIsElementMatchSelector = function(selector, element, root) {
       var listOfElemevents;
-      listOfElemevents = domQuery(selector).get();
+      listOfElemevents = domQuery(root || document).find(selector).get();
       return _.find(listOfElemevents, function(elementFromlist) {
         return _.isEqual(elementFromlist, element);
       });
     };
     callEventHandlers = function(handlers, eventObj) {
       return _.each(handlers, function(handler) {
-        console.log(handler, handler.identity);
         return _.delay(handler, eventObj);
       });
     };
@@ -3303,7 +3302,6 @@ var requirejs, require, define;
     };
     delegateEvent = function(node, selector, eventName, handler) {
       var delegateHandler;
-      console.log(arguments, "delegate");
       if (!node.domQueryDelegateHandler) {
         delegateHandler = function(e) {
           var eventObject, handlers, target;
@@ -3312,11 +3310,9 @@ var requirejs, require, define;
           if (target.nodeType === 3) {
             target = target.parentNode;
           }
-          console.log("datahandler delegate", eventObject.type, node.domQueryHandlers[eventObject.type], node, target);
           if (node.domQueryHandlers[eventObject.type]) {
             handlers = node.domQueryHandlers[eventObject.type];
             return _.each(handlers, function(handlers, selector) {
-              console.log(checkIsElementMatchSelector(selector, target), selector, target);
               if (checkIsElementMatchSelector(selector, target)) {
                 return callEventHandlers(handlers, eventObject);
               }
@@ -3569,7 +3565,9 @@ var requirejs, require, define;
         return new Oops(bindEventsList[0]);
       },
       unbind: function(name, handler) {
-        return new Oops(name).unbind(handler);
+        if (this.list[name]) {
+          return this.list[name].unbind(handler);
+        }
       },
       trigger: function(name, args) {
         return new Oops(name).dispatch(args);
@@ -3645,7 +3643,6 @@ var requirejs, require, define;
       var id;
       this.name = name;
       this.element = element;
-      console.log(element);
       id = this.element.getAttribute("data-widget-" + this.name + "-id");
       if (id && widgetsInstances[id]) {
         return widgetsInstances[id];
@@ -3665,7 +3662,6 @@ var requirejs, require, define;
         if (this._isOn) {
           return;
         }
-        console.log("turn on");
         bindWidgetDomEvents(this.domEvents, this);
         bindWidgetModuleEvents(this.moduleEvents, this);
         this._isOn = true;
@@ -3675,7 +3671,6 @@ var requirejs, require, define;
         if (!this._isOn) {
           return;
         }
-        console.log("turn off");
         unbindWidgetDomEvents(this.domEvents, this);
         unbindWidgetModuleEvents(this.moduleEvents, this);
         this._isOn = false;

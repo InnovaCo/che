@@ -114,7 +114,9 @@
         return new Oops(bindEventsList[0]);
       },
       unbind: function(name, handler) {
-        return new Oops(name).unbind(handler);
+        if (this.list[name]) {
+          return this.list[name].unbind(handler);
+        }
       },
       trigger: function(name, args) {
         return new Oops(name).dispatch(args);

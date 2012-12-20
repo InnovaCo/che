@@ -1,3 +1,9 @@
+#### *module* utils/destroyer
+#
+#---
+# Модуль для уничтожения объекта, рекурсивно и асинхронно удаляет все свойства объекта
+#
+
 define [], ->
   destroyer = (object) ->
     _.each object, (property, name) ->

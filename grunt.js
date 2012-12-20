@@ -1,5 +1,6 @@
 module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-coffee');
+  grunt.loadNpmTasks('grunt-docco');
   grunt.loadNpmTasks('grunt-requirejs');
   grunt.loadNpmTasks('grunt-clean');
   grunt.loadNpmTasks('grunt-jasmine-runner');
@@ -32,6 +33,13 @@ module.exports = function(grunt) {
           preserve_dirs: true,
           base_path: 'spec/helpers/coffee'
         }
+      }
+    },
+    docco: {
+      app: {
+        src: [
+          'app/coffee/*.coffee'
+        ]
       }
     },
     requirejs: {
@@ -105,8 +113,7 @@ module.exports = function(grunt) {
   });
 
   
-
-  grunt.registerTask('require', 'coffee requirejs concat clean');
+  grunt.registerTask('require', 'coffee requirejs concat clean docco');
   grunt.registerTask('spec', 'require jasmine');
   grunt.registerTask('spec-server', 'require jasmine-server');
   grunt.registerTask('default', 'spec-server');

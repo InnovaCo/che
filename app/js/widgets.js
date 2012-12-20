@@ -44,7 +44,6 @@
       var id;
       this.name = name;
       this.element = element;
-      console.log(element);
       id = this.element.getAttribute("data-widget-" + this.name + "-id");
       if (id && widgetsInstances[id]) {
         return widgetsInstances[id];
@@ -64,7 +63,6 @@
         if (this._isOn) {
           return;
         }
-        console.log("turn on");
         bindWidgetDomEvents(this.domEvents, this);
         bindWidgetModuleEvents(this.moduleEvents, this);
         this._isOn = true;
@@ -74,7 +72,6 @@
         if (!this._isOn) {
           return;
         }
-        console.log("turn off");
         unbindWidgetDomEvents(this.domEvents, this);
         unbindWidgetModuleEvents(this.moduleEvents, this);
         this._isOn = false;

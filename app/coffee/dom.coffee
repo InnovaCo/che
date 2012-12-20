@@ -1,22 +1,37 @@
-#### *module* helpers/dom
+#### *module* dom
 #
-#---
-# Содержит вспомогательные функции для обхода DOM-дерева пока jquery еще не готов
+# Содержит вспомогательные функции для обхода DOM-дерева, и навешивания обработчиков событий, чтобы не грузить большой jquery ради пары мелких задач
 #
+
+# Требует модуль 'utils/guid', для генерации уникальных id обработчиков событий
 
 define ["utils/guid"], (guid) ->
 
-  checkIsElementMatchSelector = (selector, element) ->
-    listOfElemevents = domQuery(selector).get()
+  
+  #### checkIsElementMatchSelector(selector, element, [root])
+  #
+  # Проверяет, подходит ли указанный селектор для элемента
+  
+  checkIsElementMatchSelector = (selector, element, root) ->
+    listOfElemevents = domQuery(root or document).find(selector).get()
     _.find listOfElemevents, (elementFromlist) ->
       _.isEqual(elementFromlist, element)
 
+  
+  #### callEventHandlers(handlers, eventObj)
+  #
+  # Асинхронно вызывает обработчиков событий
+  
   callEventHandlers = (handlers, eventObj) ->
     _.each handlers, (handler) ->
-      console.log handler, handler.identity
       _.delay(handler, eventObj)
         
 
+  
+  #### query(selector, [root])
+  #
+  # Возвращает элементы для указанного селектора
+  #
   query = (selector, root) ->
     if window.jQuery
       query = (selector, root) ->
@@ -38,7 +53,19 @@ define ["utils/guid"], (guid) ->
     else
       console?.log "haven't tools for selecting node (module helpers/dom)"
 
+  
+  #### unbindEvent(node, eventName, handler)
+  #
+  # Отвязывает обработчика события для указанного DOM-элемента
+  #
   unbindEvent =  ->
+
+
+  
+  #### bindEvent(node, eventName, handler)
+  #
+  # Привязывает обработчик события для указанного DOM-элемента
+  #
   bindEvent = (node, eventName, handler) ->
     if node.addEventListener
       bindEvent = (node, eventName, handler) ->
@@ -57,8 +84,12 @@ define ["utils/guid"], (guid) ->
     bindEvent.apply this, arguments
 
   
+  
+  #### delegateEvent(node, selector, eventName, handler)
+  #
+  # Привязывает обработчика события на DOM-элемент, делегирует ему события с элементов по селектору
+  #
   delegateEvent = (node, selector, eventName, handler) ->
-    console.log arguments, "delegate"
     if not node.domQueryDelegateHandler
       delegateHandler = (e) ->
 
@@ -66,12 +97,10 @@ define ["utils/guid"], (guid) ->
         target = eventObject.target or eventObject.srcElement
         if target.nodeType is 3 # defeat Safari bug
           target = target.parentNode
-        
-        console.log "datahandler delegate", eventObject.type, node.domQueryHandlers[eventObject.type], node, target
+      
         if node.domQueryHandlers[eventObject.type]
           handlers = node.domQueryHandlers[eventObject.type]
           _.each handlers, (handlers, selector) ->
-            console.log checkIsElementMatchSelector(selector, target), selector, target
             if checkIsElementMatchSelector selector, target
               callEventHandlers handlers, eventObject
 
@@ -84,6 +113,12 @@ define ["utils/guid"], (guid) ->
     node.domQueryHandlers[eventName][selector] = node.domQueryHandlers[eventName][selector] or []
     node.domQueryHandlers[eventName][selector].push handler
 
+
+  
+  #### undelegateEvent(node, selector, eventName, handler)
+  #
+  # Отвязывает обработчика от делегирования событий с элементов по селектору
+  #
   undelegateEvent = (node, selector, eventName, handler) ->
     return false if not handler.guid
     return false if not node.domQueryHandlers
@@ -99,6 +134,12 @@ define ["utils/guid"], (guid) ->
       node.domQueryHandlers[eventName][selector] handlers.splice index, 1
 
 
+  
+  #### domQuery([selector])
+  #
+  # Конструктор domQuery для работы с DOM-элементами
+  #
+
   domQuery = (selector) ->
     if this instanceof domQuery
       return selector if selector instanceof domQuery
@@ -113,21 +154,43 @@ define ["utils/guid"], (guid) ->
       new domQuery selector
 
   domQuery:: =
+
+    
+    #### domQuery.prototype.on([selector], eventName, handler)
+    #
+    # Привязывает обработчика событий на элемент, либо для делегирования событий с элемента по селектору
+    #
     on: (selector, eventName, handler) ->
       binder = if arguments.length is 3 then delegateEvent else bindEvent
       args = Array.prototype.slice.call(arguments)
       _.each @get() , (node, index) ->
         binder.apply @, [node].concat(args)
 
+    
+    #### domQuery.prototype.off([selector], eventName, handler)
+    #
+    # Отключает обработчика событий элемента, либо от делегирования событий с элемента по селектору
+    #
     off: (selector, eventName, handler) ->
       unbinder = if arguments.length is 3 then undelegateEvent else unbindEvent
       args = Array.prototype.slice.call(arguments)
       _.each @get(), (node, index) ->
         unbinder.apply @, [node].concat(args)
 
+    
+    #### domQuery.prototype.find(selector)
+    #
+    # Возвращает элемент по селектору в контексте экземпляра domQuery
+    #
     find: (selector) ->
       return domQuery query selector, @get()
-        
+
+
+    
+    #### domQuery.prototype.get([index])
+    #
+    # Возвращает элемент по идексу, либо массив элементов экземпляра domQuery
+    #
     get: (index) ->
       if index?
         index = Math.max 0, Math.min index, @length - 1

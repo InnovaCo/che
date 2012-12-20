@@ -40,7 +40,7 @@
         });
       });
     });
-    return describe("Saving key/value", function() {
+    describe("Saving key/value", function() {
       var storage, _oldCookie, _oldLocalStorage, _oldSessionStorage;
       storage = null;
       _oldLocalStorage = null;
@@ -56,7 +56,9 @@
       });
       afterEach(function() {
         window.localStorage = _oldLocalStorage;
-        return window.sessionStorage = _oldSessionStorage;
+        window.sessionStorage = _oldSessionStorage;
+        window.localStorage.removeItem("testModule/testKey");
+        return window.sessionStorage.removeItem("testModule/testKey");
       });
       it("should save given key/value pair (both must be strings) with 'moduleName'-prefix to localStorage only (4-th parameter is false). If possible. ", function() {
         waitsFor(function() {
@@ -99,6 +101,52 @@
           storage.save("testModule", "testKey", "testValue");
           expect(window.localStorage.getItem("testModule/testKey")).toBe("testValue");
           return window.localStorage = _oldLocalStorage;
+        });
+      });
+    });
+    return describe("Getting value", function() {
+      var storage, _oldCookie, _oldLocalStorage, _oldSessionStorage;
+      storage = null;
+      _oldLocalStorage = null;
+      _oldSessionStorage = null;
+      _oldCookie = null;
+      beforeEach(function() {
+        storage = null;
+        window.localStorage.removeItem("testModule/testKey");
+        window.sessionStorage.removeItem("testModule/testKey");
+        _oldLocalStorage = window.localStorage;
+        _oldSessionStorage = window.sessionStorage;
+        return require(["utils/storage"], function(storageModule) {
+          return storage = storageModule;
+        });
+      });
+      afterEach(function() {
+        window.localStorage = _oldLocalStorage;
+        window.sessionStorage = _oldSessionStorage;
+        window.localStorage.removeItem("testModule/testKey");
+        return window.sessionStorage.removeItem("testModule/testKey");
+      });
+      it("should get value of previously saved pair", function() {
+        waitsFor(function() {
+          return storage !== null;
+        });
+        return runs(function() {
+          if (typeof window.localStorage === "undefined") {
+            window.localStorage = mockups.localStorage;
+          }
+          storage.save("testModule", "testKey", "testValue");
+          return expect(storage.get("testModule", "testKey")).toBe("testValue");
+        });
+      });
+      return it("should'nt get value if there is'nt previously saved pair", function() {
+        waitsFor(function() {
+          return storage !== null;
+        });
+        return runs(function() {
+          if (typeof window.localStorage === "undefined") {
+            window.localStorage = mockups.localStorage;
+          }
+          return expect(storage.get("testModule", "testKey")).toBeNull();
         });
       });
     });

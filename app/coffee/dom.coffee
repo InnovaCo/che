@@ -58,8 +58,17 @@ define ["utils/guid"], (guid) ->
   #
   # Отвязывает обработчика события для указанного DOM-элемента
   #
-  unbindEvent =  ->
+  unbindEvent =  (node, eventName, handler) ->
+    if node.removeEventListener
+      unbindEvent = (node, eventName, handler) ->
+        node.removeEventListener eventName, handler, false
+    else if node.detachEvent
+      unbindEvent = (node, eventName, handler) ->
+        node.detachEvent eventName, handler
+    else
+      return console?.log "cannot unbind event (module helpers/dom)"
 
+    unbindEvent.apply this, arguments
 
   
   #### bindEvent(node, eventName, handler)
@@ -70,16 +79,11 @@ define ["utils/guid"], (guid) ->
     if node.addEventListener
       bindEvent = (node, eventName, handler) ->
         node.addEventListener eventName, handler, false
-      unbindEvent = (node, eventName, handler) ->
-        node.removeEventListener eventName, handler, false
     else if node.attachEvent
       bindEvent = (node, eventName, handler) ->
         node.attachEvent "on" + eventName, handler
-      unbindEvent = (node, eventName, handler) ->
-        node.detachEvent eventName, handler
     else
-      bindEvent = ->
-        console?.log "cannot bind event (module helpers/dom)"
+      return console?.log "cannot bind event (module helpers/dom)"
 
     bindEvent.apply this, arguments
 

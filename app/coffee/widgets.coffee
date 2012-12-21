@@ -3,7 +3,7 @@
 # Инициализирует виджеты на DOM-элементах, хранит список инстансов
 #
 
-define ["events", "dom", "utils/destroyer"], (events, dom, destroyer)->
+define ["events", "dom", "utils/destroyer", "config"], (events, dom, destroyer, config)->
   widgetsInstances = {}
   eventSplitter = /^(\S+)\s*(.*)$/
 
@@ -108,7 +108,6 @@ define ["events", "dom", "utils/destroyer"], (events, dom, destroyer)->
       delete widgetsInstances[@id]
       destroyer(@)
 
-
   #### widgets
   #
   # интерфейс модуля
@@ -131,6 +130,8 @@ define ["events", "dom", "utils/destroyer"], (events, dom, destroyer)->
     # Подгружает необходимый модуль (по имени) и инициализирует виджет
 
     create: (name, element, ready) ->
+      if not (///^http///).test name
+        name = config.baseWidgetsPath + name
       require [name], (widget) ->
         ready new Widget(name, element, widget)
 

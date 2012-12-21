@@ -40,26 +40,31 @@
         return typeof console !== "undefined" && console !== null ? console.log("haven't tools for selecting node (module helpers/dom)") : void 0;
       }
     };
-    unbindEvent = function() {};
+    unbindEvent = function(node, eventName, handler) {
+      if (node.removeEventListener) {
+        unbindEvent = function(node, eventName, handler) {
+          return node.removeEventListener(eventName, handler, false);
+        };
+      } else if (node.detachEvent) {
+        unbindEvent = function(node, eventName, handler) {
+          return node.detachEvent(eventName, handler);
+        };
+      } else {
+        return typeof console !== "undefined" && console !== null ? console.log("cannot unbind event (module helpers/dom)") : void 0;
+      }
+      return unbindEvent.apply(this, arguments);
+    };
     bindEvent = function(node, eventName, handler) {
       if (node.addEventListener) {
         bindEvent = function(node, eventName, handler) {
           return node.addEventListener(eventName, handler, false);
         };
-        unbindEvent = function(node, eventName, handler) {
-          return node.removeEventListener(eventName, handler, false);
-        };
       } else if (node.attachEvent) {
         bindEvent = function(node, eventName, handler) {
           return node.attachEvent("on" + eventName, handler);
         };
-        unbindEvent = function(node, eventName, handler) {
-          return node.detachEvent(eventName, handler);
-        };
       } else {
-        bindEvent = function() {
-          return typeof console !== "undefined" && console !== null ? console.log("cannot bind event (module helpers/dom)") : void 0;
-        };
+        return typeof console !== "undefined" && console !== null ? console.log("cannot bind event (module helpers/dom)") : void 0;
       }
       return bindEvent.apply(this, arguments);
     };

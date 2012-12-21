@@ -5,11 +5,7 @@
 
 # Требует модуль dom для прохода по DOM-элеметам
 
-define ['dom'], (dom) ->
-  widgetClassName = 'widget'
-  widgetAttributName = 'data-js-module'
-
-  
+define ['dom', 'config'], (dom, config) ->
   #### createDomElement(plainHtml)
   #
   # превращает html-текст в dom-элемент, оборачивает в div
@@ -23,7 +19,7 @@ define ['dom'], (dom) ->
   #
   # возаращает все элементы, для которых могут понадобится js-модули
   getWidgetElements = (domElement) ->
-    dom(domElement).find("." + widgetClassName).get()
+    dom(domElement).find("." + config.widgetClassName).get()
 
 
   
@@ -31,7 +27,7 @@ define ['dom'], (dom) ->
   #
   # сохраняет в массив данные о виджете для переданного элемента
   saveTo = (arrayOfPairs, element) ->
-    names = (element.getAttribute widgetAttributName).replace(///^\s|\s$///, '').split(///\s*,\s*///)
+    names = (element.getAttribute config.widgetDataAttributeName).replace(///^\s|\s$///, '').split(///\s*,\s*///)
     for moduleName in names
       arrayOfPairs.push
           name: moduleName

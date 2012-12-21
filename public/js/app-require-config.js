@@ -1,7 +1,7 @@
 (function() {
 
   require.config({
-    baseUrl: "app/js"
+    baseUrl: "public/js"
   });
 
 }).call(this);

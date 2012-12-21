@@ -27,5 +27,5 @@ describe "loader  module", ->
       runs ->
         loader.searchForWidgets()
         expect(requireSpy.calls.length).toEqual(10)
-        expect(requireSpy.mostRecentCall.args[0][0]).toBe('module_9')
+        expect(requireSpy.mostRecentCall.args[0][0]).toBe('widgets/module_9')
       

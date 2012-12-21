@@ -1,6 +1,6 @@
 (function() {
 
-  define(["events", "dom", "utils/destroyer"], function(events, dom, destroyer) {
+  define(["events", "dom", "utils/destroyer", "config"], function(events, dom, destroyer, config) {
     var Widget, bindWidgetDomEvents, bindWidgetModuleEvents, eventSplitter, unbindWidgetDomEvents, unbindWidgetModuleEvents, widgets, widgetsInstances;
     widgetsInstances = {};
     eventSplitter = /^(\S+)\s*(.*)$/;
@@ -88,6 +88,9 @@
       _instances: widgetsInstances,
       _constructor: Widget,
       create: function(name, element, ready) {
+        if (!/^http/.test(name)) {
+          name = config.baseWidgetsPath + name;
+        }
         return require([name], function(widget) {
           return ready(new Widget(name, element, widget));
         });

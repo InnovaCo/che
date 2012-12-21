@@ -9,7 +9,7 @@ module.exports = function(grunt) {
     coffee: {
       app: {
         src: ['app/coffee/*.coffee', 'app/coffee/**/*.coffee'],
-        dest: 'app/js/',
+        dest: 'public/js/',
         options: {
           bare: false,
           preserve_dirs: true,
@@ -45,16 +45,16 @@ module.exports = function(grunt) {
     requirejs: {
       compile: {
         options: {
-          baseUrl: "app/js",
+          baseUrl: "public/js",
           name: "app",
           include: ["loader", "events"],
-          out: "app/js/app-require-optimized.js",
+          out: "public/js/app-require-optimized.js",
           optimize: "none"
         }
       }
     },
     lint: {
-      files: ['app/js/*.js','app/js/**/*.js','spec/js/**/*.js']
+      files: ['public/js/*.js','public/js/**/*.js','spec/js/**/*.js']
     },
     watch: {
       files: ['<config:jasmine.specs>','src/**/*js'],
@@ -63,21 +63,21 @@ module.exports = function(grunt) {
     concat: {
       app: {
       src: [
-        'app/js/lib/require-2.1.2.js',
-        'app/js/lib/underscore-1.4.3.js',
-        'app/js/app-require-config.js',
-        'app/js/app-require-optimized.js'
+        'public/js/lib/require-2.1.2.js',
+        'public/js/lib/underscore-1.4.3.js',
+        'public/js/app-require-config.js',
+        'public/js/app-require-optimized.js'
       ],
-      dest: 'app/js/app-package.js'
+      dest: 'public/js/app-package.js'
       }
     },
     clean: {
-      file: 'app/js/app-require-optimized.js'
+      file: 'public/js/app-require-optimized.js'
     },
     jasmine : {
       src : [
-        'app/js/lib/jquery-1.8.3.js', // affix needs jquery (for jasmine fixtures)
-        'app/js/app-package.js'
+        'public/js/lib/jquery-1.8.3.js', // affix needs jquery (for jasmine fixtures)
+        'public/js/app-package.js'
       ],
       specs : 'spec/js/**/*_spec.js',
       helpers : 'spec/helpers/**/*.js',

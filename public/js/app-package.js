@@ -3215,7 +3215,7 @@ var requirejs, require, define;
 (function() {
 
   require.config({
-    baseUrl: "app/js"
+    baseUrl: "public/js"
   });
 
 }).call(this);
@@ -3277,26 +3277,31 @@ var requirejs, require, define;
         return typeof console !== "undefined" && console !== null ? console.log("haven't tools for selecting node (module helpers/dom)") : void 0;
       }
     };
-    unbindEvent = function() {};
+    unbindEvent = function(node, eventName, handler) {
+      if (node.removeEventListener) {
+        unbindEvent = function(node, eventName, handler) {
+          return node.removeEventListener(eventName, handler, false);
+        };
+      } else if (node.detachEvent) {
+        unbindEvent = function(node, eventName, handler) {
+          return node.detachEvent(eventName, handler);
+        };
+      } else {
+        return typeof console !== "undefined" && console !== null ? console.log("cannot unbind event (module helpers/dom)") : void 0;
+      }
+      return unbindEvent.apply(this, arguments);
+    };
     bindEvent = function(node, eventName, handler) {
       if (node.addEventListener) {
         bindEvent = function(node, eventName, handler) {
           return node.addEventListener(eventName, handler, false);
         };
-        unbindEvent = function(node, eventName, handler) {
-          return node.removeEventListener(eventName, handler, false);
-        };
       } else if (node.attachEvent) {
         bindEvent = function(node, eventName, handler) {
           return node.attachEvent("on" + eventName, handler);
         };
-        unbindEvent = function(node, eventName, handler) {
-          return node.detachEvent(eventName, handler);
-        };
       } else {
-        bindEvent = function() {
-          return typeof console !== "undefined" && console !== null ? console.log("cannot bind event (module helpers/dom)") : void 0;
-        };
+        return typeof console !== "undefined" && console !== null ? console.log("cannot bind event (module helpers/dom)") : void 0;
       }
       return bindEvent.apply(this, arguments);
     };
@@ -3407,10 +3412,20 @@ var requirejs, require, define;
 
 (function() {
 
-  define('htmlParser',['dom'], function(dom) {
-    var createDomElement, getWidgetElements, parser, saveTo, widgetAttributName, widgetClassName;
-    widgetClassName = 'widget';
-    widgetAttributName = 'data-js-module';
+  define('config',[],function() {
+    return {
+      widgetClassName: 'widget',
+      widgetDataAttributeName: 'data-js-module',
+      baseWidgetsPath: 'widgets/'
+    };
+  });
+
+}).call(this);
+
+(function() {
+
+  define('htmlParser',['dom', 'config'], function(dom, config) {
+    var createDomElement, getWidgetElements, parser, saveTo;
     createDomElement = function(plainHtml) {
       var div;
       div = document.createElement('DIV');
@@ -3418,11 +3433,11 @@ var requirejs, require, define;
       return div;
     };
     getWidgetElements = function(domElement) {
-      return dom(domElement).find("." + widgetClassName).get();
+      return dom(domElement).find("." + config.widgetClassName).get();
     };
     saveTo = function(arrayOfPairs, element) {
       var moduleName, names, _i, _len;
-      names = (element.getAttribute(widgetAttributName)).replace(/^\s|\s$/, '').split(/\s*,\s*/);
+      names = (element.getAttribute(config.widgetDataAttributeName)).replace(/^\s|\s$/, '').split(/\s*,\s*/);
       for (_i = 0, _len = names.length; _i < _len; _i++) {
         moduleName = names[_i];
         arrayOfPairs.push({
@@ -3599,7 +3614,7 @@ var requirejs, require, define;
 
 (function() {
 
-  define('widgets',["events", "dom", "utils/destroyer"], function(events, dom, destroyer) {
+  define('widgets',["events", "dom", "utils/destroyer", "config"], function(events, dom, destroyer, config) {
     var Widget, bindWidgetDomEvents, bindWidgetModuleEvents, eventSplitter, unbindWidgetDomEvents, unbindWidgetModuleEvents, widgets, widgetsInstances;
     widgetsInstances = {};
     eventSplitter = /^(\S+)\s*(.*)$/;
@@ -3687,6 +3702,9 @@ var requirejs, require, define;
       _instances: widgetsInstances,
       _constructor: Widget,
       create: function(name, element, ready) {
+        if (!/^http/.test(name)) {
+          name = config.baseWidgetsPath + name;
+        }
         return require([name], function(widget) {
           return ready(new Widget(name, element, widget));
         });

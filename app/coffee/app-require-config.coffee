@@ -1,2 +1,5 @@
+#### Базовый конфиг для приложения
+#
 require.config
-    baseUrl: "app/js"
+    # указываем место относительно которого requirejs грузит скрипты
+    baseUrl: "public/js"

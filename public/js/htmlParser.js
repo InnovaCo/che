@@ -1,9 +1,7 @@
 (function() {
 
-  define(['dom'], function(dom) {
-    var createDomElement, getWidgetElements, parser, saveTo, widgetAttributName, widgetClassName;
-    widgetClassName = 'widget';
-    widgetAttributName = 'data-js-module';
+  define(['dom', 'config'], function(dom, config) {
+    var createDomElement, getWidgetElements, parser, saveTo;
     createDomElement = function(plainHtml) {
       var div;
       div = document.createElement('DIV');
@@ -11,11 +9,11 @@
       return div;
     };
     getWidgetElements = function(domElement) {
-      return dom(domElement).find("." + widgetClassName).get();
+      return dom(domElement).find("." + config.widgetClassName).get();
     };
     saveTo = function(arrayOfPairs, element) {
       var moduleName, names, _i, _len;
-      names = (element.getAttribute(widgetAttributName)).replace(/^\s|\s$/, '').split(/\s*,\s*/);
+      names = (element.getAttribute(config.widgetDataAttributeName)).replace(/^\s|\s$/, '').split(/\s*,\s*/);
       for (_i = 0, _len = names.length; _i < _len; _i++) {
         moduleName = names[_i];
         arrayOfPairs.push({

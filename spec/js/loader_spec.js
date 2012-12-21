@@ -35,7 +35,7 @@
         return runs(function() {
           loader.searchForWidgets();
           expect(requireSpy.calls.length).toEqual(10);
-          return expect(requireSpy.mostRecentCall.args[0][0]).toBe('module_9');
+          return expect(requireSpy.mostRecentCall.args[0][0]).toBe('widgets/module_9');
         });
       });
     });

@@ -3239,17 +3239,30 @@ var requirejs, require, define;
 
   define('dom',["utils/guid"], function(guid) {
     var bindEvent, callEventHandlers, checkIsElementMatchSelector, delegateEvent, domQuery, query, unbindEvent, undelegateEvent;
-    checkIsElementMatchSelector = function(selector, element, root) {
-      var listOfElemevents;
-      listOfElemevents = domQuery(root || document).find(selector).get();
-      return _.find(listOfElemevents, function(elementFromlist) {
-        return _.isEqual(elementFromlist, element);
-      });
+    checkIsElementMatchSelector = function(selectorOrNodeList, element, root) {
+      var list, listElement, _i, _len;
+      console.log(arguments);
+      if (element === root || !element) {
+        return false;
+      }
+      root = root || document;
+      list = _.isString(selectorOrNodeList) ? domQuery(root).find(selectorOrNodeList).get() : selectorOrNodeList;
+      for (_i = 0, _len = list.length; _i < _len; _i++) {
+        listElement = list[_i];
+        if (listElement === element) {
+          return true;
+        }
+      }
+      return checkIsElementMatchSelector(list, element.parent, root);
     };
     callEventHandlers = function(handlers, eventObj) {
-      return _.each(handlers, function(handler) {
-        return _.delay(handler, eventObj);
-      });
+      var handler, _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = handlers.length; _i < _len; _i++) {
+        handler = handlers[_i];
+        _results.push(_.delay(handler, eventObj));
+      }
+      return _results;
     };
     query = function(selector, root) {
       var result;
@@ -3416,6 +3429,7 @@ var requirejs, require, define;
     return {
       widgetClassName: 'widget',
       widgetDataAttributeName: 'data-js-module',
+      reloadSectionsDataAttributeName: 'data-reload-sections',
       baseWidgetsPath: 'widgets/'
     };
   });
@@ -3717,7 +3731,7 @@ var requirejs, require, define;
 (function() {
 
   define('loader',['htmlParser', 'widgets'], function(htmlParser, widgets) {
-    var loadWidgetModule, loader, searchForWidgets;
+    var loadSections, loadWidgetModule, loader, searchForWidgets;
     loadWidgetModule = function(widgetData) {
       return widgets.create(widgetData.name, widgetData.element);
     };
@@ -3731,9 +3745,11 @@ var requirejs, require, define;
       }
       return _results;
     };
+    loadSections = function(sectionsData) {};
     return loader = {
       loadWidgetModule: loadWidgetModule,
-      searchForWidgets: searchForWidgets
+      searchForWidgets: searchForWidgets,
+      loadSections: loadSections
     };
   });
 

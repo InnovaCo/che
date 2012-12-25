@@ -3,7 +3,7 @@
 # Модуль для получения данных о необходимых модулях из dom-элементов, либо html-текста
 #
 
-# Требует модуль dom для прохода по DOM-элеметам
+# Требует модуль 'dom' для прохода по DOM-элеметам
 
 define ['dom', 'config'], (dom, config) ->
   #### createDomElement(plainHtml)
@@ -36,11 +36,15 @@ define ['dom', 'config'], (dom, config) ->
     arrayOfPairs
 
   
-  #### parser(html)
+ 
+  parser = (html) ->
+    return  _.isString html then createDomElement html else html
+    
+  #### parser.getWidgets(html)
   #
   # ищет все блоки виджетов внутри dom-элемента, либо просто текста в формате html и возвращает массив пар {name: 'moduleName', element: 'domElement'}
-  parser = (html) ->
-    domElement = if _.isString html then createDomElement html else html
+  parser.getWidgets = (domElement) ->
+    domElement = parser domElement
     arrayOfPairs = []
     for element in getWidgetElements domElement
       saveTo arrayOfPairs, element

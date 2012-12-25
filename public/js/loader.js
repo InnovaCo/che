@@ -1,7 +1,7 @@
 (function() {
 
   define(['htmlParser', 'widgets'], function(htmlParser, widgets) {
-    var loadWidgetModule, loader, searchForWidgets;
+    var loadSections, loadWidgetModule, loader, searchForWidgets;
     loadWidgetModule = function(widgetData) {
       return widgets.create(widgetData.name, widgetData.element);
     };
@@ -15,9 +15,11 @@
       }
       return _results;
     };
+    loadSections = function(sectionsData) {};
     return loader = {
       loadWidgetModule: loadWidgetModule,
-      searchForWidgets: searchForWidgets
+      searchForWidgets: searchForWidgets,
+      loadSections: loadSections
     };
   });
 

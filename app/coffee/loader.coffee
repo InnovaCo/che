@@ -3,10 +3,15 @@
 # Модуль для предварительной загрузки виджетов
 #
 
-# требует модули htmlParser для поиска данных о необходимых модулях виджетов и widgets для их инициализации
+# Требует модули htmlParser для поиска данных о необходимых модулях виджетов и widgets для их инициализации
 
-define ['htmlParser', 'widgets'], (htmlParser, widgets) ->
-
+define [
+  'htmlParser',
+  'widgets',
+  'utils/ajax',
+  'config',
+  'events'
+  ], (htmlParser, widgets, ajax, config, events) ->
   
   #### loadWidgetModule(widgetData)
   #
@@ -19,7 +24,7 @@ define ['htmlParser', 'widgets'], (htmlParser, widgets) ->
   #
   # ищет все блоки виджетов и отдает их на загрузку в loadWidgetModule
   searchForWidgets = (node) ->
-    loader.loadWidgetModule widgetData for widgetData in htmlParser(node or document)
+    loader.loadWidgetModule widgetData for widgetData in htmlParser.getWidgets(node or document)
 
   # Интрефейс модуля, вынесены локальные функции для более удобного тестирования
   loader =

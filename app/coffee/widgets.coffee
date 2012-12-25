@@ -61,7 +61,7 @@ define ["events", "dom", "utils/destroyer", "config"], (events, dom, destroyer, 
   # Конструктор виджетов, инициализирует виджет на DOM-элементе только один раз, в следующие разы возвращает уже созданные экземпляры
 
   Widget = (@name, @element, _widget) ->
-    id = @element.getAttribute "data-widget-" + @name + "-id"
+    id = @element.getAttribute "data-widget-#{@name}-id"
     return widgetsInstances[id] if id and widgetsInstances[id]
 
     _.extend @, _widget
@@ -104,7 +104,7 @@ define ["events", "dom", "utils/destroyer", "config"], (events, dom, destroyer, 
 
     destroy: ->
       @turnOff()
-      @element.removeAttribute "data-widget-" + @name + "-id"
+      @element.removeAttribute "data-widget-#{@name}-id"
       delete widgetsInstances[@id]
       destroyer(@)
 
@@ -124,6 +124,14 @@ define ["events", "dom", "utils/destroyer", "config"], (events, dom, destroyer, 
     # Ссылка на конструктор виджетов
 
     _constructor: Widget
+
+    #### widgets.get(name, element)
+    #
+    # Возвращает уже ранее созданный экземпляр виджета для конкретного элемента
+
+    get: (name, element) ->
+      id = element.getAttribute "data-widget-#{name}-id"
+      return @_instances[id]
 
     #### widgets.create(name, element, ready)
     #

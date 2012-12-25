@@ -12,21 +12,22 @@ define ["utils/guid"], (guid) ->
   #
   # Проверяет, подходит ли указанный селектор для элемента
   
-  checkIsElementMatchSelector = (selector, element, root) ->
-    listOfElemevents = domQuery(root or document).find(selector).get()
-    _.find listOfElemevents, (elementFromlist) ->
-      _.isEqual(elementFromlist, element)
+  checkIsElementMatchSelector = (selectorOrNodeList, element, root) ->
+    return false if element is root or not element
+    root = root or document
+    list = if _.isString(selectorOrNodeList) then domQuery(root).find(selectorOrNodeList).get() else selectorOrNodeList
+    for listElement in list
+      return true if listElement is element
 
+    return checkIsElementMatchSelector(list, element.parent, root)
   
   #### callEventHandlers(handlers, eventObj)
   #
   # Асинхронно вызывает обработчиков событий
   
   callEventHandlers = (handlers, eventObj) ->
-    _.each handlers, (handler) ->
-      _.delay(handler, eventObj)
-        
-
+    for handler in handlers
+      _.delay handler, eventObj
   
   #### query(selector, [root])
   #
@@ -87,8 +88,7 @@ define ["utils/guid"], (guid) ->
 
     bindEvent.apply this, arguments
 
-  
-  
+
   #### delegateEvent(node, selector, eventName, handler)
   #
   # Привязывает обработчика события на DOM-элемент, делегирует ему события с элементов по селектору
@@ -179,7 +179,7 @@ define ["utils/guid"], (guid) ->
       unbinder = if arguments.length is 3 then undelegateEvent else unbindEvent
       args = Array.prototype.slice.call(arguments)
       _.each @get(), (node, index) ->
-        unbinder.apply @, [node].concat(args)
+        unbinder.apply @, [node].concat args
 
     
     #### domQuery.prototype.find(selector)
@@ -190,7 +190,6 @@ define ["utils/guid"], (guid) ->
       return domQuery query selector, @get()
 
 
-    
     #### domQuery.prototype.get([index])
     #
     # Возвращает элемент по идексу, либо массив элементов экземпляра domQuery
@@ -201,6 +200,12 @@ define ["utils/guid"], (guid) ->
         @[index]
       else
         return Array.prototype.slice.call @
-        
+
+    #### domQuery.prototype.replaceWith(element)
+    #
+    # заменяет первый элемент на указанный
+    #
+    replaceWith: (element) ->
+      @[0].parentNode.replaceChild element[0] or element, @[0]
         
   domQuery

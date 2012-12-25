@@ -1,1 +1,1 @@
-web: node app.js
+web: node_modules/coffee-script/bin/coffee app.coffee

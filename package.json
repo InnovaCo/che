@@ -12,6 +12,7 @@
   "dependencies": {
     "express": "3.0.4",
     "jade": "*",
+    "coffee-script": "*",
     "grunt-clean": ">= 0.3.0",
     "grunt-docco": ">= 0.1.1",
     "grunt-coffee": ">= 0.0.5",

@@ -11,12 +11,12 @@ module.exports = function(grunt) {
     /* Coffee-script */
     coffee: {
       app: {
-        src: ['app/coffee/*.coffee', 'app/coffee/**/*.coffee'],
+        src: ['app/client/*.coffee', 'app/client/**/*.coffee', 'app/client/**/*.js'],
         dest: 'public/js/',
         options: {
           bare: false,
           preserve_dirs: true,
-          base_path: 'app/coffee'
+          base_path: 'app/client'
         }
       },
       tests: {
@@ -56,7 +56,7 @@ module.exports = function(grunt) {
     docco: {
       app: {
         src: [
-          'app/coffee/*.coffee'
+          'src/*.coffee'
         ]
       }
     },
@@ -65,7 +65,7 @@ module.exports = function(grunt) {
     requirejs: {
       compile: {
         options: {
-          baseUrl: "public/js",
+          baseUrl: "public/js/",
           name: "app",
           include: ["loader", "events"],
           out: "public/js/app-require-optimized.js",
@@ -92,7 +92,7 @@ module.exports = function(grunt) {
 
     /* JSLint */
     lint: {
-      files: ['public/js/*.js','public/js/**/*.js','spec/js/**/*.js']
+      files: ['public/js/*.js','app/js/**/*.js','spec/js/**/*.js']
     },
 
     /* JS Hint */

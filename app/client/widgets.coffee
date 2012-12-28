@@ -3,7 +3,7 @@
 # Инициализирует виджеты на DOM-элементах, хранит список инстансов
 #
 
-define ["events", "dom", "utils/destroyer", "config"], (events, dom, destroyer, config)->
+define ["events", "dom", "utils/destroyer", "config", "utils/guid"], (events, dom, destroyer, config, guid)->
   widgetsInstances = {}
   eventSplitter = /^(\S+)\s*(.*)$/
 
@@ -61,15 +61,20 @@ define ["events", "dom", "utils/destroyer", "config"], (events, dom, destroyer, 
   # Конструктор виджетов, инициализирует виджет на DOM-элементе только один раз, в следующие разы возвращает уже созданные экземпляры
 
   Widget = (@name, @element, _widget) ->
-    id = @element.getAttribute "data-widget-#{@name}-id"
+    @_attr_name = "data-#{@name}-id".replace("/", "-")
+
+    id = @element.getAttribute @_attr_name
     return widgetsInstances[id] if id and widgetsInstances[id]
 
     _.extend @, _widget
-    @id = _.uniqueId "widget_"
+    @id = guid()
     @init?(@element)
     @turnOn()
     @isInitialized = yes
-    @element.setAttribute "data-widget-" + @name + "-id", @id
+    
+    
+
+    @element.setAttribute @_attr_name, @id
     widgetsInstances[@id] = @
 
   Widget:: =
@@ -104,7 +109,7 @@ define ["events", "dom", "utils/destroyer", "config"], (events, dom, destroyer, 
 
     destroy: ->
       @turnOff()
-      @element.removeAttribute "data-widget-#{@name}-id"
+      @element.removeAttribute @_attr_name
       delete widgetsInstances[@id]
       destroyer(@)
 
@@ -130,7 +135,8 @@ define ["events", "dom", "utils/destroyer", "config"], (events, dom, destroyer, 
     # Возвращает уже ранее созданный экземпляр виджета для конкретного элемента
 
     get: (name, element) ->
-      id = element.getAttribute "data-widget-#{name}-id"
+
+      id = element.getAttribute "data-#{name}-id".replace "/", "-"
       return @_instances[id]
 
     #### widgets.create(name, element, ready)
@@ -141,5 +147,6 @@ define ["events", "dom", "utils/destroyer", "config"], (events, dom, destroyer, 
       if not (///^http///).test name
         name = config.baseWidgetsPath + name
       require [name], (widget) ->
-        ready new Widget(name, element, widget)
+        instance = new Widget(name, element, widget)
+        if _.isFunction(ready) then ready instance
 

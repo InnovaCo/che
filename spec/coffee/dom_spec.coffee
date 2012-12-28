@@ -96,8 +96,8 @@ describe 'dom module', ->
         dom("div.test ul li a").off 'click', bindSpy
 
         triggerMouseEvent("click", dom("div.test ul li a").get(0))
+        expect(bindSpy).not.toHaveBeenCalled()
         
-
     it 'should delegate event handler to element', ->
       waitsFor ->
         dom?

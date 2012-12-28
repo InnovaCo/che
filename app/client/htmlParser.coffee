@@ -38,7 +38,7 @@ define ['dom', 'config'], (dom, config) ->
   
  
   parser = (html) ->
-    return  _.isString html then createDomElement html else html
+    return  if _.isString html then createDomElement html else html
     
   #### parser.getWidgets(html)
   #

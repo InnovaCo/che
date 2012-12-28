@@ -7,7 +7,7 @@ describe "loader  module", ->
     beforeEach ->
       loader = null
       for index in [0..9]
-        affix 'div.widget[data-js-module="module_' + index + '"]'
+        affix 'div.widget[data-js-modules="module_' + index + '"]'
       require ["loader"], (preloaderModule) ->
         requireSpy = spyOn(window, "require").andCallThrough()
         loader = preloaderModule

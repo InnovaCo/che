@@ -10,7 +10,7 @@
         var index, _i;
         loader = null;
         for (index = _i = 0; _i <= 9; index = ++_i) {
-          affix('div.widget[data-js-module="module_' + index + '"]');
+          affix('div.widget[data-js-modules="module_' + index + '"]');
         }
         return require(["loader"], function(preloaderModule) {
           requireSpy = spyOn(window, "require").andCallThrough();

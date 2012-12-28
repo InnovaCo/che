@@ -25,9 +25,11 @@ define ["utils/guid"], (guid) ->
   #
   # Асинхронно вызывает обработчиков событий
   
-  callEventHandlers = (handlers, eventObj) ->
+  callEventHandlers = (handlers, eventObj, context) ->
     for handler in handlers
-      _.delay handler, eventObj
+      result = handler.call context, eventObj
+      if result is false
+        return false
   
   #### query(selector, [root])
   #
@@ -65,7 +67,7 @@ define ["utils/guid"], (guid) ->
         node.removeEventListener eventName, handler, false
     else if node.detachEvent
       unbindEvent = (node, eventName, handler) ->
-        node.detachEvent eventName, handler
+        node.detachEvent "on" + eventName, handler
     else
       return console?.log "cannot unbind event (module helpers/dom)"
 
@@ -104,9 +106,11 @@ define ["utils/guid"], (guid) ->
       
         if node.domQueryHandlers[eventObject.type]
           handlers = node.domQueryHandlers[eventObject.type]
+          result = true
           _.each handlers, (handlers, selector) ->
             if checkIsElementMatchSelector selector, target
-              callEventHandlers handlers, eventObject
+              result = callEventHandlers handlers, eventObject, target
+          result
 
       bindEvent node, eventName, delegateHandler
       node.domQueryDelegateHandler = delegateHandler
@@ -116,7 +120,6 @@ define ["utils/guid"], (guid) ->
     node.domQueryHandlers[eventName] = node.domQueryHandlers[eventName] or {}
     node.domQueryHandlers[eventName][selector] = node.domQueryHandlers[eventName][selector] or []
     node.domQueryHandlers[eventName][selector].push handler
-
 
   
   #### undelegateEvent(node, selector, eventName, handler)
@@ -130,12 +133,14 @@ define ["utils/guid"], (guid) ->
     return false if not node.domQueryHandlers[eventName][selector]
     handlers = node.domQueryHandlers[eventName][selector]
     index = null
+
     _.find handlers, (delegateHandler, handlerIndex) ->
       index = handlerIndex
       delegateHandler.guid is handler.guid
 
-    if index
-      node.domQueryHandlers[eventName][selector] handlers.splice index, 1
+    if index isnt null
+      handlers.splice index, 1
+      node.domQueryHandlers[eventName][selector] = handlers
 
 
   
@@ -147,7 +152,7 @@ define ["utils/guid"], (guid) ->
   domQuery = (selector) ->
     if this instanceof domQuery
       return selector if selector instanceof domQuery
-      elements = if _.isString(selector) then query selector else selector or []
+      elements = if _.isString(selector) then query selector else selector or [document]
       self = @
       if elements.length is undefined
         elements = [elements]
@@ -169,6 +174,7 @@ define ["utils/guid"], (guid) ->
       args = Array.prototype.slice.call(arguments)
       _.each @get() , (node, index) ->
         binder.apply @, [node].concat(args)
+      @
 
     
     #### domQuery.prototype.off([selector], eventName, handler)
@@ -180,7 +186,7 @@ define ["utils/guid"], (guid) ->
       args = Array.prototype.slice.call(arguments)
       _.each @get(), (node, index) ->
         unbinder.apply @, [node].concat args
-
+      @
     
     #### domQuery.prototype.find(selector)
     #

@@ -5,6 +5,6 @@
 
 define ->
   widgetClassName: 'widget'
-  widgetDataAttributeName: 'data-js-module'
+  widgetDataAttributeName: 'data-js-modules'
   reloadSectionsDataAttributeName: 'data-reload-sections'
   baseWidgetsPath: 'widgets/'

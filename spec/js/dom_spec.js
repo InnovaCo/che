@@ -118,7 +118,8 @@
           bindSpy = jasmine.createSpy("bindSpy");
           dom("div.test ul li a").on('click', bindSpy);
           dom("div.test ul li a").off('click', bindSpy);
-          return triggerMouseEvent("click", dom("div.test ul li a").get(0));
+          triggerMouseEvent("click", dom("div.test ul li a").get(0));
+          return expect(bindSpy).not.toHaveBeenCalled();
         });
       });
       return it('should delegate event handler to element', function() {

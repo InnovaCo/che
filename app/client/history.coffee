@@ -5,9 +5,8 @@
 
 # требует модули 'events', 'widgets', 'dom'
 
-define ['events', 'widgets', 'dom'], (events, widgets, dom) ->
-  
-  ###
+define ['events', 'widgets', 'dom', 'destroyer'], (events, widgets, dom, destroyer) ->
+  ### 
   data:
     <selector>: <plainHTML>
   ###
@@ -17,10 +16,23 @@ define ['events', 'widgets', 'dom'], (events, widgets, dom) ->
   # Конструктор переходов, переходы образуют между собой двусторонний связанный список
   # 
 
+  depthTreshold = 10
+  firstTransition = null
+  lastTransition = null
+
   Transition = (@data, previousTransition) ->
+    @prev = previousTransition or null
+    @depth = if previousTransition then previousTransition.depth + 1 else 0
+
+    if firstTransition is null
+      firstTransition = @
+    else if depthTreshold < @depth - firstTransition.depth?
+      next = firstTransition.next
+      next.prev = null
+      destroyer firstTransition
+      firstTransition = next
     if currentTransition is null
       currentTransition = @
-    @prev = previousTransition or null
     if @data?
       @_invoker = new Invoker(@data)
       @invoke()
@@ -36,6 +48,7 @@ define ['events', 'widgets', 'dom'], (events, widgets, dom) ->
       else if @next?
         @next.invoke()
         currentTransition = @next
+      return @next
 
     #### Transition.prototype.prev()
     #
@@ -79,6 +92,8 @@ define ['events', 'widgets', 'dom'], (events, widgets, dom) ->
     run: ->
       if not @_forward and not @_back
         self = @
+        @_back = {}
+        @_forward = {}
         _.each reloadSections, (selector, html) ->
           self._reloadSectionInit selector, html
 
@@ -112,8 +127,6 @@ define ['events', 'widgets', 'dom'], (events, widgets, dom) ->
         widgets: []
         element: nextElement
         widgetsInitData: parser.getWidgets nextElement
-
-      @_insertSections(@_forward, @_back)
 
 
     #### Invoker.prototype._insertSections()
@@ -163,4 +176,12 @@ define ['events', 'widgets', 'dom'], (events, widgets, dom) ->
   currentTransition = new Transition
 
   events.on 'newSectionsLoaded', (sectionsData) ->
-    currentTransition.next data
+    currentTransition.next sectionsData
+
+
+  _getCurrentTransition: ->
+    currentTransition
+  _getFirstTransition: ->
+    firstTransition
+  _transition: Transition
+  _invoker: Invoker

@@ -85,7 +85,7 @@ describe "widgets module", ->
         element = dom("div.widget").get(0)
         widgetInstance = new widgets._constructor 'sampleWidget', element, sampleWidget
 
-        expect(widgetInstance.element.getAttribute "data-widget-sampleWidget-id").toBe(widgetInstance.id)
+        expect(widgetInstance.element.getAttribute "data-sampleWidget-id").toBe(widgetInstance.id)
         expect(widgets._instances[widgetInstance.id]).toBe(widgetInstance)
 
     it 'should init widget on element only once', ->

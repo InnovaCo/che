@@ -19,7 +19,7 @@
           var arrayOfPairs, domElement;
           arrayOfPairs = [];
           domElement = document.createElement("DIV");
-          domElement.setAttribute('data-js-module', 'someModule');
+          domElement.setAttribute('data-js-modules', 'someModule');
           parser._save(arrayOfPairs, domElement);
           expect(arrayOfPairs.length).toBe(1);
           expect(arrayOfPairs[0].name).toBe('someModule');
@@ -34,7 +34,7 @@
           var arrayOfPairs, domElement;
           arrayOfPairs = [];
           domElement = document.createElement("DIV");
-          domElement.setAttribute('data-js-module', 'someModule,otherModule');
+          domElement.setAttribute('data-js-modules', 'someModule,otherModule');
           parser._save(arrayOfPairs, domElement);
           expect(arrayOfPairs.length).toBe(2);
           expect(arrayOfPairs[0].name).toBe('someModule');
@@ -51,7 +51,7 @@
           var arrayOfPairs, domElement;
           arrayOfPairs = [];
           domElement = document.createElement("DIV");
-          domElement.setAttribute('data-js-module', 'someModule, otherModule');
+          domElement.setAttribute('data-js-modules', 'someModule, otherModule');
           parser._save(arrayOfPairs, domElement);
           expect(arrayOfPairs.length).toBe(2);
           expect(arrayOfPairs[0].name).toBe('someModule');
@@ -68,9 +68,9 @@
           var arrayOfPairs, domElement, domElement2;
           arrayOfPairs = [];
           domElement = document.createElement("DIV");
-          domElement.setAttribute('data-js-module', 'someModule');
+          domElement.setAttribute('data-js-modules', 'someModule');
           domElement2 = document.createElement("DIV");
-          domElement2.setAttribute('data-js-module', 'someModule');
+          domElement2.setAttribute('data-js-modules', 'someModule');
           parser._save(arrayOfPairs, domElement);
           parser._save(arrayOfPairs, domElement2);
           expect(arrayOfPairs.length).toBe(2);
@@ -88,14 +88,14 @@
         var index, _i, _j, _k;
         parser = null;
         for (index = _i = 0; _i < 3; index = ++_i) {
-          affix('div.widget[data-js-module="module_' + index + '"]');
+          affix('div.widget[data-js-modules="module_' + index + '"]');
         }
         for (index = _j = 0; _j < 3; index = ++_j) {
-          affix('div.widget[data-js-module="module_fisrt_' + index + ',\
+          affix('div.widget[data-js-modules="module_fisrt_' + index + ',\
         module_second_' + index + '"]');
         }
         for (index = _k = 0; _k < 3; index = ++_k) {
-          affix('div.widget[data-js-module="module_first_' + index + ',\
+          affix('div.widget[data-js-modules="module_first_' + index + ',\
         module_second_' + index + ', module_thrird_' + index + ' "]');
         }
         return require(["htmlParser"], function(parserModule) {
@@ -108,7 +108,7 @@
         });
         return runs(function() {
           var modulesNames, pairs;
-          pairs = parser($('body')[0]);
+          pairs = parser.getWidgets($('body')[0]);
           modulesNames = _.pluck(pairs, "name");
           expect(pairs.length).toBe(18);
           expect(modulesNames).toContain("module_0");
@@ -127,7 +127,7 @@
         });
         return runs(function() {
           var modulesNames, pairs;
-          pairs = parser($('body').html());
+          pairs = parser.getWidgets($('body').html());
           modulesNames = _.pluck(pairs, "name");
           expect(pairs.length).toBe(18);
           expect(modulesNames).toContain("module_0");

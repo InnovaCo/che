@@ -15,7 +15,7 @@ describe 'htmlParser module', ->
       runs ->
         arrayOfPairs = []
         domElement = document.createElement("DIV")
-        domElement.setAttribute('data-js-module', 'someModule')
+        domElement.setAttribute('data-js-modules', 'someModule')
         parser._save arrayOfPairs, domElement
 
         expect(arrayOfPairs.length).toBe 1
@@ -28,7 +28,7 @@ describe 'htmlParser module', ->
       runs ->
         arrayOfPairs = []
         domElement = document.createElement("DIV")
-        domElement.setAttribute('data-js-module', 'someModule,otherModule')
+        domElement.setAttribute('data-js-modules', 'someModule,otherModule')
         parser._save arrayOfPairs, domElement
         
         expect(arrayOfPairs.length).toBe 2
@@ -43,7 +43,7 @@ describe 'htmlParser module', ->
       runs ->
         arrayOfPairs = []
         domElement = document.createElement("DIV")
-        domElement.setAttribute('data-js-module', 'someModule, otherModule')
+        domElement.setAttribute('data-js-modules', 'someModule, otherModule')
         parser._save arrayOfPairs, domElement
         
         expect(arrayOfPairs.length).toBe 2
@@ -58,9 +58,9 @@ describe 'htmlParser module', ->
       runs ->
         arrayOfPairs = []
         domElement = document.createElement("DIV")
-        domElement.setAttribute('data-js-module', 'someModule')
+        domElement.setAttribute('data-js-modules', 'someModule')
         domElement2 = document.createElement("DIV")
-        domElement2.setAttribute('data-js-module', 'someModule')
+        domElement2.setAttribute('data-js-modules', 'someModule')
 
         parser._save arrayOfPairs, domElement
         parser._save arrayOfPairs, domElement2
@@ -77,14 +77,14 @@ describe 'htmlParser module', ->
     beforeEach ->
       parser = null
       for index in [0...3]
-        affix 'div.widget[data-js-module="module_' + index + '"]'
+        affix 'div.widget[data-js-modules="module_' + index + '"]'
 
       for index in [0...3]
-        affix 'div.widget[data-js-module="module_fisrt_' + index + ',
+        affix 'div.widget[data-js-modules="module_fisrt_' + index + ',
         module_second_' + index + '"]'
 
       for index in [0...3]
-        affix 'div.widget[data-js-module="module_first_' + index + ',
+        affix 'div.widget[data-js-modules="module_first_' + index + ',
         module_second_' + index + ', module_thrird_' + index + ' "]'
 
       require ["htmlParser"], (parserModule) ->
@@ -95,7 +95,7 @@ describe 'htmlParser module', ->
       waitsFor ->
         parser isnt null
       runs ->
-        pairs = parser $('body')[0]
+        pairs = parser.getWidgets $('body')[0]
         modulesNames = _.pluck pairs, "name"
         expect(pairs.length).toBe 18
         expect(modulesNames).toContain "module_0"
@@ -111,7 +111,7 @@ describe 'htmlParser module', ->
       waitsFor ->
         parser isnt null
       runs ->
-        pairs = parser $('body').html()
+        pairs = parser.getWidgets $('body').html()
         modulesNames = _.pluck pairs, "name"
         expect(pairs.length).toBe 18
         expect(modulesNames).toContain "module_0"

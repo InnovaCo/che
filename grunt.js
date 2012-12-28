@@ -79,7 +79,7 @@ module.exports = function(grunt) {
     jasmine : {
       src : [
         'public/js/lib/jquery-1.8.3.js', // affix needs jquery (for jasmine fixtures)
-        'public/js/app-package.js'
+        'public/js/app.js'
       ],
       specs : 'spec/js/**/*_spec.js',
       helpers : 'spec/helpers/**/*.js',
@@ -130,7 +130,7 @@ module.exports = function(grunt) {
         'public/js/app-require-config.js',
         'public/js/app-require-optimized.js'
       ],
-      dest: 'public/js/app-package.js'
+      dest: 'public/js/app.js'
       }
     },
     clean: {

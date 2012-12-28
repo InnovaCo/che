@@ -1,5 +1,16 @@
+#### *module* utils/ajax
+#
+# Позволяет отправлять ajax-запросы на сервер
+#
+
+
 define ['events', 'utils/params', "utils/destroyer"], (events, params, destroyer) ->
-  sendRequest = (url, data, type, eventsSprout) ->
+
+  #### sendRequest(url, data, type, eventsSprout)
+  #
+  # функция для отправки запроса на сервер
+  #
+  sendRequest = (url, data, type, method, eventsSprout) ->
     request = createXMLHTTPObject()
     return false if not request 
 
@@ -13,14 +24,19 @@ define ['events', 'utils/params', "utils/destroyer"], (events, params, destroyer
       data = params data
       request.setRequestHeader 'Content-type','application/x-www-form-urlencoded'
 
+
+    # слушаем изменение состояния запроса
+    # и отправляем различные события
+
     request.onreadystatechange = ->
       return if request.readyState isnt 4
-      data = (parser[options.type] or parser.default) request.responseText
-      console.log request
+
+      data = (parser[type] or parser.default) request.responseText
       if request.status isnt 200 and request.status isnt 304
         eventsSprout.trigger "error", [request, data]
       else
         eventsSprout.trigger "success", [request, data]
+
       eventsSprout.trigger "complete", [request, data]
 
     if request.readyState is 4
@@ -31,6 +47,12 @@ define ['events', 'utils/params', "utils/destroyer"], (events, params, destroyer
     request.send data
     request
 
+
+  #### XMLHttpFactories
+  #
+  # массив фабрик XMLHttpRequest объекта
+  #
+
   XMLHttpFactories = [
     -> return new XMLHttpRequest(),
     -> return new ActiveXObject("Msxml2.XMLHTTP"),
@@ -38,16 +60,27 @@ define ['events', 'utils/params', "utils/destroyer"], (events, params, destroyer
     -> return new ActiveXObject("Microsoft.XMLHTTP")
   ]
 
+  #### createXMLHTTPObject()
+  #
+  # создает объект XMLHttpRequest из подходящей фабрики, запоминает свое состояние
+  #
+
   createXMLHTTPObject = ->
     xmlhttp = false
     for xmlhttpConstructor in XMLHttpFactories
       try
         xmlhttp = xmlhttpConstructor()
+        createXMLHTTPObject = ->
+          xmlhttpConstructor()
       catch e
        continue
       break
-
     xmlhttp
+
+  #### parser
+  #
+  # Набор функций для парсинга responseText
+  #
 
   parser = 
     json: (text) ->
@@ -61,11 +94,22 @@ define ['events', 'utils/params', "utils/destroyer"], (events, params, destroyer
     method: "GET"
 
 
+  #### Ajax
+  #
+  # конструктор для ajax-объекта, создает объект, при возможности отправляет запрос и навешивает обработчиков событий
+  #
+
   Ajax = (options) ->
     if options?
       @get options
+    @
 
   Ajax:: =
+
+    #### Ajax::get(options)
+    #
+    # отправляет запрос и навешивает обработчиков событий для конкретного запроса
+    #
     get: (options) ->
       if @_events
         destroyer @_events
@@ -75,29 +119,51 @@ define ['events', 'utils/params', "utils/destroyer"], (events, params, destroyer
         @_events = events.sprout()
 
         for eventName in ["start", "success", "error", "complete"]
-          options[eventName] ? @_events.bind eventName, options[eventName], 
+          if _.isFunction options[eventName] then @_events.bind eventName, options[eventName], 
             recall: true
 
         @_request = sendRequest options.url,
           options.data or {},
           options.type or "",
-          options.method or defaultOptions.method
+          options.method or defaultOptions.method,
+          @_events 
       @
-      
+
+    #### Ajax::abort(options)
+    #
+    # отменяет запрос
+    #
     abort: ->
       @_request.abort()
       @
 
-  for eventName in ["success", "error", "complete"]
+  #### Генерирование функций для Ajax::
+  #
+  # Ajax::success(handler), Ajax::error(handler), Ajax::complete(handler)
+  # необходимы для подписки на события запроса
+  #
+
+  for eventName in ["start", "success", "error", "complete"]
     Ajax::[eventName] = (handler) ->
       @_events.bind eventName, handler,
         recall: true
 
+  #### ajax(options)
+  #
+  # Интерфейс модуля
+  #
 
   ajax = (options) ->
     new Ajax(options)
 
+  #### ajax.get(options)
+  #
+  # Отправка GET-запросов
+  #
+
   ajax.get = (options) ->
     options.method = "GET"
     new Ajax(options)
+
+  ajax
 

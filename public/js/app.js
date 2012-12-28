@@ -3822,7 +3822,7 @@ var requirejs, require, define;
 
   define('utils/ajax',['events', 'utils/params', "utils/destroyer"], function(events, params, destroyer) {
     var Ajax, XMLHttpFactories, ajax, createXMLHTTPObject, defaultOptions, eventName, parser, sendRequest, _i, _len, _ref;
-    sendRequest = function(url, data, type, eventsSprout) {
+    sendRequest = function(url, data, type, method, eventsSprout) {
       var request;
       request = createXMLHTTPObject();
       if (!request) {
@@ -3839,8 +3839,7 @@ var requirejs, require, define;
         if (request.readyState !== 4) {
           return;
         }
-        data = (parser[options.type] || parser["default"])(request.responseText);
-        console.log(request);
+        data = (parser[type] || parser["default"])(request.responseText);
         if (request.status !== 200 && request.status !== 304) {
           eventsSprout.trigger("error", [request, data]);
         } else {
@@ -3874,6 +3873,9 @@ var requirejs, require, define;
         xmlhttpConstructor = XMLHttpFactories[_i];
         try {
           xmlhttp = xmlhttpConstructor();
+          createXMLHTTPObject = function() {
+            return xmlhttpConstructor();
+          };
         } catch (e) {
           continue;
         }
@@ -3895,12 +3897,13 @@ var requirejs, require, define;
     };
     Ajax = function(options) {
       if (options != null) {
-        return this.get(options);
+        this.get(options);
       }
+      return this;
     };
     Ajax.prototype = {
       get: function(options) {
-        var eventName, _i, _len, _ref, _ref1;
+        var eventName, _i, _len, _ref;
         if (this._events) {
           destroyer(this._events);
         }
@@ -3909,16 +3912,13 @@ var requirejs, require, define;
           _ref = ["start", "success", "error", "complete"];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             eventName = _ref[_i];
-                        if ((_ref1 = options[eventName]) != null) {
-              _ref1;
-
-            } else {
+            if (_.isFunction(options[eventName])) {
               this._events.bind(eventName, options[eventName], {
                 recall: true
               });
-            };
+            }
           }
-          this._request = sendRequest(options.url, options.data || {}, options.type || "", options.method || defaultOptions.method);
+          this._request = sendRequest(options.url, options.data || {}, options.type || "", options.method || defaultOptions.method, this._events);
         }
         return this;
       },
@@ -3927,7 +3927,7 @@ var requirejs, require, define;
         return this;
       }
     };
-    _ref = ["success", "error", "complete"];
+    _ref = ["start", "success", "error", "complete"];
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       eventName = _ref[_i];
       Ajax.prototype[eventName] = function(handler) {
@@ -3939,10 +3939,11 @@ var requirejs, require, define;
     ajax = function(options) {
       return new Ajax(options);
     };
-    return ajax.get = function(options) {
+    ajax.get = function(options) {
       options.method = "GET";
       return new Ajax(options);
     };
+    return ajax;
   });
 
 }).call(this);

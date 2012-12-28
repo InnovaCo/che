@@ -2,7 +2,7 @@
 
   define(['events', 'utils/params', "utils/destroyer"], function(events, params, destroyer) {
     var Ajax, XMLHttpFactories, ajax, createXMLHTTPObject, defaultOptions, eventName, parser, sendRequest, _i, _len, _ref;
-    sendRequest = function(url, data, type, eventsSprout) {
+    sendRequest = function(url, data, type, method, eventsSprout) {
       var request;
       request = createXMLHTTPObject();
       if (!request) {
@@ -19,8 +19,7 @@
         if (request.readyState !== 4) {
           return;
         }
-        data = (parser[options.type] || parser["default"])(request.responseText);
-        console.log(request);
+        data = (parser[type] || parser["default"])(request.responseText);
         if (request.status !== 200 && request.status !== 304) {
           eventsSprout.trigger("error", [request, data]);
         } else {
@@ -54,6 +53,9 @@
         xmlhttpConstructor = XMLHttpFactories[_i];
         try {
           xmlhttp = xmlhttpConstructor();
+          createXMLHTTPObject = function() {
+            return xmlhttpConstructor();
+          };
         } catch (e) {
           continue;
         }
@@ -75,12 +77,13 @@
     };
     Ajax = function(options) {
       if (options != null) {
-        return this.get(options);
+        this.get(options);
       }
+      return this;
     };
     Ajax.prototype = {
       get: function(options) {
-        var eventName, _i, _len, _ref, _ref1;
+        var eventName, _i, _len, _ref;
         if (this._events) {
           destroyer(this._events);
         }
@@ -89,16 +92,13 @@
           _ref = ["start", "success", "error", "complete"];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             eventName = _ref[_i];
-                        if ((_ref1 = options[eventName]) != null) {
-              _ref1;
-
-            } else {
+            if (_.isFunction(options[eventName])) {
               this._events.bind(eventName, options[eventName], {
                 recall: true
               });
-            };
+            }
           }
-          this._request = sendRequest(options.url, options.data || {}, options.type || "", options.method || defaultOptions.method);
+          this._request = sendRequest(options.url, options.data || {}, options.type || "", options.method || defaultOptions.method, this._events);
         }
         return this;
       },
@@ -107,7 +107,7 @@
         return this;
       }
     };
-    _ref = ["success", "error", "complete"];
+    _ref = ["start", "success", "error", "complete"];
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       eventName = _ref[_i];
       Ajax.prototype[eventName] = function(handler) {
@@ -119,10 +119,11 @@
     ajax = function(options) {
       return new Ajax(options);
     };
-    return ajax.get = function(options) {
+    ajax.get = function(options) {
       options.method = "GET";
       return new Ajax(options);
     };
+    return ajax;
   });
 
 }).call(this);

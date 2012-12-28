@@ -12,5 +12,5 @@ beforeEach ->
     toBeObject: ->
       _.isObject(@actual)
 
-    toBeEqual: ->
-      _.isEqual(@actual)
+    toBeEqual: (expecting)->
+      _.isEqual(@actual, expecting)

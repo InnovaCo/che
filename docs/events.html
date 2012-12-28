@@ -1,29 +1,28 @@
-<!DOCTYPE html>  <html> <head>   <title>events.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="app-require-config.html">                 app-require-config.coffee               </a>                                           <a class="source" href="app.html">                 app.coffee               </a>                                           <a class="source" href="clicks.html">                 clicks.coffee               </a>                                           <a class="source" href="config.html">                 config.coffee               </a>                                           <a class="source" href="dom.html">                 dom.coffee               </a>                                           <a class="source" href="events.html">                 events.coffee               </a>                                           <a class="source" href="htmlParser.html">                 htmlParser.coffee               </a>                                           <a class="source" href="loader.html">                 loader.coffee               </a>                                           <a class="source" href="widgets.html">                 widgets.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               events.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <h3><em>module</em> dom</h3>
+<!DOCTYPE html>  <html> <head>   <title>events.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="app-require-config.html">                 app-require-config.coffee               </a>                                           <a class="source" href="app.html">                 app.coffee               </a>                                           <a class="source" href="clicks.html">                 clicks.coffee               </a>                                           <a class="source" href="config.html">                 config.coffee               </a>                                           <a class="source" href="dom.html">                 dom.coffee               </a>                                           <a class="source" href="events.html">                 events.coffee               </a>                                           <a class="source" href="history.html">                 history.coffee               </a>                                           <a class="source" href="htmlParser.html">                 htmlParser.coffee               </a>                                           <a class="source" href="loader.html">                 loader.coffee               </a>                                           <a class="source" href="ajax.html">                 ajax.coffee               </a>                                           <a class="source" href="destroyer.html">                 destroyer.coffee               </a>                                           <a class="source" href="guid.html">                 guid.coffee               </a>                                           <a class="source" href="log.html">                 log.coffee               </a>                                           <a class="source" href="logWriter.html">                 logWriter.coffee               </a>                                           <a class="source" href="params.html">                 params.coffee               </a>                                           <a class="source" href="storage.html">                 storage.coffee               </a>                                           <a class="source" href="widgets.html">                 widgets.coffee               </a>                                           <a class="source" href="gradient.html">                 gradient.coffee               </a>                                           <a class="source" href="opacity.html">                 opacity.coffee               </a>                                           <a class="source" href="perspective.html">                 perspective.coffee               </a>                                           <a class="source" href="rotation.html">                 rotation.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               events.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <h3><em>module</em> events</h3>
 
-<p>Модуль событий приложения, полезен для понижения связности модулей</p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>                            </td>             <td class="code">               <div class="highlight"><pre><span class="nx">define</span> <span class="p">[],</span> <span class="o">-&gt;</span>
+<p>Модуль событий приложения, полезен для понижения связности модулей</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nx">define</span> <span class="p">[],</span> <span class="o">-&gt;</span>
 
-  </pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <h3>Oops(name)</h3>
+  </pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <h3>Oops(name)</h3>
 
 <p>Конструктор события, возвращает уже созданное, если такое уже есть</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">Oops = </span><span class="nf">(name) -&gt;</span>
-    <span class="k">if</span> <span class="nx">events</span><span class="p">.</span><span class="nx">list</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span>
-      <span class="k">return</span> <span class="nx">events</span><span class="p">.</span><span class="nx">list</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span>
     <span class="vi">@name = </span><span class="nx">name</span>
     <span class="vi">@_handlers = </span><span class="p">{}</span>
-    <span class="nx">events</span><span class="p">.</span><span class="nx">list</span><span class="p">[</span><span class="nx">@name</span><span class="p">]</span> <span class="o">=</span> <span class="nx">@</span>
+    <span class="nx">@</span>
+
   <span class="nv">Oops:: =</span>
 
-    </pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <h3>Oops.prototype._data()</h3>
+    </pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <h3>Oops.prototype._data()</h3>
 
 <p>Создает данные о событии для передачи обработчику</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">_data: </span><span class="o">-&gt;</span>
       <span class="nv">name: </span><span class="nx">@name</span>
 
-    </pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <h3>Oops.prototype._handlerCaller</h3>
+    </pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <h3>Oops.prototype._handlerCaller</h3>
 
 <p>Вызывает очередного обработчика, прерывает цепочку, если обаботчик вернул false</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">_handlerCaller: </span><span class="nf">(handler)-&gt;</span>
-      <span class="nv">result = </span><span class="nx">handler</span><span class="p">.</span><span class="nx">apply</span> <span class="nx">handler</span><span class="p">.</span><span class="nx">context</span><span class="p">,</span> <span class="nx">@_lastArgs</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <p>to stop propagation</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="k">if</span> <span class="nx">result</span> <span class="o">is</span> <span class="kc">false</span>
+      <span class="nv">result = </span><span class="nx">handler</span><span class="p">.</span><span class="nx">apply</span> <span class="nx">handler</span><span class="p">.</span><span class="nx">context</span><span class="p">,</span> <span class="nx">@_lastArgs</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>to stop propagation</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="k">if</span> <span class="nx">result</span> <span class="o">is</span> <span class="kc">false</span>
         <span class="vi">@_handlersCallOrder = </span><span class="p">[]</span>
 
-    </pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <h3>Oops.prototype._nextHandlerCall</h3>
+    </pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <h3>Oops.prototype._nextHandlerCall</h3>
 
 <p>Достает очередного обработчика события и передает его для вызова</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">_nextHandlerCall: </span><span class="o">-&gt;</span>
       <span class="nv">handlerId = </span><span class="nx">@_handlersCallOrder</span><span class="p">.</span><span class="nx">shift</span><span class="p">()</span>
@@ -37,7 +36,7 @@
             <span class="nx">self</span><span class="p">.</span><span class="nx">_handlerCaller</span> <span class="nx">handler</span>
         <span class="nx">@_nextHandlerCall</span><span class="p">()</span>
 
-    </pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <h3>Oops.prototype.dispatch(args)</h3>
+    </pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <h3>Oops.prototype.dispatch(args)</h3>
 
 <p>Запускает исполнение обработчиков события</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">dispatch: </span><span class="nf">(args) -&gt;</span> 
       <span class="vi">@_handlersCallOrder = </span><span class="nx">_</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">@_handlers</span><span class="p">).</span><span class="nx">sort</span><span class="p">()</span>
@@ -47,7 +46,7 @@
       <span class="nx">@_nextHandlerCall</span><span class="p">()</span>
       <span class="nx">@</span>
 
-    </pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <h3>Oops.prototype.bind(handler, context, [options])</h3>
+    </pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <h3>Oops.prototype.bind(handler, context, [options])</h3>
 
 <p>Привязывает обработчика к событию</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">bind: </span><span class="nf">(handler, context, options) -&gt;</span>
       <span class="nv">handler.id = </span><span class="nx">handler</span><span class="p">.</span><span class="nx">id</span> <span class="o">or</span> <span class="o">+</span><span class="nx">_</span><span class="p">.</span><span class="nx">uniqueId</span><span class="p">()</span>
@@ -58,42 +57,67 @@
         <span class="nx">@_handlerCaller</span> <span class="nx">handler</span>
       <span class="nx">@</span>
 
-    </pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <h3>Oops.prototype.once(handler, [context], [options])</h3>
+    </pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <h3>Oops.prototype.once(handler, [context], [options])</h3>
 
 <p>Привязывает обработчика к событию, который исполнится только один раз</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">once: </span><span class="nf">(handler, context, options) -&gt;</span>
       <span class="nv">self = </span><span class="nx">@</span>
       <span class="nv">onceHandler = </span><span class="o">-&gt;</span>
-        <span class="nx">events</span><span class="p">.</span><span class="nx">unbind</span> <span class="nx">self</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span> <span class="nx">onceHandler</span>
+        <span class="nx">self</span><span class="p">.</span><span class="nx">unbind</span> <span class="nx">onceHandler</span>
         <span class="nx">handler</span><span class="p">.</span><span class="nx">apply</span> <span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span>
         
       <span class="nx">@bind</span> <span class="nx">onceHandler</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">options</span>
       <span class="nx">@</span>
 
-    </pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <h3>Oops.prototype.unbind(handler)</h3>
+    </pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <h3>Oops.prototype.unbind(handler)</h3>
 
 <p>Отвязывает обработчика от события</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">unbind: </span><span class="nf">(handler) -&gt;</span>
       <span class="nv">id = </span><span class="nx">handler</span><span class="p">.</span><span class="nx">id</span>
       <span class="k">if</span> <span class="nx">id</span> <span class="o">and</span> <span class="nx">@_handlers</span><span class="p">[</span><span class="nx">id</span><span class="p">]</span>
         <span class="k">delete</span>  <span class="nx">@_handlers</span><span class="p">[</span><span class="nx">id</span><span class="p">]</span>
       <span class="nx">@</span>
-  </pre></div>             </td>           </tr>                               <tr id="section-12">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-12">&#182;</a>               </div>               <h3>events</h3>
+  </pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <h3>Events</h3>
 
-<p>Интерфейс модуля</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">events =</span>
-    </pre></div>             </td>           </tr>                               <tr id="section-13">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-13">&#182;</a>               </div>               <h3>events.list</h3>
+<p>Конструктор для шин событий, может создавать новые шины, которые могут наследовать родительские события</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">Events = </span><span class="nf">(@parent) -&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-12">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-12">&#182;</a>               </div>               <h3>events.list</h3>
 
-<p>Список событий</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">list: </span><span class="p">{}</span>
+<p>Список событий</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="vi">@list = </span><span class="p">{}</span>
+    <span class="nx">@</span>
 
-    </pre></div>             </td>           </tr>                               <tr id="section-14">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-14">&#182;</a>               </div>               <h3>events.create(name)</h3>
+  <span class="nv">Events:: =</span>
+    </pre></div>             </td>           </tr>                               <tr id="section-13">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-13">&#182;</a>               </div>               <h3>Events::sprout([name], [inherit])</h3>
+
+<p>Отпочковывает объект событий, если указано имя [name], 
+то сохраняет ссылку на дочений объект в поле родительского по указанному имени, 
+если указан параметр [inherit], то сохранает в дочернем объекте ссылку на родительский в поле parent,
+после этого дочерний может обращаться к родительскому за Oops объектами (при вызове create)</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">sprout: </span><span class="nf">(name, inherit) -&gt;</span>
+      <span class="nv">instance = </span><span class="k">new</span> <span class="nx">Events</span><span class="p">(</span><span class="k">if</span> <span class="nx">inherit</span> <span class="k">then</span> <span class="nx">@</span> <span class="k">else</span> <span class="kc">null</span><span class="p">)</span>
+      <span class="k">if</span> <span class="nx">name</span><span class="o">?</span>
+        <span class="nx">@</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span> <span class="o">=</span> <span class="nx">instance</span>
+
+      <span class="nx">instance</span>
+      </pre></div>             </td>           </tr>                               <tr id="section-14">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-14">&#182;</a>               </div>               <h3>Events::create(name)</h3>
 
 <p>Создает новое событие, либо отдает уже созданное</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">create: </span><span class="nf">(name) -&gt;</span>
-      <span class="k">new</span> <span class="nx">Oops</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span>
+      <span class="nv">instance = </span><span class="kc">null</span>
+      <span class="k">if</span> <span class="nx">@inherit</span>
+        <span class="nv">next = </span><span class="nx">@</span><span class="p">.</span><span class="nx">parent</span>
+        <span class="k">while</span> <span class="nx">next</span><span class="o">?</span>
+          <span class="nv">instance = </span><span class="nx">next</span><span class="p">.</span><span class="nx">list</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span>
+          <span class="k">if</span> <span class="nx">instance</span><span class="o">?</span>
+            <span class="nv">next = </span><span class="kc">false</span>
+          <span class="k">else</span> 
+            <span class="nv">next = </span><span class="nx">next</span><span class="p">.</span><span class="nx">parent</span>
+      <span class="k">else</span> 
+        <span class="nv">instance = </span><span class="nx">@list</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span>
 
-    </pre></div>             </td>           </tr>                               <tr id="section-15">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-15">&#182;</a>               </div>               <h3>events.once(name, handler, [context], [options])</h3>
+      <span class="nx">@list</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span> <span class="o">=</span> <span class="nx">instance</span> <span class="o">or</span> <span class="k">new</span> <span class="nx">Oops</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span>
+      
+
+    </pre></div>             </td>           </tr>                               <tr id="section-15">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-15">&#182;</a>               </div>               <h3>Events::once(name, handler, [context], [options])</h3>
 
 <p>Создает новое событие, либо отдает уже созданное и привязывает обработчика, который сработает только один раз</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">once: </span><span class="nf">(name, handler, context, options) -&gt;</span>
-      <span class="k">new</span> <span class="nx">Oops</span><span class="p">(</span><span class="nx">name</span><span class="p">).</span><span class="nx">once</span><span class="p">(</span><span class="nx">handler</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+      <span class="nx">@create</span><span class="p">(</span><span class="nx">name</span><span class="p">).</span><span class="nx">once</span><span class="p">(</span><span class="nx">handler</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
     
-    </pre></div>             </td>           </tr>                               <tr id="section-16">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-16">&#182;</a>               </div>               <h3>events.bind(eventsNames, handler, [context], [options])</h3>
+    </pre></div>             </td>           </tr>                               <tr id="section-16">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-16">&#182;</a>               </div>               <h3>Events::bind(eventsNames, handler, [context], [options])</h3>
 
 <p>Создает новое событие (может быть и несколько, если в eventsNames указаны имена через запятую), либо отдает уже созданное и привязывает обработчика</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">bind: </span><span class="nf">(eventsNames, handler, context, options) -&gt;</span>
       <span class="nv">bindEventsList = </span><span class="nx">_</span><span class="p">.</span><span class="nx">compact</span> <span class="nx">eventsNames</span><span class="p">.</span><span class="nx">split</span> <span class="sr">///\,+\s*|\s+///</span>
@@ -111,23 +135,24 @@
       <span class="k">else</span>
         <span class="nv">eventHandler = </span><span class="nx">handler</span>
 
+      <span class="nv">self = </span><span class="nx">@</span>
       <span class="k">for</span> <span class="nx">eventName</span> <span class="k">in</span> <span class="nx">bindEventsList</span>
         <span class="nx">do</span> <span class="nf">(eventName) -&gt;</span>
-          <span class="k">new</span> <span class="nx">Oops</span><span class="p">(</span><span class="nx">eventName</span><span class="p">).</span><span class="nx">bind</span> <span class="nx">eventHandler</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">options</span>
+          <span class="nx">self</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">eventName</span><span class="p">).</span><span class="nx">bind</span> <span class="nx">eventHandler</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">options</span>
 
-      <span class="k">new</span> <span class="nx">Oops</span><span class="p">(</span><span class="nx">bindEventsList</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+      <span class="nx">@create</span><span class="p">(</span><span class="nx">bindEventsList</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
-    </pre></div>             </td>           </tr>                               <tr id="section-17">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-17">&#182;</a>               </div>               <h3>events.unbind(name, handler)</h3>
+    </pre></div>             </td>           </tr>                               <tr id="section-17">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-17">&#182;</a>               </div>               <h3>Events::unbind(name, handler)</h3>
 
 <p>Отвязывает обработчка от события</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">unbind: </span><span class="nf">(name, handler) -&gt;</span>
       <span class="k">if</span> <span class="nx">@list</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span>
         <span class="nx">@list</span><span class="p">[</span><span class="nx">name</span><span class="p">].</span><span class="nx">unbind</span><span class="p">(</span><span class="nx">handler</span><span class="p">)</span>
 
-    </pre></div>             </td>           </tr>                               <tr id="section-18">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-18">&#182;</a>               </div>               <h3>events.trigger(name, [args])</h3>
+    </pre></div>             </td>           </tr>                               <tr id="section-18">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-18">&#182;</a>               </div>               <h3>Events::trigger(name, [args])</h3>
 
 <p>Вызывает исполнение обработчиков событий, сохраняет переданные данные, если такого событие не было, то оно создается и в нем сохраняются эти данные</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">trigger: </span><span class="nf">(name, args) -&gt;</span>
-      <span class="k">new</span> <span class="nx">Oops</span><span class="p">(</span><span class="nx">name</span><span class="p">).</span><span class="nx">dispatch</span><span class="p">(</span><span class="nx">args</span><span class="p">)</span>
+      <span class="nx">@create</span><span class="p">(</span><span class="nx">name</span><span class="p">).</span><span class="nx">dispatch</span><span class="p">(</span><span class="nx">args</span><span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-19">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-19">&#182;</a>               </div>               <h3>Базовая шина событий</h3>
 
-  <span class="nx">events</span>
+<p>представляет собой интерфейс модуля </p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="k">new</span> <span class="nx">Events</span>
 
 </pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 

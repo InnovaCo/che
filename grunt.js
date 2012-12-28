@@ -56,7 +56,7 @@ module.exports = function(grunt) {
     docco: {
       app: {
         src: [
-          'src/*.coffee'
+          'app/client/**/*.coffee'
         ]
       }
     },

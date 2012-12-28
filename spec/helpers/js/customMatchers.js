@@ -14,8 +14,8 @@
       toBeObject: function() {
         return _.isObject(this.actual);
       },
-      toBeEqual: function() {
-        return _.isEqual(this.actual);
+      toBeEqual: function(expecting) {
+        return _.isEqual(this.actual, expecting);
       }
     });
   });

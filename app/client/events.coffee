@@ -1,9 +1,7 @@
-#### *module* dom
+#### *module* events
 #
 # Модуль событий приложения, полезен для понижения связности модулей
 #
-
-# 
 
 define [], ->
 
@@ -103,9 +101,9 @@ define [], ->
         delete  @_handlers[id]
       @
   
-  ####  events
+  ####  Events
   #
-  # Интерфейс модуля
+  # Конструктор для шин событий, может создавать новые шины, которые могут наследовать родительские события
   #
   Events = (@parent) ->
     ####  events.list
@@ -117,7 +115,7 @@ define [], ->
 
   Events:: =
     
-    ####  events.sprout([name], [inherit])
+    ####  Events::sprout([name], [inherit])
     #
     # Отпочковывает объект событий, если указано имя [name], 
     # то сохраняет ссылку на дочений объект в поле родительского по указанному имени, 
@@ -131,7 +129,7 @@ define [], ->
 
       instance
       
-    ####  events.create(name)
+    ####  Events::create(name)
     #
     # Создает новое событие, либо отдает уже созданное
     #
@@ -152,7 +150,7 @@ define [], ->
       
 
     
-    ####  events.once(name, handler, [context], [options])
+    ####  Events::once(name, handler, [context], [options])
     #
     # Создает новое событие, либо отдает уже созданное и привязывает обработчика, который сработает только один раз
     #
@@ -160,7 +158,7 @@ define [], ->
       @create(name).once(handler, context, options)
     
     
-    ####  events.bind(eventsNames, handler, [context], [options])
+    ####  Events::bind(eventsNames, handler, [context], [options])
     #
     # Создает новое событие (может быть и несколько, если в eventsNames указаны имена через запятую), либо отдает уже созданное и привязывает обработчика
     #
@@ -188,7 +186,7 @@ define [], ->
       @create(bindEventsList[0])
 
     
-    ####  events.unbind(name, handler)
+    ####  Events::unbind(name, handler)
     #
     # Отвязывает обработчка от события
     #
@@ -197,11 +195,15 @@ define [], ->
         @list[name].unbind(handler)
 
     
-    ####  events.trigger(name, [args])
+    ####  Events::trigger(name, [args])
     #
     # Вызывает исполнение обработчиков событий, сохраняет переданные данные, если такого событие не было, то оно создается и в нем сохраняются эти данные
     #
     trigger: (name, args) ->
       @create(name).dispatch(args)
 
+  #### Базовая шина событий
+  #
+  # представляет собой интерфейс модуля 
+  #
   new Events

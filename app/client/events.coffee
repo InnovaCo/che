@@ -13,11 +13,10 @@ define [], ->
   # Конструктор события, возвращает уже созданное, если такое уже есть
   #
   Oops = (name) ->
-    if events.list[name]
-      return events.list[name]
     @name = name
     @_handlers = {}
-    events.list[@name] = @
+    @
+
   Oops:: =
 
     
@@ -87,7 +86,7 @@ define [], ->
     once: (handler, context, options) ->
       self = @
       onceHandler = ->
-        events.unbind self.name, onceHandler
+        self.unbind onceHandler
         handler.apply this, arguments
         
       @bind onceHandler, context, options
@@ -108,21 +107,49 @@ define [], ->
   #
   # Интерфейс модуля
   #
-  events =
-    
+  Events = (@parent) ->
     ####  events.list
     #
     # Список событий
     #
-    list: {}
+    @list = {}
+    @
 
+  Events:: =
     
+    ####  events.sprout([name], [inherit])
+    #
+    # Отпочковывает объект событий, если указано имя [name], 
+    # то сохраняет ссылку на дочений объект в поле родительского по указанному имени, 
+    # если указан параметр [inherit], то сохранает в дочернем объекте ссылку на родительский в поле parent,
+    # после этого дочерний может обращаться к родительскому за Oops объектами (при вызове create)
+    #
+    sprout: (name, inherit) ->
+      instance = new Events(if inherit then @ else null)
+      if name?
+        @[name] = instance
+
+      instance
+      
     ####  events.create(name)
     #
     # Создает новое событие, либо отдает уже созданное
     #
     create: (name) ->
-      new Oops(name)
+      instance = null
+      if @inherit
+        next = @.parent
+        while next?
+          instance = next.list[name]
+          if instance?
+            next = false
+          else 
+            next = next.parent
+      else 
+        instance = @list[name]
+
+      @list[name] = instance or new Oops(name)
+      
 
     
     ####  events.once(name, handler, [context], [options])
@@ -130,7 +157,7 @@ define [], ->
     # Создает новое событие, либо отдает уже созданное и привязывает обработчика, который сработает только один раз
     #
     once: (name, handler, context, options) ->
-      new Oops(name).once(handler, context, options)
+      @create(name).once(handler, context, options)
     
     
     ####  events.bind(eventsNames, handler, [context], [options])
@@ -153,11 +180,12 @@ define [], ->
       else
         eventHandler = handler
 
+      self = @
       for eventName in bindEventsList
         do (eventName) ->
-          new Oops(eventName).bind eventHandler, context, options
+          self.create(eventName).bind eventHandler, context, options
 
-      new Oops(bindEventsList[0])
+      @create(bindEventsList[0])
 
     
     ####  events.unbind(name, handler)
@@ -174,6 +202,6 @@ define [], ->
     # Вызывает исполнение обработчиков событий, сохраняет переданные данные, если такого событие не было, то оно создается и в нем сохраняются эти данные
     #
     trigger: (name, args) ->
-      new Oops(name).dispatch(args)
+      @create(name).dispatch(args)
 
-  events
+  new Events

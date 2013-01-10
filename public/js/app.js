@@ -3238,7 +3238,7 @@ var requirejs, require, define;
 (function() {
 
   define('dom',["utils/guid"], function(guid) {
-    var bindEvent, callEventHandlers, checkIsElementMatchSelector, delegateEvent, domQuery, query, unbindEvent, undelegateEvent;
+    var bindEvent, callEventHandlers, checkIsElementMatchSelector, delegateEvent, domQuery, parseHtml, query, unbindEvent, undelegateEvent;
     checkIsElementMatchSelector = function(selectorOrNodeList, element, root) {
       var list, listElement, _i, _len;
       if (element === root || !element) {
@@ -3280,6 +3280,7 @@ var requirejs, require, define;
           }
           result = [];
           _.each(root, function(root) {
+            console.log(selector);
             return result = result.concat(Array.prototype.slice.call(root.querySelectorAll(selector)));
           });
           return result;
@@ -3373,13 +3374,35 @@ var requirejs, require, define;
         return node.domQueryHandlers[eventName][selector] = handlers;
       }
     };
+    parseHtml = function(plainHtml) {
+      var div, node, _i, _len, _ref;
+      div = document.createElement('DIV');
+      div.innerHTML = plainHtml;
+      _ref = div.childNodes;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        node = _ref[_i];
+        if (node.nodeType === 3 && !/\S/.test(node.nodeValue)) {
+          div.removeChild(node);
+        }
+      }
+      return div.childNodes;
+    };
     domQuery = function(selector) {
       var elements, self;
       if (this instanceof domQuery) {
         if (selector instanceof domQuery) {
           return selector;
         }
-        elements = _.isString(selector) ? query(selector) : selector || [document];
+        if (_.isString(selector)) {
+          selector = selector.replace(/^\s+|\s+$/, "");
+          if (selector.charAt(0) === "<" && selector.charAt(selector.length - 1) === ">" && selector.length >= 3) {
+            elements = parseHtml(selector);
+          } else {
+            elements = query(selector);
+          }
+        } else {
+          elements = selector || [document];
+        }
         self = this;
         if (elements.length === void 0) {
           elements = [elements];
@@ -3427,68 +3450,6 @@ var requirejs, require, define;
       }
     };
     return domQuery;
-  });
-
-}).call(this);
-
-(function() {
-
-  define('config',[],function() {
-    return {
-      widgetClassName: 'widget',
-      widgetDataAttributeName: 'data-js-modules',
-      reloadSectionsDataAttributeName: 'data-reload-sections',
-      baseWidgetsPath: 'widgets/'
-    };
-  });
-
-}).call(this);
-
-(function() {
-
-  define('htmlParser',['dom', 'config'], function(dom, config) {
-    var createDomElement, getWidgetElements, parser, saveTo;
-    createDomElement = function(plainHtml) {
-      var div;
-      div = document.createElement('DIV');
-      div.innerHTML = plainHtml;
-      return div;
-    };
-    getWidgetElements = function(domElement) {
-      return dom(domElement).find("." + config.widgetClassName).get();
-    };
-    saveTo = function(arrayOfPairs, element) {
-      var moduleName, names, _i, _len;
-      names = (element.getAttribute(config.widgetDataAttributeName)).replace(/^\s|\s$/, '').split(/\s*,\s*/);
-      for (_i = 0, _len = names.length; _i < _len; _i++) {
-        moduleName = names[_i];
-        arrayOfPairs.push({
-          name: moduleName,
-          element: element
-        });
-      }
-      return arrayOfPairs;
-    };
-    parser = function(html) {
-      if (_.isString(html)) {
-        return createDomElement(html);
-      } else {
-        return html;
-      }
-    };
-    parser.getWidgets = function(domElement) {
-      var arrayOfPairs, element, _i, _len, _ref;
-      domElement = parser(domElement);
-      arrayOfPairs = [];
-      _ref = getWidgetElements(domElement);
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        element = _ref[_i];
-        saveTo(arrayOfPairs, element);
-      }
-      return arrayOfPairs;
-    };
-    parser._save = saveTo;
-    return parser;
   });
 
 }).call(this);
@@ -3668,6 +3629,19 @@ var requirejs, require, define;
 
 (function() {
 
+  define('config',[],function() {
+    return {
+      widgetClassName: 'widget',
+      widgetDataAttributeName: 'data-js-modules',
+      reloadSectionsDataAttributeName: 'data-reload-sections',
+      baseWidgetsPath: 'widgets/'
+    };
+  });
+
+}).call(this);
+
+(function() {
+
   define('widgets',["events", "dom", "utils/destroyer", "config", "utils/guid"], function(events, dom, destroyer, config, guid) {
     var Widget, bindWidgetDomEvents, bindWidgetModuleEvents, eventSplitter, unbindWidgetDomEvents, unbindWidgetModuleEvents, widgets, widgetsInstances;
     widgetsInstances = {};
@@ -3791,9 +3765,9 @@ var requirejs, require, define;
         for (field in data) {
           value = data[field];
           if (prefix != null) {
-            nextPrefix = prefix + ("[" + field + "]");
+            nextPrefix = prefix + ("[" + (encodeURIComponent(field)) + "]");
           } else {
-            nextPrefix = field;
+            nextPrefix = encodeURIComponent(field);
           }
           if (_.isFunction(value)) {
             nextValue = value();
@@ -3820,8 +3794,14 @@ var requirejs, require, define;
 
 (function() {
 
-  define('utils/ajax',['events', 'utils/params', "utils/destroyer"], function(events, params, destroyer) {
-    var Ajax, XMLHttpFactories, ajax, createXMLHTTPObject, defaultOptions, eventName, parser, sendRequest, _i, _len, _ref;
+  define('ajax',['events', 'utils/params', "utils/destroyer"], function(events, params, destroyer) {
+    var Ajax, XMLHttpFactories, ajax, createGETurl, createXMLHTTPObject, defaultOptions, eventName, parser, sendRequest, _i, _len, _ref;
+    createGETurl = function(url, data) {
+      var getParams, splittedUrl;
+      splittedUrl = url.split("?");
+      getParams = data != null ? "?" + (params(data)) : splittedUrl[1] ? "?" + splittedUrl[1] : "";
+      return "" + splittedUrl[0] + getParams;
+    };
     sendRequest = function(url, data, type, method, eventsSprout) {
       var request;
       request = createXMLHTTPObject();
@@ -3830,7 +3810,7 @@ var requirejs, require, define;
       }
       request.responseType = type;
       request.open(method, url, true);
-      request.setRequestHeader('User-Agent', 'XMLHTTP/1.0');
+      request.setRequestHeader('x-requested-with', 'xmlhttprequest');
       if (data != null) {
         data = params(data);
         request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
@@ -3839,7 +3819,7 @@ var requirejs, require, define;
         if (request.readyState !== 4) {
           return;
         }
-        data = (parser[type] || parser["default"])(request.responseText);
+        data = request.responseText != null ? (parser[type] || parser.json)(request.responseText) : "";
         if (request.status !== 200 && request.status !== 304) {
           eventsSprout.trigger("error", [request, data]);
         } else {
@@ -3885,6 +3865,7 @@ var requirejs, require, define;
     };
     parser = {
       json: function(text) {
+        console.log(text);
         return JSON.parse(text);
       },
       "default": function(text) {
@@ -3941,6 +3922,7 @@ var requirejs, require, define;
     };
     ajax.get = function(options) {
       options.method = "GET";
+      options.url = createGETurl(options.url, options.data);
       return new Ajax(options);
     };
     return ajax;
@@ -3950,17 +3932,37 @@ var requirejs, require, define;
 
 (function() {
 
-  define('loader',['htmlParser', 'widgets', 'utils/ajax', 'config', 'events'], function(htmlParser, widgets, ajax, config, events) {
-    var loadWidgetModule, loader, searchForWidgets;
+  define('loader',['dom', 'widgets', 'ajax', 'config', 'events'], function(dom, widgets, ajax, config, events) {
+    var getWidgetElements, loadWidgetModule, loader, saveTo, searchForWidgets;
+    getWidgetElements = function(domElement) {
+      return dom(domElement).find("." + config.widgetClassName).get();
+    };
+    saveTo = function(arrayOfPairs, element) {
+      var moduleName, names, _i, _len;
+      names = (element.getAttribute(config.widgetDataAttributeName)).replace(/^\s|\s$/, '').split(/\s*,\s*/);
+      for (_i = 0, _len = names.length; _i < _len; _i++) {
+        moduleName = names[_i];
+        arrayOfPairs.push({
+          name: moduleName,
+          element: element
+        });
+      }
+      return arrayOfPairs;
+    };
     loadWidgetModule = function(widgetData) {
       return widgets.create(widgetData.name, widgetData.element);
     };
     searchForWidgets = function(node) {
-      var widgetData, _i, _len, _ref, _results;
-      _ref = htmlParser.getWidgets(node || document);
-      _results = [];
+      var element, pairs, widgetData, _i, _j, _len, _len1, _ref, _results;
+      pairs = [];
+      _ref = getWidgetElements(node || document);
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        widgetData = _ref[_i];
+        element = _ref[_i];
+        saveTo(pairs, element);
+      }
+      _results = [];
+      for (_j = 0, _len1 = pairs.length; _j < _len1; _j++) {
+        widgetData = pairs[_j];
         _results.push(loader.loadWidgetModule(widgetData));
       }
       return _results;
@@ -4104,43 +4106,46 @@ define('lib/domReady',[],function () {
 });
 (function() {
 
-  define('clicks',['dom', 'config', 'events', "lib/domReady", "utils/ajax"], function(dom, config, events, domReady, ajax) {
+  define('clicks',['dom', 'config', 'events', "lib/domReady", "ajax"], function(dom, config, events, domReady, ajax) {
     var convertRequestData, loadSections, sectionsRequest;
     convertRequestData = function(paramsString) {
-      var lisItem, list, reqestData, splittedData, _i, _len;
+      var lisItem, list, requestData, splittedData, _i, _len;
       list = paramsString.split(/,\s*/);
-      reqestData = {};
+      requestData = {};
       for (_i = 0, _len = list.length; _i < _len; _i++) {
         lisItem = list[_i];
         splittedData = lisItem.split(/:\s*/);
         if (splittedData[0] !== "pageView") {
-          reqestData.widgets = reqestData.widgets || {};
-          reqestData.widgets[splittedData[0]] = splittedData[1];
+          requestData.widgets = requestData.widgets || {};
+          requestData.widgets[splittedData[0]] = splittedData[1];
         } else {
-          reqestData[splittedData[0]] = splittedData[1];
+          requestData[splittedData[0]] = splittedData[1];
         }
       }
-      return reqestData;
+      return requestData;
     };
     domReady(function() {
       return dom('body').on("a[" + config.reloadSectionsDataAttributeName + "]", "click", function(e) {
         var data, url;
         data = this.getAttribute(config.reloadSectionsDataAttributeName);
         url = this.getAttribute('href');
-        loadSections(url, convertRequestData(data));
+        loadSections(url, convertRequestData(data)).success(function(request, data) {
+          console.log(data);
+          return events.trigger("newSectionsLoaded", data.widgets);
+        });
         e.preventDefault();
         return false;
       });
     });
     sectionsRequest = null;
-    return loadSections = function(url, reqestData) {
-      console.log(url, reqestData);
+    return loadSections = function(url, requestData) {
+      console.log(url, requestData);
       if (sectionsRequest != null) {
         sectionsRequest.abort();
       }
-      return sectionsRequest = ajax({
-        url: config.sectionsRequestUrl,
-        data: reqestData
+      return sectionsRequest = ajax.get({
+        url: url,
+        data: requestData
       });
     };
   });
@@ -4149,7 +4154,175 @@ define('lib/domReady',[],function () {
 
 (function() {
 
-  requirejs(['loader', 'lib/domReady', 'clicks'], function(loader, domReady) {
+  define('history',['events', 'widgets', 'dom', 'utils/destroyer'], function(events, widgets, dom, destroyer) {
+    /* 
+    data:
+      <selector>: <plainHTML>
+    */
+
+    var Invoker, Transition, currentTransition, depthTreshold, firstTransition, lastTransition;
+    depthTreshold = 10;
+    firstTransition = null;
+    lastTransition = null;
+    Transition = function(data, previousTransition) {
+      var currentTransition, next;
+      this.data = data;
+      this.prev = previousTransition || null;
+      this.depth = previousTransition ? previousTransition.depth + 1 : 0;
+      if (firstTransition === null) {
+        firstTransition = this;
+      } else if (depthTreshold < this.depth - (firstTransition.depth != null)) {
+        next = firstTransition.next;
+        next.prev = null;
+        destroyer(firstTransition);
+        firstTransition = next;
+      }
+      if (currentTransition === null) {
+        currentTransition = this;
+      }
+      if (this.data != null) {
+        this._invoker = new Invoker(this.data);
+        return this.invoke();
+      }
+    };
+    Transition.prototype = {
+      next: function(data) {
+        var currentTransition;
+        console.log(data, "NEXT");
+        if (data != null) {
+          this.next = new Transition(data, this);
+        } else if (this.next != null) {
+          this.next.invoke();
+          currentTransition = this.next;
+        }
+        return this.next;
+      },
+      prev: function() {
+        var currentTransition;
+        if (this.prev != null) {
+          this.undo();
+          return currentTransition = this.prev;
+        }
+      },
+      undo: function() {
+        var _ref;
+        return (_ref = this._invoker) != null ? _ref.undo() : void 0;
+      },
+      invoke: function() {
+        var _ref;
+        return (_ref = this._invoker) != null ? _ref.run() : void 0;
+      }
+    };
+    Invoker = function(reloadSections) {
+      this.reloadSections = reloadSections;
+      this._back = null;
+      return this._forward = null;
+    };
+    Invoker.prototype = {
+      run: function() {
+        var self;
+        if (!this._forward && !this._back) {
+          self = this;
+          this._back = {};
+          this._forward = {};
+          _.each(this.reloadSections, function(selector, html) {
+            return self._reloadSectionInit(selector, html);
+          });
+        }
+        return this._insertSections(this._forward, this._back);
+      },
+      undo: function() {
+        if (!this._forward && !this._back) {
+          return false;
+        }
+        return this._insertSections(this._back, this._forward);
+      },
+      _reloadSectionInit: function(selector, html) {
+        var nextElement, prevElement;
+        prevElement = dom(selector);
+        this._back[selector] = {
+          widgets: [],
+          element: prevElement,
+          widgetsInitData: parser.getWidgets(prevElement)
+        };
+        nextElement = parser(html);
+        return this._forward[selector] = {
+          widgets: [],
+          element: nextElement,
+          widgetsInitData: parser.getWidgets(nextElement)
+        };
+      },
+      _insertSections: function(forward, back) {
+        var self;
+        self = this;
+        return _.each(forward, function(selector, data) {
+          var newWidgetsInitData;
+          newWidgetsInitData = parser.getWidgets(data.element);
+          return self._initWidgets(newWidgetsInitData, function(widgetsList) {
+            var replaceableElement, widget, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+            forward.widgets = widgetsList;
+            replaceableElement = back[selector].element;
+            if (back.widgets) {
+              _ref = back.widgets;
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                widget = _ref[_i];
+                widget.turnOff();
+              }
+            } else if (back.widgetsInitData) {
+              _ref1 = back.widgetsInitData;
+              for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+                data = _ref1[_j];
+                if ((_ref2 = widgets.get(data.name, data.element)) != null) {
+                  _ref2.turnOff();
+                }
+              }
+            }
+            return replaceableElement.replaceWith(data.element);
+          });
+        });
+      },
+      _initWidgets: function(widgetsDataList, ready) {
+        var data, list, widgetsCount, _i, _len, _results;
+        widgetsCount = _.keys(widgetsDataList).length;
+        list = [];
+        _results = [];
+        for (_i = 0, _len = widgetsDataList.length; _i < _len; _i++) {
+          data = widgetsDataList[_i];
+          _results.push(widgets.create(data.name, data.element, function(widget) {
+            list.push(widget);
+            widget.turnOn();
+            widgetsCount -= 1;
+            if (widgetsCount === 0) {
+              return ready(list);
+            }
+          }));
+        }
+        return _results;
+      }
+    };
+    currentTransition = new Transition;
+    events.bind('newSectionsLoaded', function(sectionsData) {
+      console.log(sectionsData, "Loaded");
+      return currentTransition.next(sectionsData);
+    });
+    console.log("History");
+    return {
+      _getCurrentTransition: function() {
+        return currentTransition;
+      },
+      _getFirstTransition: function() {
+        return firstTransition;
+      },
+      _transition: Transition,
+      _invoker: Invoker
+    };
+  });
+
+}).call(this);
+
+(function() {
+
+  requirejs(['loader', 'lib/domReady', 'clicks', 'history'], function(loader, domReady) {
     return domReady(loader.searchForWidgets);
   });
 

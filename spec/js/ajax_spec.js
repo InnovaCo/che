@@ -1,6 +1,6 @@
 (function() {
 
-  describe("utils/ajax module", function() {
+  describe("ajax module", function() {
     var XMLHttpRequestsList, ajax, realXMLHttpRequest;
     ajax = null;
     realXMLHttpRequest = null;
@@ -20,7 +20,7 @@
         XMLHttpRequestsList.push(request);
         return request;
       };
-      return require(["utils/ajax"], function(ajaxModule) {
+      return require(["ajax"], function(ajaxModule) {
         return ajax = ajaxModule;
       });
     });
@@ -172,7 +172,7 @@
       });
     });
     describe('sending requests', function() {
-      return it("should send get-request", function() {
+      it("should send get-request", function() {
         waitsFor(function() {
           return ajax != null;
         });
@@ -185,6 +185,28 @@
           expect(request.open).toHaveBeenCalled();
           expect(request.open.mostRecentCall.args[0]).toBe("GET");
           expect(request.open.mostRecentCall.args[1]).toBe("foo/bar");
+          return expect(request.send).toHaveBeenCalled();
+        });
+      });
+      return it("should send get-request with params", function() {
+        waitsFor(function() {
+          return ajax != null;
+        });
+        return runs(function() {
+          var instance, request;
+          instance = ajax.get({
+            url: "foo/bar",
+            data: {
+              foo: "bar",
+              bar: {
+                zoo: "cat"
+              }
+            }
+          });
+          request = instance._request;
+          expect(request.open).toHaveBeenCalled();
+          expect(request.open.mostRecentCall.args[0]).toBe("GET");
+          expect(request.open.mostRecentCall.args[1]).toBe("foo/bar?foo=bar&bar%5Bzoo%5D=cat");
           return expect(request.send).toHaveBeenCalled();
         });
       });

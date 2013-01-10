@@ -1,10 +1,15 @@
-#### *module* utils/ajax
+#### *module* ajax
 #
 # Позволяет отправлять ajax-запросы на сервер
 #
 
 
 define ['events', 'utils/params', "utils/destroyer"], (events, params, destroyer) ->
+
+  createGETurl = (url, data) ->
+    splittedUrl = url.split "?"
+    getParams = if data? then "?#{params data}"  else if splittedUrl[1] then "?#{splittedUrl[1]}" else ""
+    "#{splittedUrl[0]}#{getParams}"
 
   #### sendRequest(url, data, type, eventsSprout)
   #
@@ -18,11 +23,11 @@ define ['events', 'utils/params', "utils/destroyer"], (events, params, destroyer
 
     request.open method, url, true
 
-    request.setRequestHeader 'User-Agent','XMLHTTP/1.0'
+    request.setRequestHeader 'x-requested-with', 'xmlhttprequest'
 
     if data?
       data = params data
-      request.setRequestHeader 'Content-type','application/x-www-form-urlencoded'
+      request.setRequestHeader 'Content-type', 'application/x-www-form-urlencoded'
 
 
     # слушаем изменение состояния запроса
@@ -31,7 +36,7 @@ define ['events', 'utils/params', "utils/destroyer"], (events, params, destroyer
     request.onreadystatechange = ->
       return if request.readyState isnt 4
 
-      data = (parser[type] or parser.default) request.responseText
+      data = if request.responseText? then (parser[type] or parser.json) request.responseText else ""
       if request.status isnt 200 and request.status isnt 304
         eventsSprout.trigger "error", [request, data]
       else
@@ -163,6 +168,7 @@ define ['events', 'utils/params', "utils/destroyer"], (events, params, destroyer
 
   ajax.get = (options) ->
     options.method = "GET"
+    options.url = createGETurl options.url, options.data
     new Ajax(options)
 
   ajax

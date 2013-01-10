@@ -1,4 +1,4 @@
-describe "utils/ajax module", ->
+describe "ajax module", ->
   ajax = null
   realXMLHttpRequest = null
   XMLHttpRequestsList = null
@@ -17,7 +17,7 @@ describe "utils/ajax module", ->
 
       request
       
-    require ["utils/ajax"], (ajaxModule) ->
+    require ["ajax"], (ajaxModule) ->
       ajax = ajaxModule
 
   afterEach ->
@@ -168,6 +168,24 @@ describe "utils/ajax module", ->
         expect(request.open).toHaveBeenCalled()
         expect(request.open.mostRecentCall.args[0]).toBe("GET")
         expect(request.open.mostRecentCall.args[1]).toBe("foo/bar")
+        expect(request.send).toHaveBeenCalled()
+
+    it "should send get-request with params", ->
+      waitsFor ->
+        ajax?
+      runs ->
+        instance = ajax.get
+          url: "foo/bar",
+          data:
+            foo: "bar",
+            bar: 
+              zoo: "cat"
+
+        request = instance._request
+
+        expect(request.open).toHaveBeenCalled()
+        expect(request.open.mostRecentCall.args[0]).toBe("GET")
+        expect(request.open.mostRecentCall.args[1]).toBe("foo/bar?foo=bar&bar%5Bzoo%5D=cat")
         expect(request.send).toHaveBeenCalled()
 
 

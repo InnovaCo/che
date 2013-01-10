@@ -40,4 +40,3 @@ define 'history module', ->
     it 'should replace sections and undo', ->
 
   describe 'creating invoke objects', ->
-  describe 'creating invoke objects', ->

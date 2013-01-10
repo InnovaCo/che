@@ -49,6 +49,7 @@ define ["utils/guid"], (guid) ->
           root = [root]
         result = []
         _.each root, (root) ->
+          console.log selector
           result = result.concat(Array.prototype.slice.call root.querySelectorAll(selector))
         return result
       else 
@@ -142,17 +143,35 @@ define ["utils/guid"], (guid) ->
       handlers.splice index, 1
       node.domQueryHandlers[eventName][selector] = handlers
 
+  #### parseHtml(plainHtml)
+  #
+  # Превращает html-текст в DOM-объекты
+  #
+  parseHtml = (plainHtml) ->
+    div = document.createElement('DIV')
+    div.innerHTML = plainHtml
+    for node in div.childNodes
+      if node.nodeType is 3 and not ///\S///.test node.nodeValue
+        div.removeChild node
+    return div.childNodes
 
-  
+
   #### domQuery([selector])
   #
   # Конструктор domQuery для работы с DOM-элементами
   #
-
   domQuery = (selector) ->
     if this instanceof domQuery
       return selector if selector instanceof domQuery
-      elements = if _.isString(selector) then query selector else selector or [document]
+      if _.isString(selector)
+        selector = selector.replace /^\s+|\s+$/, ""
+        if selector.charAt(0) is "<" and selector.charAt(selector.length - 1) is ">" and selector.length >= 3
+          elements = parseHtml selector
+        else
+          elements = query selector
+      else
+        elements = selector or [document]
+
       self = @
       if elements.length is undefined
         elements = [elements]

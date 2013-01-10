@@ -48,7 +48,6 @@
       it('should replace sections', function() {});
       return it('should replace sections and undo', function() {});
     });
-    describe('creating invoke objects', function() {});
     return describe('creating invoke objects', function() {});
   });
 

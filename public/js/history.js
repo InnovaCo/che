@@ -1,6 +1,6 @@
 (function() {
 
-  define(['events', 'widgets', 'dom', 'destroyer'], function(events, widgets, dom, destroyer) {
+  define(['events', 'widgets', 'dom', 'utils/destroyer'], function(events, widgets, dom, destroyer) {
     /* 
     data:
       <selector>: <plainHTML>
@@ -34,6 +34,7 @@
     Transition.prototype = {
       next: function(data) {
         var currentTransition;
+        console.log(data, "NEXT");
         if (data != null) {
           this.next = new Transition(data, this);
         } else if (this.next != null) {
@@ -70,7 +71,7 @@
           self = this;
           this._back = {};
           this._forward = {};
-          _.each(reloadSections, function(selector, html) {
+          _.each(this.reloadSections, function(selector, html) {
             return self._reloadSectionInit(selector, html);
           });
         }
@@ -146,9 +147,11 @@
       }
     };
     currentTransition = new Transition;
-    events.on('newSectionsLoaded', function(sectionsData) {
+    events.bind('newSectionsLoaded', function(sectionsData) {
+      console.log(sectionsData, "Loaded");
       return currentTransition.next(sectionsData);
     });
+    console.log("History");
     return {
       _getCurrentTransition: function() {
         return currentTransition;

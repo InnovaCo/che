@@ -6,9 +6,9 @@ define ->
     else
       for field, value of data
         if prefix?
-          nextPrefix = prefix + "[#{field}]"
+          nextPrefix = prefix + "[#{encodeURIComponent field}]"
         else
-          nextPrefix = field
+          nextPrefix = encodeURIComponent field
 
         if _.isFunction value
           nextValue = value()
@@ -17,7 +17,7 @@ define ->
 
         params nextValue, nextPrefix, result
 
-    encodeURI result.join "&"
+    encodeURI(result.join "&")
 
   (data) ->
     if _.isFunction data

@@ -28,6 +28,7 @@ define [], ->
     ####  Oops.prototype._handlerCaller
     #
     # Вызывает очередного обработчика, прерывает цепочку, если обаботчик вернул false
+    #
     _handlerCaller: (handler)->
       result = handler.apply handler.context, @_lastArgs
       # to stop propagation
@@ -38,6 +39,7 @@ define [], ->
     ####  Oops.prototype._nextHandlerCall
     #
     # Достает очередного обработчика события и передает его для вызова
+    #
     _nextHandlerCall: ->
       handlerId = @_handlersCallOrder.shift()
       if handlerId
@@ -54,6 +56,7 @@ define [], ->
     ####  Oops.prototype.dispatch(args)
     #
     # Запускает исполнение обработчиков события
+    #
     dispatch: (args) -> 
       @_handlersCallOrder = _.keys(@_handlers).sort()
       @_lastArgs = if _.isArray(args) then args else [args]

@@ -5,7 +5,7 @@
 
 # требует модули 'events', 'widgets', 'dom'
 
-define ['events', 'widgets', 'dom', 'destroyer'], (events, widgets, dom, destroyer) ->
+define ['events', 'widgets', 'dom', 'utils/destroyer'], (events, widgets, dom, destroyer) ->
   ### 
   data:
     <selector>: <plainHTML>
@@ -31,6 +31,7 @@ define ['events', 'widgets', 'dom', 'destroyer'], (events, widgets, dom, destroy
       next.prev = null
       destroyer firstTransition
       firstTransition = next
+
     if currentTransition is null
       currentTransition = @
     if @data?
@@ -43,6 +44,7 @@ define ['events', 'widgets', 'dom', 'destroyer'], (events, widgets, dom, destroy
     # Переход вперед. Если переданы параметры перехода, то создается новый объект и ссылка на него записыватся в @next
     #
     next: (data) ->
+      console.log data, "NEXT"
       if data?
         @next = new Transition data, @
       else if @next?
@@ -94,7 +96,7 @@ define ['events', 'widgets', 'dom', 'destroyer'], (events, widgets, dom, destroy
         self = @
         @_back = {}
         @_forward = {}
-        _.each reloadSections, (selector, html) ->
+        _.each @reloadSections, (selector, html) ->
           self._reloadSectionInit selector, html
 
       @_insertSections(@_forward, @_back)
@@ -175,9 +177,9 @@ define ['events', 'widgets', 'dom', 'destroyer'], (events, widgets, dom, destroy
   #
   currentTransition = new Transition
 
-  events.on 'newSectionsLoaded', (sectionsData) ->
+  events.bind 'newSectionsLoaded', (sectionsData) ->
+    console.log sectionsData, "Loaded"
     currentTransition.next sectionsData
-
 
   _getCurrentTransition: ->
     currentTransition

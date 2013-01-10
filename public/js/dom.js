@@ -1,7 +1,7 @@
 (function() {
 
   define(["utils/guid"], function(guid) {
-    var bindEvent, callEventHandlers, checkIsElementMatchSelector, delegateEvent, domQuery, query, unbindEvent, undelegateEvent;
+    var bindEvent, callEventHandlers, checkIsElementMatchSelector, delegateEvent, domQuery, parseHtml, query, unbindEvent, undelegateEvent;
     checkIsElementMatchSelector = function(selectorOrNodeList, element, root) {
       var list, listElement, _i, _len;
       if (element === root || !element) {
@@ -43,6 +43,7 @@
           }
           result = [];
           _.each(root, function(root) {
+            console.log(selector);
             return result = result.concat(Array.prototype.slice.call(root.querySelectorAll(selector)));
           });
           return result;
@@ -136,13 +137,35 @@
         return node.domQueryHandlers[eventName][selector] = handlers;
       }
     };
+    parseHtml = function(plainHtml) {
+      var div, node, _i, _len, _ref;
+      div = document.createElement('DIV');
+      div.innerHTML = plainHtml;
+      _ref = div.childNodes;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        node = _ref[_i];
+        if (node.nodeType === 3 && !/\S/.test(node.nodeValue)) {
+          div.removeChild(node);
+        }
+      }
+      return div.childNodes;
+    };
     domQuery = function(selector) {
       var elements, self;
       if (this instanceof domQuery) {
         if (selector instanceof domQuery) {
           return selector;
         }
-        elements = _.isString(selector) ? query(selector) : selector || [document];
+        if (_.isString(selector)) {
+          selector = selector.replace(/^\s+|\s+$/, "");
+          if (selector.charAt(0) === "<" && selector.charAt(selector.length - 1) === ">" && selector.length >= 3) {
+            elements = parseHtml(selector);
+          } else {
+            elements = query(selector);
+          }
+        } else {
+          elements = selector || [document];
+        }
         self = this;
         if (elements.length === void 0) {
           elements = [elements];

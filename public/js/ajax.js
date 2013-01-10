@@ -1,7 +1,13 @@
 (function() {
 
   define(['events', 'utils/params', "utils/destroyer"], function(events, params, destroyer) {
-    var Ajax, XMLHttpFactories, ajax, createXMLHTTPObject, defaultOptions, eventName, parser, sendRequest, _i, _len, _ref;
+    var Ajax, XMLHttpFactories, ajax, createGETurl, createXMLHTTPObject, defaultOptions, eventName, parser, sendRequest, _i, _len, _ref;
+    createGETurl = function(url, data) {
+      var getParams, splittedUrl;
+      splittedUrl = url.split("?");
+      getParams = data != null ? "?" + (params(data)) : splittedUrl[1] ? "?" + splittedUrl[1] : "";
+      return "" + splittedUrl[0] + getParams;
+    };
     sendRequest = function(url, data, type, method, eventsSprout) {
       var request;
       request = createXMLHTTPObject();
@@ -10,7 +16,7 @@
       }
       request.responseType = type;
       request.open(method, url, true);
-      request.setRequestHeader('User-Agent', 'XMLHTTP/1.0');
+      request.setRequestHeader('x-requested-with', 'xmlhttprequest');
       if (data != null) {
         data = params(data);
         request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
@@ -19,7 +25,7 @@
         if (request.readyState !== 4) {
           return;
         }
-        data = (parser[type] || parser["default"])(request.responseText);
+        data = request.responseText != null ? (parser[type] || parser.json)(request.responseText) : "";
         if (request.status !== 200 && request.status !== 304) {
           eventsSprout.trigger("error", [request, data]);
         } else {
@@ -65,6 +71,7 @@
     };
     parser = {
       json: function(text) {
+        console.log(text);
         return JSON.parse(text);
       },
       "default": function(text) {
@@ -121,6 +128,7 @@
     };
     ajax.get = function(options) {
       options.method = "GET";
+      options.url = createGETurl(options.url, options.data);
       return new Ajax(options);
     };
     return ajax;

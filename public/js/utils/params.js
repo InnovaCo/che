@@ -11,9 +11,9 @@
         for (field in data) {
           value = data[field];
           if (prefix != null) {
-            nextPrefix = prefix + ("[" + field + "]");
+            nextPrefix = prefix + ("[" + (encodeURIComponent(field)) + "]");
           } else {
-            nextPrefix = field;
+            nextPrefix = encodeURIComponent(field);
           }
           if (_.isFunction(value)) {
             nextValue = value();

@@ -1,6 +1,6 @@
 
-module.exports = (app) ->
-  app.get '/:section', (req, res) ->
+module.exports = (req, res) ->
+    console.log "SECTION", req.params.section, console.log req.headers['x-requested-with']
     if req.headers['x-requested-with'] is 'xmlhttprequest'
 
       jade = require 'jade'
@@ -20,5 +20,8 @@ module.exports = (app) ->
         title: req.url
         widgets: data
     else
-      res.render req.params.section or "index",
-        title: (req.params.section or "index") + " title"
+      try
+        res.render req.params.section or "index",
+          title: (req.params.section or "index") + " title"
+      catch e
+        console.log "another resource"

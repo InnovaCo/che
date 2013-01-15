@@ -4,6 +4,4 @@
 
 # Подключает модули 'loader', 'lib/domReady'
 
-requirejs ['loader', 'lib/domReady', 'clicks', 'history'], (loader, domReady) ->
-  # сразу запускает поиск виджетов
-  domReady loader.searchForWidgets
+requirejs ['loader', 'clicks', 'sectionsHistory'], (loader) ->

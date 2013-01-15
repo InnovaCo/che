@@ -176,6 +176,13 @@ define ["utils/guid"], (guid) ->
       if elements.length is undefined
         elements = [elements]
       @length = elements.length
+
+      if @length is 0
+        console.log "EMPTY LENGTH", arguments
+        # console.log JHSDKJHFGJHS
+
+
+
       _.each elements, (element, index) ->
         self[index] = element
     else
@@ -226,11 +233,13 @@ define ["utils/guid"], (guid) ->
       else
         return Array.prototype.slice.call @
 
+
     #### domQuery.prototype.replaceWith(element)
     #
     # заменяет первый элемент на указанный
     #
     replaceWith: (element) ->
-      @[0].parentNode.replaceChild element[0] or element, @[0]
+      console.log "REPLACE", _.clone(element), _.clone(@)
+      @[0] = @[0].parentNode.replaceChild element[0] or element, @[0]
         
   domQuery

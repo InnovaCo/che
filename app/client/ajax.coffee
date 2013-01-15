@@ -89,6 +89,7 @@ define ['events', 'utils/params', "utils/destroyer"], (events, params, destroyer
 
   parser = 
     json: (text) ->
+      console.log text
       JSON.parse text
     default: (text) ->
       text

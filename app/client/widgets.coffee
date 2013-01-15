@@ -144,6 +144,7 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid"], (events, do
     # Подгружает необходимый модуль (по имени) и инициализирует виджет
 
     create: (name, element, ready) ->
+      console.log "widget", name, element
       if not (///^http///).test name
         name = config.baseWidgetsPath + name
       require [name], (widget) ->

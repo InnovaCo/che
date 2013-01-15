@@ -1,4 +1,4 @@
-define ['dom', 'config', 'events', "lib/domReady", "ajax"], (dom, config, events, domReady, ajax) ->
+define ['dom', 'config', 'history', "lib/domReady", "ajax"], (dom, config, history, domReady, ajax) ->
 
   convertRequestData = (paramsString) ->
     list = paramsString.split ///,\s*///
@@ -13,12 +13,19 @@ define ['dom', 'config', 'events', "lib/domReady", "ajax"], (dom, config, events
     return requestData
 
   domReady ->
+    console.log history
+    return false if not history
+    historyIndex = 0
     dom('body').on "a[#{config.reloadSectionsDataAttributeName}]", "click", (e) ->
       data = @.getAttribute config.reloadSectionsDataAttributeName
       url = @.getAttribute 'href'
+      console.log "request #{url}"
       loadSections(url, convertRequestData data).success (request, data) ->
-        console.log data
-        events.trigger "newSectionsLoaded", data.widgets
+        console.log "SUCCEESSS", data.url
+        history.pushState {
+            index: historyIndex++
+            widgets: data.widgets
+          }, data.title, data.url
       e.preventDefault()
       return false
 

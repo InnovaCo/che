@@ -1,6 +1,6 @@
 (function() {
 
-  define(['dom', 'config', 'events', "lib/domReady", "ajax"], function(dom, config, events, domReady, ajax) {
+  define(['dom', 'config', 'history', "lib/domReady", "ajax"], function(dom, config, history, domReady, ajax) {
     var convertRequestData, loadSections, sectionsRequest;
     convertRequestData = function(paramsString) {
       var lisItem, list, requestData, splittedData, _i, _len;
@@ -19,13 +19,21 @@
       return requestData;
     };
     domReady(function() {
+      var historyIndex;
+      console.log(history);
+      if (!history) {
+        return false;
+      }
+      historyIndex = 0;
       return dom('body').on("a[" + config.reloadSectionsDataAttributeName + "]", "click", function(e) {
         var data, url;
         data = this.getAttribute(config.reloadSectionsDataAttributeName);
         url = this.getAttribute('href');
         loadSections(url, convertRequestData(data)).success(function(request, data) {
-          console.log(data);
-          return events.trigger("newSectionsLoaded", data.widgets);
+          return history.pushState({
+            index: historyIndex++,
+            widgets: data.widgets
+          }, data.title, data.url);
         });
         e.preventDefault();
         return false;

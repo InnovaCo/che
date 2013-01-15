@@ -1,4 +1,4 @@
 module.exports = (app) ->
-  (require './main')(app)
-  (require './che')(app)
-  (require './javascripts')(app)
+  app.get '/:section', require './che'
+  app.get '/', require './che'
+  app.get '/public/js/*.js', require './javascripts'

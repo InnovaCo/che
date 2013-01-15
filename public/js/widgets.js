@@ -94,6 +94,7 @@
         return this._instances[id];
       },
       create: function(name, element, ready) {
+        console.log("widget", name, element);
         if (!/^http/.test(name)) {
           name = config.baseWidgetsPath + name;
         }

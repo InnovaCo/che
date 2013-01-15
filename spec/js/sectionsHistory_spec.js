@@ -1,10 +1,10 @@
 (function() {
 
-  define('history module', function() {
+  define('sectionsHistory module', function() {
     var history;
     history = null;
     beforeEach(function() {
-      return require(['history'], function(historyModule) {
+      return require(['sectionsHistory'], function(historyModule) {
         return history = historyModule;
       });
     });

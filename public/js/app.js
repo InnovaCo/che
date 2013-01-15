@@ -3223,6 +3223,160 @@ var requirejs, require, define;
 
 (function() {
 
+  define('events',[], function() {
+    var Events, Oops;
+    Oops = function(name) {
+      this.name = name;
+      this._handlers = {};
+      return this;
+    };
+    Oops.prototype = {
+      _data: function() {
+        return {
+          name: this.name
+        };
+      },
+      _handlerCaller: function(handler) {
+        var result;
+        result = handler.apply(handler.context, this._lastArgs);
+        if (result === false) {
+          return this._handlersCallOrder = [];
+        }
+      },
+      _nextHandlerCall: function() {
+        var handler, handlerId, self;
+        handlerId = this._handlersCallOrder.shift();
+        if (handlerId) {
+          handler = this._handlers[handlerId];
+          self = this;
+          if (handler.options.isSync) {
+            this._handlerCaller(handler);
+          } else {
+            _.delay(function() {
+              return self._handlerCaller(handler);
+            });
+          }
+          return this._nextHandlerCall();
+        }
+      },
+      dispatch: function(args) {
+        this._handlersCallOrder = _.keys(this._handlers).sort();
+        this._lastArgs = _.isArray(args) ? args : [args];
+        this._lastArgs.push(this._data());
+        this._nextHandlerCall();
+        return this;
+      },
+      bind: function(handler, context, options) {
+        handler.id = handler.id || +_.uniqueId();
+        handler.context = context;
+        handler.options = handler.options || options || {};
+        this._handlers[handler.id] = handler;
+        if (handler.options.recall && this._lastArgs) {
+          this._handlerCaller(handler);
+        }
+        return this;
+      },
+      once: function(handler, context, options) {
+        var onceHandler, self;
+        self = this;
+        onceHandler = function() {
+          self.unbind(onceHandler);
+          return handler.apply(this, arguments);
+        };
+        this.bind(onceHandler, context, options);
+        return this;
+      },
+      unbind: function(handler) {
+        var id;
+        id = handler.id;
+        if (id && this._handlers[id]) {
+          delete this._handlers[id];
+        }
+        return this;
+      }
+    };
+    Events = function(parent) {
+      this.parent = parent;
+      this.list = {};
+      return this;
+    };
+    Events.prototype = {
+      sprout: function(name, inherit) {
+        var instance;
+        instance = new Events(inherit ? this : null);
+        if (name != null) {
+          this[name] = instance;
+        }
+        return instance;
+      },
+      create: function(name) {
+        var instance, next;
+        instance = null;
+        if (this.inherit) {
+          next = this.parent;
+          while (next != null) {
+            instance = next.list[name];
+            if (instance != null) {
+              next = false;
+            } else {
+              next = next.parent;
+            }
+          }
+        } else {
+          instance = this.list[name];
+        }
+        return this.list[name] = instance || new Oops(name);
+      },
+      once: function(name, handler, context, options) {
+        return this.create(name).once(handler, context, options);
+      },
+      bind: function(eventsNames, handler, context, options) {
+        var bindEventsList, compoundArguments, eventHandler, eventName, self, undispatchedEvents, _fn, _i, _len;
+        bindEventsList = _.compact(eventsNames.split(/\,+\s*|\s+/));
+        if (/\,+/.test(eventsNames)) {
+          compoundArguments = {};
+          undispatchedEvents = bindEventsList.concat([]);
+          eventHandler = function() {
+            var eventData;
+            eventData = _.last(arguments);
+            compoundArguments[eventData.name] = arguments;
+            if (_.contains(undispatchedEvents, eventData.name)) {
+              undispatchedEvents = _.without(undispatchedEvents, eventData.name);
+            }
+            if (undispatchedEvents.length === 0) {
+              undispatchedEvents = bindEventsList.concat([]);
+              return handler.call(this, compoundArguments);
+            }
+          };
+        } else {
+          eventHandler = handler;
+        }
+        self = this;
+        _fn = function(eventName) {
+          return self.create(eventName).bind(eventHandler, context, options);
+        };
+        for (_i = 0, _len = bindEventsList.length; _i < _len; _i++) {
+          eventName = bindEventsList[_i];
+          _fn(eventName);
+        }
+        return this.create(bindEventsList[0]);
+      },
+      unbind: function(name, handler) {
+        if (this.list[name]) {
+          return this.list[name].unbind(handler);
+        }
+      },
+      trigger: function(name, args) {
+        return this.create(name).dispatch(args);
+      }
+    };
+    return new Events;
+  });
+
+}).call(this);
+
+(function() {
+
   define('utils/guid',[], function() {
     var S4;
     S4 = function() {
@@ -3456,160 +3610,6 @@ var requirejs, require, define;
 
 (function() {
 
-  define('events',[], function() {
-    var Events, Oops;
-    Oops = function(name) {
-      this.name = name;
-      this._handlers = {};
-      return this;
-    };
-    Oops.prototype = {
-      _data: function() {
-        return {
-          name: this.name
-        };
-      },
-      _handlerCaller: function(handler) {
-        var result;
-        result = handler.apply(handler.context, this._lastArgs);
-        if (result === false) {
-          return this._handlersCallOrder = [];
-        }
-      },
-      _nextHandlerCall: function() {
-        var handler, handlerId, self;
-        handlerId = this._handlersCallOrder.shift();
-        if (handlerId) {
-          handler = this._handlers[handlerId];
-          self = this;
-          if (handler.options.isSync) {
-            this._handlerCaller(handler);
-          } else {
-            _.delay(function() {
-              return self._handlerCaller(handler);
-            });
-          }
-          return this._nextHandlerCall();
-        }
-      },
-      dispatch: function(args) {
-        this._handlersCallOrder = _.keys(this._handlers).sort();
-        this._lastArgs = _.isArray(args) ? args : [args];
-        this._lastArgs.push(this._data());
-        this._nextHandlerCall();
-        return this;
-      },
-      bind: function(handler, context, options) {
-        handler.id = handler.id || +_.uniqueId();
-        handler.context = context;
-        handler.options = handler.options || options || {};
-        this._handlers[handler.id] = handler;
-        if (handler.options.recall && this._lastArgs) {
-          this._handlerCaller(handler);
-        }
-        return this;
-      },
-      once: function(handler, context, options) {
-        var onceHandler, self;
-        self = this;
-        onceHandler = function() {
-          self.unbind(onceHandler);
-          return handler.apply(this, arguments);
-        };
-        this.bind(onceHandler, context, options);
-        return this;
-      },
-      unbind: function(handler) {
-        var id;
-        id = handler.id;
-        if (id && this._handlers[id]) {
-          delete this._handlers[id];
-        }
-        return this;
-      }
-    };
-    Events = function(parent) {
-      this.parent = parent;
-      this.list = {};
-      return this;
-    };
-    Events.prototype = {
-      sprout: function(name, inherit) {
-        var instance;
-        instance = new Events(inherit ? this : null);
-        if (name != null) {
-          this[name] = instance;
-        }
-        return instance;
-      },
-      create: function(name) {
-        var instance, next;
-        instance = null;
-        if (this.inherit) {
-          next = this.parent;
-          while (next != null) {
-            instance = next.list[name];
-            if (instance != null) {
-              next = false;
-            } else {
-              next = next.parent;
-            }
-          }
-        } else {
-          instance = this.list[name];
-        }
-        return this.list[name] = instance || new Oops(name);
-      },
-      once: function(name, handler, context, options) {
-        return this.create(name).once(handler, context, options);
-      },
-      bind: function(eventsNames, handler, context, options) {
-        var bindEventsList, compoundArguments, eventHandler, eventName, self, undispatchedEvents, _fn, _i, _len;
-        bindEventsList = _.compact(eventsNames.split(/\,+\s*|\s+/));
-        if (/\,+/.test(eventsNames)) {
-          compoundArguments = {};
-          undispatchedEvents = bindEventsList.concat([]);
-          eventHandler = function() {
-            var eventData;
-            eventData = _.last(arguments);
-            compoundArguments[eventData.name] = arguments;
-            if (_.contains(undispatchedEvents, eventData.name)) {
-              undispatchedEvents = _.without(undispatchedEvents, eventData.name);
-            }
-            if (undispatchedEvents.length === 0) {
-              undispatchedEvents = bindEventsList.concat([]);
-              return handler.call(this, compoundArguments);
-            }
-          };
-        } else {
-          eventHandler = handler;
-        }
-        self = this;
-        _fn = function(eventName) {
-          return self.create(eventName).bind(eventHandler, context, options);
-        };
-        for (_i = 0, _len = bindEventsList.length; _i < _len; _i++) {
-          eventName = bindEventsList[_i];
-          _fn(eventName);
-        }
-        return this.create(bindEventsList[0]);
-      },
-      unbind: function(name, handler) {
-        if (this.list[name]) {
-          return this.list[name].unbind(handler);
-        }
-      },
-      trigger: function(name, args) {
-        return this.create(name).dispatch(args);
-      }
-    };
-    return new Events;
-  });
-
-}).call(this);
-
-(function() {
-
   define('utils/destroyer',[], function() {
     var destroyer;
     destroyer = function(object) {
@@ -3736,6 +3736,7 @@ var requirejs, require, define;
         return this._instances[id];
       },
       create: function(name, element, ready) {
+        console.log("widget", name, element);
         if (!/^http/.test(name)) {
           name = config.baseWidgetsPath + name;
         }
@@ -3747,6 +3748,242 @@ var requirejs, require, define;
           }
         });
       }
+    };
+  });
+
+}).call(this);
+
+(function() {
+
+  define('utils/widgetsData',['dom', 'config'], function(dom, config) {
+    var getWidgetElements, getWidgets, saveTo;
+    getWidgetElements = function(domElement) {};
+    saveTo = function(arrayOfPairs, element) {
+      var moduleName, names, _i, _len, _ref;
+      names = (_ref = element.getAttribute(config.widgetDataAttributeName)) != null ? _ref.replace(/^\s|\s$/, '').split(/\s*,\s*/) : void 0;
+      if (!names) {
+        return false;
+      }
+      for (_i = 0, _len = names.length; _i < _len; _i++) {
+        moduleName = names[_i];
+        arrayOfPairs.push({
+          name: moduleName,
+          element: element
+        });
+      }
+      return arrayOfPairs;
+    };
+    getWidgets = function(node) {
+      var element, pairs, root, rootElement, widgetElements, _i, _j, _len, _len1;
+      pairs = [];
+      if (node && node !== document) {
+        root = dom(node);
+        for (_i = 0, _len = root.length; _i < _len; _i++) {
+          rootElement = root[_i];
+          saveTo(pairs, rootElement);
+        }
+      } else {
+        root = dom(document);
+      }
+      widgetElements = root.find("." + config.widgetClassName).get();
+      for (_j = 0, _len1 = widgetElements.length; _j < _len1; _j++) {
+        element = widgetElements[_j];
+        saveTo(pairs, element);
+      }
+      return pairs;
+    };
+    return getWidgets;
+  });
+
+}).call(this);
+
+/**
+ * @license RequireJS domReady 2.0.1 Copyright (c) 2010-2012, The Dojo Foundation All Rights Reserved.
+ * Available via the MIT or new BSD license.
+ * see: http://github.com/requirejs/domReady for details
+ */
+/*jslint */
+/*global require: false, define: false, requirejs: false,
+  window: false, clearInterval: false, document: false,
+  self: false, setInterval: false */
+
+
+define('lib/domReady',[],function () {
+    
+
+    var isTop, testDiv, scrollIntervalId,
+        isBrowser = typeof window !== "undefined" && window.document,
+        isPageLoaded = !isBrowser,
+        doc = isBrowser ? document : null,
+        readyCalls = [];
+
+    function runCallbacks(callbacks) {
+        var i;
+        for (i = 0; i < callbacks.length; i += 1) {
+            callbacks[i](doc);
+        }
+    }
+
+    function callReady() {
+        var callbacks = readyCalls;
+
+        if (isPageLoaded) {
+            //Call the DOM ready callbacks
+            if (callbacks.length) {
+                readyCalls = [];
+                runCallbacks(callbacks);
+            }
+        }
+    }
+
+    /**
+     * Sets the page as loaded.
+     */
+    function pageLoaded() {
+        if (!isPageLoaded) {
+            isPageLoaded = true;
+            if (scrollIntervalId) {
+                clearInterval(scrollIntervalId);
+            }
+
+            callReady();
+        }
+    }
+
+    if (isBrowser) {
+        if (document.addEventListener) {
+            //Standards. Hooray! Assumption here that if standards based,
+            //it knows about DOMContentLoaded.
+            document.addEventListener("DOMContentLoaded", pageLoaded, false);
+            window.addEventListener("load", pageLoaded, false);
+        } else if (window.attachEvent) {
+            window.attachEvent("onload", pageLoaded);
+
+            testDiv = document.createElement('div');
+            try {
+                isTop = window.frameElement === null;
+            } catch (e) {}
+
+            //DOMContentLoaded approximation that uses a doScroll, as found by
+            //Diego Perini: http://javascript.nwbox.com/IEContentLoaded/,
+            //but modified by other contributors, including jdalton
+            if (testDiv.doScroll && isTop && window.external) {
+                scrollIntervalId = setInterval(function () {
+                    try {
+                        testDiv.doScroll();
+                        pageLoaded();
+                    } catch (e) {}
+                }, 30);
+            }
+        }
+
+        //Check if document already complete, and if so, just trigger page load
+        //listeners. Latest webkit browsers also use "interactive", and
+        //will fire the onDOMContentLoaded before "interactive" but not after
+        //entering "interactive" or "complete". More details:
+        //http://dev.w3.org/html5/spec/the-end.html#the-end
+        //http://stackoverflow.com/questions/3665561/document-readystate-of-interactive-vs-ondomcontentloaded
+        //Hmm, this is more complicated on further use, see "firing too early"
+        //bug: https://github.com/requirejs/domReady/issues/1
+        //so removing the || document.readyState === "interactive" test.
+        //There is still a window.onload binding that should get fired if
+        //DOMContentLoaded is missed.
+        if (document.readyState === "complete") {
+            pageLoaded();
+        }
+    }
+
+    /** START OF PUBLIC API **/
+
+    /**
+     * Registers a callback for DOM ready. If DOM is already ready, the
+     * callback is called immediately.
+     * @param {Function} callback
+     */
+    function domReady(callback) {
+        if (isPageLoaded) {
+            callback(doc);
+        } else {
+            readyCalls.push(callback);
+        }
+        return domReady;
+    }
+
+    domReady.version = '2.0.1';
+
+    /**
+     * Loader Plugin API method
+     */
+    domReady.load = function (name, req, onLoad, config) {
+        if (config.isBuild) {
+            onLoad(null);
+        } else {
+            domReady(onLoad);
+        }
+    };
+
+    /** END OF PUBLIC API **/
+
+    return domReady;
+});
+(function() {
+
+  define('loader',['widgets', 'config', 'utils/widgetsData', 'lib/domReady'], function(widgets, config, widgetsData, domReady) {
+    var loadWidgetModule, loader, searchForWidgets;
+    loadWidgetModule = function(widgetData) {
+      return widgets.create(widgetData.name, widgetData.element);
+    };
+    searchForWidgets = function(node) {
+      var widgetData, _i, _len, _ref, _results;
+      _ref = widgetsData(node);
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        widgetData = _ref[_i];
+        _results.push(loader.loadWidgetModule(widgetData));
+      }
+      return _results;
+    };
+    loader = {
+      loadWidgetModule: loadWidgetModule,
+      searchForWidgets: searchForWidgets
+    };
+    domReady(searchForWidgets);
+    return loader;
+  });
+
+}).call(this);
+
+(function() {
+
+  define('history',['events', 'dom'], function(events, dom) {
+    var HashHistory, originPushState, originReplaceState;
+    if (window.history != null) {
+      dom(window).on("popstate", function(e) {
+        return events.trigger("history:popState", e);
+      });
+      originPushState = window.history.pushState;
+      window.history.pushState = function() {
+        originPushState.apply(window.history, arguments);
+        return events.trigger("history:pushState", arguments);
+      };
+      originReplaceState = window.history.pushState;
+      window.history.replaceState = function() {
+        originReplaceState.apply(window.history, arguments);
+        return events.trigger("history:replaceState", arguments);
+      };
+      return window.history;
+    } else {
+      return false;
+    }
+    HashHistory = function() {};
+    return HashHistory.prototype = {
+      length: 0,
+      state: null,
+      go: function(n) {},
+      back: function() {},
+      forward: function() {},
+      pushState: function(data, title, url) {},
+      replaceState: function(data, title, url) {}
     };
   });
 
@@ -3932,181 +4169,7 @@ var requirejs, require, define;
 
 (function() {
 
-  define('loader',['dom', 'widgets', 'ajax', 'config', 'events'], function(dom, widgets, ajax, config, events) {
-    var getWidgetElements, loadWidgetModule, loader, saveTo, searchForWidgets;
-    getWidgetElements = function(domElement) {
-      return dom(domElement).find("." + config.widgetClassName).get();
-    };
-    saveTo = function(arrayOfPairs, element) {
-      var moduleName, names, _i, _len;
-      names = (element.getAttribute(config.widgetDataAttributeName)).replace(/^\s|\s$/, '').split(/\s*,\s*/);
-      for (_i = 0, _len = names.length; _i < _len; _i++) {
-        moduleName = names[_i];
-        arrayOfPairs.push({
-          name: moduleName,
-          element: element
-        });
-      }
-      return arrayOfPairs;
-    };
-    loadWidgetModule = function(widgetData) {
-      return widgets.create(widgetData.name, widgetData.element);
-    };
-    searchForWidgets = function(node) {
-      var element, pairs, widgetData, _i, _j, _len, _len1, _ref, _results;
-      pairs = [];
-      _ref = getWidgetElements(node || document);
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        element = _ref[_i];
-        saveTo(pairs, element);
-      }
-      _results = [];
-      for (_j = 0, _len1 = pairs.length; _j < _len1; _j++) {
-        widgetData = pairs[_j];
-        _results.push(loader.loadWidgetModule(widgetData));
-      }
-      return _results;
-    };
-    return loader = {
-      loadWidgetModule: loadWidgetModule,
-      searchForWidgets: searchForWidgets
-    };
-  });
-
-}).call(this);
-
-/**
- * @license RequireJS domReady 2.0.1 Copyright (c) 2010-2012, The Dojo Foundation All Rights Reserved.
- * Available via the MIT or new BSD license.
- * see: http://github.com/requirejs/domReady for details
- */
-/*jslint */
-/*global require: false, define: false, requirejs: false,
-  window: false, clearInterval: false, document: false,
-  self: false, setInterval: false */
-
-
-define('lib/domReady',[],function () {
-    
-
-    var isTop, testDiv, scrollIntervalId,
-        isBrowser = typeof window !== "undefined" && window.document,
-        isPageLoaded = !isBrowser,
-        doc = isBrowser ? document : null,
-        readyCalls = [];
-
-    function runCallbacks(callbacks) {
-        var i;
-        for (i = 0; i < callbacks.length; i += 1) {
-            callbacks[i](doc);
-        }
-    }
-
-    function callReady() {
-        var callbacks = readyCalls;
-
-        if (isPageLoaded) {
-            //Call the DOM ready callbacks
-            if (callbacks.length) {
-                readyCalls = [];
-                runCallbacks(callbacks);
-            }
-        }
-    }
-
-    /**
-     * Sets the page as loaded.
-     */
-    function pageLoaded() {
-        if (!isPageLoaded) {
-            isPageLoaded = true;
-            if (scrollIntervalId) {
-                clearInterval(scrollIntervalId);
-            }
-
-            callReady();
-        }
-    }
-
-    if (isBrowser) {
-        if (document.addEventListener) {
-            //Standards. Hooray! Assumption here that if standards based,
-            //it knows about DOMContentLoaded.
-            document.addEventListener("DOMContentLoaded", pageLoaded, false);
-            window.addEventListener("load", pageLoaded, false);
-        } else if (window.attachEvent) {
-            window.attachEvent("onload", pageLoaded);
-
-            testDiv = document.createElement('div');
-            try {
-                isTop = window.frameElement === null;
-            } catch (e) {}
-
-            //DOMContentLoaded approximation that uses a doScroll, as found by
-            //Diego Perini: http://javascript.nwbox.com/IEContentLoaded/,
-            //but modified by other contributors, including jdalton
-            if (testDiv.doScroll && isTop && window.external) {
-                scrollIntervalId = setInterval(function () {
-                    try {
-                        testDiv.doScroll();
-                        pageLoaded();
-                    } catch (e) {}
-                }, 30);
-            }
-        }
-
-        //Check if document already complete, and if so, just trigger page load
-        //listeners. Latest webkit browsers also use "interactive", and
-        //will fire the onDOMContentLoaded before "interactive" but not after
-        //entering "interactive" or "complete". More details:
-        //http://dev.w3.org/html5/spec/the-end.html#the-end
-        //http://stackoverflow.com/questions/3665561/document-readystate-of-interactive-vs-ondomcontentloaded
-        //Hmm, this is more complicated on further use, see "firing too early"
-        //bug: https://github.com/requirejs/domReady/issues/1
-        //so removing the || document.readyState === "interactive" test.
-        //There is still a window.onload binding that should get fired if
-        //DOMContentLoaded is missed.
-        if (document.readyState === "complete") {
-            pageLoaded();
-        }
-    }
-
-    /** START OF PUBLIC API **/
-
-    /**
-     * Registers a callback for DOM ready. If DOM is already ready, the
-     * callback is called immediately.
-     * @param {Function} callback
-     */
-    function domReady(callback) {
-        if (isPageLoaded) {
-            callback(doc);
-        } else {
-            readyCalls.push(callback);
-        }
-        return domReady;
-    }
-
-    domReady.version = '2.0.1';
-
-    /**
-     * Loader Plugin API method
-     */
-    domReady.load = function (name, req, onLoad, config) {
-        if (config.isBuild) {
-            onLoad(null);
-        } else {
-            domReady(onLoad);
-        }
-    };
-
-    /** END OF PUBLIC API **/
-
-    return domReady;
-});
-(function() {
-
-  define('clicks',['dom', 'config', 'events', "lib/domReady", "ajax"], function(dom, config, events, domReady, ajax) {
+  define('clicks',['dom', 'config', 'history', "lib/domReady", "ajax"], function(dom, config, history, domReady, ajax) {
     var convertRequestData, loadSections, sectionsRequest;
     convertRequestData = function(paramsString) {
       var lisItem, list, requestData, splittedData, _i, _len;
@@ -4125,13 +4188,21 @@ define('lib/domReady',[],function () {
       return requestData;
     };
     domReady(function() {
+      var historyIndex;
+      console.log(history);
+      if (!history) {
+        return false;
+      }
+      historyIndex = 0;
       return dom('body').on("a[" + config.reloadSectionsDataAttributeName + "]", "click", function(e) {
         var data, url;
         data = this.getAttribute(config.reloadSectionsDataAttributeName);
         url = this.getAttribute('href');
         loadSections(url, convertRequestData(data)).success(function(request, data) {
-          console.log(data);
-          return events.trigger("newSectionsLoaded", data.widgets);
+          return history.pushState({
+            index: historyIndex++,
+            widgets: data.widgets
+          }, data.title, data.url);
         });
         e.preventDefault();
         return false;
@@ -4154,177 +4225,7 @@ define('lib/domReady',[],function () {
 
 (function() {
 
-  define('history',['events', 'widgets', 'dom', 'utils/destroyer'], function(events, widgets, dom, destroyer) {
-    /* 
-    data:
-      <selector>: <plainHTML>
-    */
-
-    var Invoker, Transition, currentTransition, depthTreshold, firstTransition, lastTransition;
-    depthTreshold = 10;
-    firstTransition = null;
-    lastTransition = null;
-    Transition = function(data, previousTransition) {
-      var currentTransition, next;
-      this.data = data;
-      this.prev = previousTransition || null;
-      this.depth = previousTransition ? previousTransition.depth + 1 : 0;
-      if (firstTransition === null) {
-        firstTransition = this;
-      } else if (depthTreshold < this.depth - (firstTransition.depth != null)) {
-        next = firstTransition.next;
-        next.prev = null;
-        destroyer(firstTransition);
-        firstTransition = next;
-      }
-      if (currentTransition === null) {
-        currentTransition = this;
-      }
-      if (this.data != null) {
-        this._invoker = new Invoker(this.data);
-        return this.invoke();
-      }
-    };
-    Transition.prototype = {
-      next: function(data) {
-        var currentTransition;
-        console.log(data, "NEXT");
-        if (data != null) {
-          this.next = new Transition(data, this);
-        } else if (this.next != null) {
-          this.next.invoke();
-          currentTransition = this.next;
-        }
-        return this.next;
-      },
-      prev: function() {
-        var currentTransition;
-        if (this.prev != null) {
-          this.undo();
-          return currentTransition = this.prev;
-        }
-      },
-      undo: function() {
-        var _ref;
-        return (_ref = this._invoker) != null ? _ref.undo() : void 0;
-      },
-      invoke: function() {
-        var _ref;
-        return (_ref = this._invoker) != null ? _ref.run() : void 0;
-      }
-    };
-    Invoker = function(reloadSections) {
-      this.reloadSections = reloadSections;
-      this._back = null;
-      return this._forward = null;
-    };
-    Invoker.prototype = {
-      run: function() {
-        var self;
-        if (!this._forward && !this._back) {
-          self = this;
-          this._back = {};
-          this._forward = {};
-          _.each(this.reloadSections, function(selector, html) {
-            return self._reloadSectionInit(selector, html);
-          });
-        }
-        return this._insertSections(this._forward, this._back);
-      },
-      undo: function() {
-        if (!this._forward && !this._back) {
-          return false;
-        }
-        return this._insertSections(this._back, this._forward);
-      },
-      _reloadSectionInit: function(selector, html) {
-        var nextElement, prevElement;
-        prevElement = dom(selector);
-        this._back[selector] = {
-          widgets: [],
-          element: prevElement,
-          widgetsInitData: parser.getWidgets(prevElement)
-        };
-        nextElement = parser(html);
-        return this._forward[selector] = {
-          widgets: [],
-          element: nextElement,
-          widgetsInitData: parser.getWidgets(nextElement)
-        };
-      },
-      _insertSections: function(forward, back) {
-        var self;
-        self = this;
-        return _.each(forward, function(selector, data) {
-          var newWidgetsInitData;
-          newWidgetsInitData = parser.getWidgets(data.element);
-          return self._initWidgets(newWidgetsInitData, function(widgetsList) {
-            var replaceableElement, widget, _i, _j, _len, _len1, _ref, _ref1, _ref2;
-            forward.widgets = widgetsList;
-            replaceableElement = back[selector].element;
-            if (back.widgets) {
-              _ref = back.widgets;
-              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                widget = _ref[_i];
-                widget.turnOff();
-              }
-            } else if (back.widgetsInitData) {
-              _ref1 = back.widgetsInitData;
-              for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-                data = _ref1[_j];
-                if ((_ref2 = widgets.get(data.name, data.element)) != null) {
-                  _ref2.turnOff();
-                }
-              }
-            }
-            return replaceableElement.replaceWith(data.element);
-          });
-        });
-      },
-      _initWidgets: function(widgetsDataList, ready) {
-        var data, list, widgetsCount, _i, _len, _results;
-        widgetsCount = _.keys(widgetsDataList).length;
-        list = [];
-        _results = [];
-        for (_i = 0, _len = widgetsDataList.length; _i < _len; _i++) {
-          data = widgetsDataList[_i];
-          _results.push(widgets.create(data.name, data.element, function(widget) {
-            list.push(widget);
-            widget.turnOn();
-            widgetsCount -= 1;
-            if (widgetsCount === 0) {
-              return ready(list);
-            }
-          }));
-        }
-        return _results;
-      }
-    };
-    currentTransition = new Transition;
-    events.bind('newSectionsLoaded', function(sectionsData) {
-      console.log(sectionsData, "Loaded");
-      return currentTransition.next(sectionsData);
-    });
-    console.log("History");
-    return {
-      _getCurrentTransition: function() {
-        return currentTransition;
-      },
-      _getFirstTransition: function() {
-        return firstTransition;
-      },
-      _transition: Transition,
-      _invoker: Invoker
-    };
-  });
-
-}).call(this);
-
-(function() {
-
-  requirejs(['loader', 'lib/domReady', 'clicks', 'history'], function(loader, domReady) {
-    return domReady(loader.searchForWidgets);
-  });
+  requirejs(['loader', 'clicks', 'history'], function(loader) {});
 
 }).call(this);
 

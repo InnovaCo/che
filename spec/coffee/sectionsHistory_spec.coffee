@@ -1,7 +1,7 @@
-define 'history module', ->
+define 'sectionsHistory module', ->
   history = null
   beforeEach ->
-    require ['history'], (historyModule) ->
+    require ['sectionsHistory'], (historyModule) ->
       history = historyModule
 
   describe 'creating transitions', ->

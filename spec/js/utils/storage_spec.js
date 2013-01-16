@@ -69,8 +69,8 @@
             window.localStorage = mockups.localStorage;
           }
           storage.save("testModule", "testKey", "testValue");
-          expect(window.localStorage.getItem("testModule/testKey")).toBe("testValue");
-          return expect(window.sessionStorage.getItem("testModule/testKey")).toBe(null);
+          expect(JSON.parse(window.localStorage.getItem("testModule/testKey"))).toBe("testValue");
+          return expect(JSON.parse(window.sessionStorage.getItem("testModule/testKey"))).toBe(null);
         });
       });
       it("should save given key/value pair (both must be strings) with 'moduleName'-prefix to sessionStorage only (4-th parameter is true). If possible.", function() {
@@ -85,8 +85,8 @@
             window.localStorage = mockups.localStorage;
           }
           storage.save("testModule", "testKey", "testValue", true);
-          expect(window.sessionStorage.getItem("testModule/testKey")).toBe("testValue");
-          return expect(window.localStorage.getItem("testModule/testKey")).toBe(null);
+          expect(JSON.parse(window.sessionStorage.getItem("testModule/testKey"))).toBe("testValue");
+          return expect(JSON.parse(window.localStorage.getItem("testModule/testKey"))).toBe(null);
         });
       });
       return it("should'nt save to anywhere given key/value pair with 'moduleName'-prefix if 'value' isn't string (?)", function() {
@@ -99,7 +99,7 @@
             window.localStorage = mockups.localStorage;
           }
           storage.save("testModule", "testKey", "testValue");
-          expect(window.localStorage.getItem("testModule/testKey")).toBe("testValue");
+          expect(JSON.parse(window.localStorage.getItem("testModule/testKey"))).toBe("testValue");
           return window.localStorage = _oldLocalStorage;
         });
       });

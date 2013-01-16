@@ -49,7 +49,6 @@ define ["utils/guid"], (guid) ->
           root = [root]
         result = []
         _.each root, (root) ->
-          console.log selector
           result = result.concat(Array.prototype.slice.call root.querySelectorAll(selector))
         return result
       else 
@@ -176,13 +175,6 @@ define ["utils/guid"], (guid) ->
       if elements.length is undefined
         elements = [elements]
       @length = elements.length
-
-      if @length is 0
-        console.log "EMPTY LENGTH", arguments
-        # console.log JHSDKJHFGJHS
-
-
-
       _.each elements, (element, index) ->
         self[index] = element
     else
@@ -239,7 +231,6 @@ define ["utils/guid"], (guid) ->
     # заменяет первый элемент на указанный
     #
     replaceWith: (element) ->
-      console.log "REPLACE", _.clone(element), _.clone(@)
       @[0] = @[0].parentNode.replaceChild element[0] or element, @[0]
         
   domQuery

@@ -1,6 +1,6 @@
 (function() {
 
-  define(['dom', 'config', 'history', "lib/domReady", "ajax"], function(dom, config, history, domReady, ajax) {
+  define(['dom', 'config', 'events', "lib/domReady", "ajax"], function(dom, config, events, domReady, ajax) {
     var convertRequestData, loadSections, sectionsRequest;
     convertRequestData = function(paramsString) {
       var lisItem, list, requestData, splittedData, _i, _len;
@@ -19,29 +19,20 @@
       return requestData;
     };
     domReady(function() {
-      var historyIndex;
-      console.log(history);
-      if (!history) {
-        return false;
-      }
-      historyIndex = 0;
-      return dom('body').on("a[" + config.reloadSectionsDataAttributeName + "]", "click", function(e) {
+      dom('body').on("a[" + config.reloadSectionsDataAttributeName + "]", "click", function(e) {
         var data, url;
         data = this.getAttribute(config.reloadSectionsDataAttributeName);
         url = this.getAttribute('href');
-        loadSections(url, convertRequestData(data)).success(function(request, data) {
-          return history.pushState({
-            index: historyIndex++,
-            widgets: data.widgets
-          }, data.title, data.url);
-        });
+        events.trigger("pageTransition:init", [url, convertRequestData(data)]);
         e.preventDefault();
         return false;
+      });
+      return events.bind("sectionsTransition:invoked, sectionsTransition:undone", function() {
+        return events.trigger("pageTransition:stop");
       });
     });
     sectionsRequest = null;
     return loadSections = function(url, requestData) {
-      console.log(url, requestData);
       if (sectionsRequest != null) {
         sectionsRequest.abort();
       }

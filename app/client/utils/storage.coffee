@@ -84,13 +84,15 @@ define [], ->
   # Делаем открытый API, чтобы было удобно отлаживать и тестировать
   returnObj = 
     save: (moduleName, varName, value, isSessionOnly) ->
-      value = value.toString() if typeof value isnt "string"
-      return saveToLocalStorage( createVarName(moduleName, varName), value, isSessionOnly) if isLocalStorageAvailable()
-      return saveToCookie createVarName(moduleName, varName, isSessionOnly), value
+      value = JSON.stringify value
+      key = createVarName moduleName, varName
+      return saveToLocalStorage(key, value, isSessionOnly) if isLocalStorageAvailable()
+      return saveToCookie key, value, isSessionOnly
 
     get: (moduleName, varName) ->
-      return getFromLocalStorage(createVarName moduleName, varName) if isLocalStorageAvailable()
-      return getFromCookie createVarName moduleName, varName
+      key = createVarName moduleName, varName
+      value = if isLocalStorageAvailable() then getFromLocalStorage(key, varName) else getFromCookie key, varName
+      return JSON.parse value
 
     remove: (moduleName, varName) ->
       return removeFromLocalStorage(createVarName moduleName, varName) if isLocalStorageAvailable()

@@ -10,7 +10,6 @@ define ['events', 'dom'], (events, dom) ->
     originPushState = window.history.pushState
 
     window.history.pushState = ->
-      console.log arguments, Array::slice.call arguments
       originPushState.apply window.history, arguments
       events.trigger "history:pushState", Array::slice.call arguments
 

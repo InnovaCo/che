@@ -43,7 +43,6 @@
           }
           result = [];
           _.each(root, function(root) {
-            console.log(selector);
             return result = result.concat(Array.prototype.slice.call(root.querySelectorAll(selector)));
           });
           return result;
@@ -209,7 +208,7 @@
         }
       },
       replaceWith: function(element) {
-        return this[0].parentNode.replaceChild(element[0] || element, this[0]);
+        return this[0] = this[0].parentNode.replaceChild(element[0] || element, this[0]);
       }
     };
     return domQuery;

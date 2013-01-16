@@ -4,13 +4,6 @@
 #
 
 define ['dom', 'config'], (dom, config) ->
-  #### getWidgetElements(domElement)
-  #
-  # возаращает все элементы, для которых могут понадобится js-модули
-  #
-  getWidgetElements = (domElement) ->
-
-
   #### saveTo(arrayOfPairs, element)
   #
   # сохраняет в массив данные о виджете для переданного элемента

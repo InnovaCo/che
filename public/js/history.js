@@ -1,20 +1,24 @@
 (function() {
 
   define(['events', 'dom'], function(events, dom) {
-    var HashHistory, originPushState, originReplaceState;
+    var HashHistory, originOnpopstate, originPushState, originReplaceState;
     if (window.history != null) {
-      dom(window).on("popstate", function(e) {
-        return events.trigger("history:popState", e);
-      });
+      originOnpopstate = window.onpopstate;
+      window.onpopstate = function(popStateEvent) {
+        if (originOnpopstate != null) {
+          originOnpopstate.apply(window, arguments);
+        }
+        return events.trigger("history:popState", popStateEvent.state);
+      };
       originPushState = window.history.pushState;
       window.history.pushState = function() {
         originPushState.apply(window.history, arguments);
-        return events.trigger("history:pushState", arguments);
+        return events.trigger("history:pushState", Array.prototype.slice.call(arguments));
       };
       originReplaceState = window.history.pushState;
       window.history.replaceState = function() {
         originReplaceState.apply(window.history, arguments);
-        return events.trigger("history:replaceState", arguments);
+        return events.trigger("history:replaceState", Array.prototype.slice.call(Array, arguments));
       };
       return window.history;
     } else {

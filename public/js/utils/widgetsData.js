@@ -1,8 +1,7 @@
 (function() {
 
   define(['dom', 'config'], function(dom, config) {
-    var getWidgetElements, getWidgets, saveTo;
-    getWidgetElements = function(domElement) {};
+    var getWidgets, saveTo;
     saveTo = function(arrayOfPairs, element) {
       var moduleName, names, _i, _len, _ref;
       names = (_ref = element.getAttribute(config.widgetDataAttributeName)) != null ? _ref.replace(/^\s|\s$/, '').split(/\s*,\s*/) : void 0;

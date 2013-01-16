@@ -2,10 +2,10 @@
 
   define([], function() {
     var destroyer;
-    destroyer = function(object) {
+    destroyer = function(object, is_deep) {
       return _.each(object, function(property, name) {
         if (object.hasOwnProperty(name)) {
-          if (_.isObject(property)) {
+          if (is_deep && _.isObject(property)) {
             _.delay(destroyer, property);
           }
           return delete object[name];

@@ -81,19 +81,19 @@
     };
     returnObj = {
       save: function(moduleName, varName, value, isSessionOnly) {
-        if (typeof value !== "string") {
-          value = value.toString();
-        }
+        var key;
+        value = JSON.stringify(value);
+        key = createVarName(moduleName, varName);
         if (isLocalStorageAvailable()) {
-          return saveToLocalStorage(createVarName(moduleName, varName), value, isSessionOnly);
+          return saveToLocalStorage(key, value, isSessionOnly);
         }
-        return saveToCookie(createVarName(moduleName, varName, isSessionOnly), value);
+        return saveToCookie(key, value, isSessionOnly);
       },
       get: function(moduleName, varName) {
-        if (isLocalStorageAvailable()) {
-          return getFromLocalStorage(createVarName(moduleName, varName));
-        }
-        return getFromCookie(createVarName(moduleName, varName));
+        var key, value;
+        key = createVarName(moduleName, varName);
+        value = isLocalStorageAvailable() ? getFromLocalStorage(key, varName) : getFromCookie(key, varName);
+        return JSON.parse(value);
       },
       remove: function(moduleName, varName) {
         if (isLocalStorageAvailable()) {

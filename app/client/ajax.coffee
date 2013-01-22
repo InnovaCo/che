@@ -20,9 +20,7 @@ define ['events', 'utils/params', "utils/destroyer"], (events, params, destroyer
     return false if not request 
 
     request.responseType = type
-
     request.open method, url, true
-
     request.setRequestHeader 'x-requested-with', 'xmlhttprequest'
 
     if data?

@@ -83,10 +83,11 @@ define [], ->
 
   # Делаем открытый API, чтобы было удобно отлаживать и тестировать
   returnObj = 
-    save: (moduleName, varName, value, isSessionOnly) ->
+    save: (moduleName, varName, value, isSessionOnly, isStorageOnly) ->
       value = JSON.stringify value
       key = createVarName moduleName, varName
       return saveToLocalStorage(key, value, isSessionOnly) if isLocalStorageAvailable()
+      return false if isStorageOnly
       return saveToCookie key, value, isSessionOnly
 
     get: (moduleName, varName) ->

@@ -3,36 +3,29 @@
   define(function() {
     var params;
     params = function(data, prefix, result) {
-      var field, nextPrefix, nextValue, value;
+      var encodedField, field, nextPrefix, nextValue, value;
       result = result || [];
       if (_.isString(data)) {
         result.push((prefix || "") + ("=" + (encodeURIComponent(data))));
       } else {
         for (field in data) {
           value = data[field];
-          if (prefix != null) {
-            nextPrefix = prefix + ("[" + (encodeURIComponent(field)) + "]");
-          } else {
-            nextPrefix = encodeURIComponent(field);
-          }
-          if (_.isFunction(value)) {
-            nextValue = value();
-          } else {
-            nextValue = value;
-          }
+          encodedField = encodeURIComponent(field);
+          nextPrefix = prefix != null ? prefix + ("[" + encodedField + "]") : encodedField;
+          nextValue = (typeof value === "function" ? value() : void 0) || value;
           params(nextValue, nextPrefix, result);
         }
       }
-      return encodeURI(result.join("&"));
+      return result;
     };
     return function(data) {
       if (_.isFunction(data)) {
-        return params(data());
-      } else if (_.isObject(data)) {
-        return params(data);
-      } else {
-        return data != null ? data.toString() : void 0;
+        return encodeURI((params(data())).join("&"));
       }
+      if (_.isObject(data)) {
+        return encodeURI((params(data)).join("&"));
+      }
+      return data != null ? data.toString() : void 0;
     };
   });
 

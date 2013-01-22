@@ -1,6 +1,6 @@
 (function() {
 
-  define(['events', 'history', 'widgets', 'dom', 'ajax', 'utils/params', 'utils/storage', 'utils/destroyer', 'utils/widgetsData'], function(events, history, widgets, dom, ajax, params, storage, destroyer, widgetsData) {
+  define(['events', 'history', 'widgets', 'dom', 'ajax', 'utils/storage', 'utils/destroyer', 'utils/widgetsData'], function(events, history, widgets, dom, ajax, storage, destroyer, widgetsData) {
     /* 
     data:
       <selector>: <plainHTML>
@@ -43,6 +43,7 @@
     };
     Transition.first = null;
     Transition.last = null;
+    Transition.depth = null;
     Transition.current = null;
     Transition.prototype = {
       update: function(data) {
@@ -57,8 +58,10 @@
               break;
             }
           }
+        } else {
+          return;
         }
-        if (isDataTheSame = false) {
+        if (!isDataTheSame) {
           data.index = this.index;
           this.data = data;
           if ((this._invoker != null) && (this.data.widgets != null)) {
@@ -114,7 +117,7 @@
       this.reloadSections = reloadSections;
       this._back = null;
       this._forward = null;
-      this._is_appied = false;
+      this._is_applied = false;
       return this._is_sections_updated = false;
     };
     Invoker.prototype = {
@@ -124,7 +127,7 @@
       },
       run: function() {
         var html, selector, _ref;
-        if (this._is_appied) {
+        if (this._is_applied) {
           this.undo();
         }
         if (!this._is_sections_updated || !this._forward || !this._back) {
@@ -138,56 +141,62 @@
           this._is_sections_updated = true;
         }
         this._insertSections(this._forward, this._back);
-        return this._is_appied = true;
+        return this._is_applied = true;
       },
       undo: function() {
-        if (!this._forward && !this._back || this._is_appied !== true) {
+        if (!this._forward && !this._back || this._is_applied !== true) {
           return false;
         }
         this._insertSections(this._back, this._forward);
-        return this._is_appied = false;
+        return this._is_applied = false;
       },
       _reloadSectionInit: function(selector, html) {
         var nextElement, prevElement;
         prevElement = dom(selector);
         this._back[selector] = {
-          widgets: [],
           element: prevElement,
           widgetsInitData: widgetsData(prevElement)
         };
         nextElement = dom(html);
         return this._forward[selector] = {
-          widgets: [],
-          element: nextElement,
-          widgetsInitData: widgetsData(nextElement)
+          element: nextElement
         };
       },
-      _insertSections: function(forward, back) {
-        var self;
-        self = this;
-        return _.each(forward, function(data, selector) {
-          return self._initWidgets(widgetsData(data.element), function(widgetsList) {
-            var replaceableElement, widget, _i, _j, _len, _len1, _ref, _ref1, _ref2;
-            forward[selector].widgets = widgetsList;
-            replaceableElement = back[selector].element;
-            if (back[selector].widgets) {
-              _ref = back[selector].widgets;
+      _insertSections: function(forward, back, sectionsList) {
+        var data, next, sectionsToInsert, selector,
+          _this = this;
+        if (!sectionsList) {
+          sectionsToInsert = [];
+          for (selector in forward) {
+            data = forward[selector];
+            sectionsToInsert.push({
+              forward: forward[selector],
+              back: back[selector]
+            });
+          }
+          return this._insertSections(forward, back, sectionsToInsert);
+        } else if (sectionsList.length === 0) {
+          return events.trigger("sections:inserted");
+        } else {
+          next = sectionsList.shift();
+          next.forward.widgetsInitData = widgetsData(next.forward.element);
+          return this._initWidgets(next.forward.widgetsInitData, function(widgetsList) {
+            var replaceableElement, widgetData, _i, _len, _ref, _ref1;
+            next.forward.widgets = widgetsList;
+            replaceableElement = next.back.element;
+            if (next.back.widgetsInitData) {
+              _ref = next.back.widgetsInitData;
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                widget = _ref[_i];
-                widget.turnOff();
-              }
-            } else if (back[selector].widgetsInitData) {
-              _ref1 = back[selector].widgetsInitData;
-              for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-                data = _ref1[_j];
-                if ((_ref2 = widgets.get(data.name, data.element)) != null) {
-                  _ref2.turnOff();
+                widgetData = _ref[_i];
+                if ((_ref1 = widgets.get(widgetData.name, widgetData.element)) != null) {
+                  _ref1.turnOff();
                 }
               }
             }
-            return replaceableElement.replaceWith(data.element);
+            replaceableElement.replaceWith(next.forward.element);
+            return _this._insertSections(forward, back, sectionsList);
           });
-        });
+        }
       },
       _initWidgets: function(widgetsDataList, ready) {
         var data, list, widgetsCount, _i, _len, _results;
@@ -211,6 +220,7 @@
         return _results;
       }
     };
+    Transition.current = new Transition;
     sectionsRequest = null;
     loadSections = function(url, index) {
       if (sectionsRequest != null) {
@@ -234,18 +244,15 @@
       return new Transition(state);
     };
     events.bind("pageTransition:init", function(url, data) {
-      var GETUrl, lastStateIndex, splitted_url, state;
-      splitted_url = url.split("?");
-      GETUrl = "" + splitted_url[0] + "?" + (splitted_url[1] || "") + (params(data));
-      state = storage.get("sectionsHistory", GETUrl);
+      var lastStateIndex, state;
+      state = storage.get("sectionsHistory", url);
       lastStateIndex = Transition.last.index + 1;
       if (state != null) {
         state.index = lastStateIndex;
         initSections(state);
       }
-      return loadSections(GETUrl, lastStateIndex);
+      return loadSections(url, lastStateIndex);
     });
-    Transition.current = new Transition;
     events.bind("history:popState", function(state) {
       new Transition(state);
       if (state != null) {
@@ -260,12 +267,6 @@
       return initSections(state);
     });
     return {
-      _getCurrentTransition: function() {
-        return Transition.current;
-      },
-      _getFirstTransition: function() {
-        return firstTransition;
-      },
       _transition: Transition,
       _invoker: Invoker
     };

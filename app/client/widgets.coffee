@@ -135,7 +135,7 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid"], (events, do
     # Возвращает уже ранее созданный экземпляр виджета для конкретного элемента
 
     get: (name, element) ->
-
+      name = config.baseWidgetsPath + name
       id = element.getAttribute "data-#{name}-id".replace "/", "-"
       return @_instances[id]
 
@@ -144,10 +144,10 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid"], (events, do
     # Подгружает необходимый модуль (по имени) и инициализирует виджет
 
     create: (name, element, ready) ->
-      console.log "widget", name, element
       if not (///^http///).test name
         name = config.baseWidgetsPath + name
       require [name], (widget) ->
         instance = new Widget(name, element, widget)
-        if _.isFunction(ready) then ready instance
+        console.log "widget", name, element, instance
+        ready?(instance)
 

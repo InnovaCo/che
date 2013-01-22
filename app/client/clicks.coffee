@@ -1,4 +1,4 @@
-define ['dom', 'config', 'events', "lib/domReady", "ajax"], (dom, config, events, domReady, ajax) ->
+define ['dom', 'config', 'events', 'utils/params', 'lib/domReady!'], (dom, config, events, params) ->
 
   convertRequestData = (paramsString) ->
     list = paramsString.split ///,\s*///
@@ -10,24 +10,19 @@ define ['dom', 'config', 'events', "lib/domReady", "ajax"], (dom, config, events
         requestData.widgets[splittedData[0]] = splittedData[1]
       else
         requestData[splittedData[0]] = splittedData[1]
+
     return requestData
 
-  domReady ->
-    dom('body').on "a[#{config.reloadSectionsDataAttributeName}]", "click", (e) ->
-      data = @.getAttribute config.reloadSectionsDataAttributeName
-      url = @.getAttribute 'href'
-      events.trigger "pageTransition:init", [url, convertRequestData data]
-      e.preventDefault()
-      return false
-    events.bind "sectionsTransition:invoked, sectionsTransition:undone", ->
-      events.trigger "pageTransition:stop"
+  dom('body').on "a[#{config.reloadSectionsDataAttributeName}]", "click", (e) ->
+    data = convertRequestData @.getAttribute config.reloadSectionsDataAttributeName
+    url = @.getAttribute 'href'
 
-  sectionsRequest = null
-  loadSections = (url, requestData) ->
-    sectionsRequest?.abort()
-    sectionsRequest = ajax.get
-      url: url
-      data: requestData
+    splitted_url = url.split "?"
 
+    events.trigger "pageTransition:init", "#{splitted_url[0]}?#{splitted_url[1] or ""}&#{params data}"
+    e.preventDefault()
+    return false
+  events.bind "sectionsTransition:invoked, sectionsTransition:undone", ->
+    events.trigger "pageTransition:stop"
     # sectionsRequest.complete (data) ->
     #   events.trigger "newSectionsLoaded", [data, requestData]

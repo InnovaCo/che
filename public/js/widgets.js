@@ -90,20 +90,19 @@
       _constructor: Widget,
       get: function(name, element) {
         var id;
+        name = config.baseWidgetsPath + name;
         id = element.getAttribute(("data-" + name + "-id").replace("/", "-"));
         return this._instances[id];
       },
       create: function(name, element, ready) {
-        console.log("widget", name, element);
         if (!/^http/.test(name)) {
           name = config.baseWidgetsPath + name;
         }
         return require([name], function(widget) {
           var instance;
           instance = new Widget(name, element, widget);
-          if (_.isFunction(ready)) {
-            return ready(instance);
-          }
+          console.log("widget", name, element, instance);
+          return typeof ready === "function" ? ready(instance) : void 0;
         });
       }
     };

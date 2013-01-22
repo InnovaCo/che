@@ -80,12 +80,15 @@
       return objToReturn;
     };
     returnObj = {
-      save: function(moduleName, varName, value, isSessionOnly) {
+      save: function(moduleName, varName, value, isSessionOnly, isStorageOnly) {
         var key;
         value = JSON.stringify(value);
         key = createVarName(moduleName, varName);
         if (isLocalStorageAvailable()) {
           return saveToLocalStorage(key, value, isSessionOnly);
+        }
+        if (isStorageOnly) {
+          return false;
         }
         return saveToCookie(key, value, isSessionOnly);
       },

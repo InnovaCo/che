@@ -16,6 +16,9 @@
       },
       toBeEqual: function(expecting) {
         return _.isEqual(this.actual, expecting);
+      },
+      toBeDomElement: function() {
+        return this.actual.nodeType === 1 && (this.actual.nodeName != null) && (this.actual.nodeType != null);
       }
     });
   });

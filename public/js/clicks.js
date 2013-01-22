@@ -1,7 +1,7 @@
 (function() {
 
-  define(['dom', 'config', 'events', "lib/domReady", "ajax"], function(dom, config, events, domReady, ajax) {
-    var convertRequestData, loadSections, sectionsRequest;
+  define(['dom', 'config', 'events', 'utils/params', 'lib/domReady!'], function(dom, config, events, params) {
+    var convertRequestData;
     convertRequestData = function(paramsString) {
       var lisItem, list, requestData, splittedData, _i, _len;
       list = paramsString.split(/,\s*/);
@@ -18,29 +18,18 @@
       }
       return requestData;
     };
-    domReady(function() {
-      dom('body').on("a[" + config.reloadSectionsDataAttributeName + "]", "click", function(e) {
-        var data, url;
-        data = this.getAttribute(config.reloadSectionsDataAttributeName);
-        url = this.getAttribute('href');
-        events.trigger("pageTransition:init", [url, convertRequestData(data)]);
-        e.preventDefault();
-        return false;
-      });
-      return events.bind("sectionsTransition:invoked, sectionsTransition:undone", function() {
-        return events.trigger("pageTransition:stop");
-      });
+    dom('body').on("a[" + config.reloadSectionsDataAttributeName + "]", "click", function(e) {
+      var data, splitted_url, url;
+      data = convertRequestData(this.getAttribute(config.reloadSectionsDataAttributeName));
+      url = this.getAttribute('href');
+      splitted_url = url.split("?");
+      events.trigger("pageTransition:init", "" + splitted_url[0] + "?" + (splitted_url[1] || "") + "&" + (params(data)));
+      e.preventDefault();
+      return false;
     });
-    sectionsRequest = null;
-    return loadSections = function(url, requestData) {
-      if (sectionsRequest != null) {
-        sectionsRequest.abort();
-      }
-      return sectionsRequest = ajax.get({
-        url: url,
-        data: requestData
-      });
-    };
+    return events.bind("sectionsTransition:invoked, sectionsTransition:undone", function() {
+      return events.trigger("pageTransition:stop");
+    });
   });
 
 }).call(this);

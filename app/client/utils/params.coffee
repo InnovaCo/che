@@ -5,24 +5,14 @@ define ->
       result.push (prefix or "") + "=#{encodeURIComponent data}"
     else
       for field, value of data
-        if prefix?
-          nextPrefix = prefix + "[#{encodeURIComponent field}]"
-        else
-          nextPrefix = encodeURIComponent field
-
-        if _.isFunction value
-          nextValue = value()
-        else
-          nextValue = value
-
+        encodedField = encodeURIComponent field
+        nextPrefix = if prefix? then prefix + "[#{encodedField}]" else encodedField
+        nextValue = value?() or value
         params nextValue, nextPrefix, result
 
-    encodeURI(result.join "&")
+    result
 
   (data) ->
-    if _.isFunction data
-      return params data()
-    else if _.isObject data
-      return params data
-    else 
-      return data?.toString()
+    return encodeURI (params data()).join "&" if _.isFunction data
+    return encodeURI (params data).join "&" if _.isObject data
+    return data?.toString()

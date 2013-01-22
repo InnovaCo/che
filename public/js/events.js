@@ -72,37 +72,26 @@
         return this;
       }
     };
-    Events = function(parent) {
-      this.parent = parent;
+    window.evnts = [];
+    Events = function(_id) {
+      this._id = _id;
       this.list = {};
       return this;
     };
     Events.prototype = {
-      sprout: function(name, inherit) {
+      sprout: function(name) {
         var instance;
-        instance = new Events(inherit ? this : null);
+        instance = new Events();
         if (name != null) {
           this[name] = instance;
         }
         return instance;
       },
       create: function(name) {
-        var instance, next;
-        instance = null;
-        if (this.inherit) {
-          next = this.parent;
-          while (next != null) {
-            instance = next.list[name];
-            if (instance != null) {
-              next = false;
-            } else {
-              next = next.parent;
-            }
-          }
-        } else {
-          instance = this.list[name];
+        if (this._id === "root") {
+          window.evnts.push(_.keys(this.list).join(""));
         }
-        return this.list[name] = instance || new Oops(name);
+        return this.list[name] = this.list[name] || new Oops(name);
       },
       once: function(name, handler, context, options) {
         return this.create(name).once(handler, context, options);
@@ -147,7 +136,7 @@
         return this.create(name).dispatch(args);
       }
     };
-    return new Events;
+    return new Events("root");
   });
 
 }).call(this);

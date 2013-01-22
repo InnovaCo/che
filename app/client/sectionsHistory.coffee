@@ -11,10 +11,9 @@ define [
   'widgets', 
   'dom', 
   'ajax',
-  'utils/params',
   'utils/storage',
   'utils/destroyer',
-  'utils/widgetsData'], (events, history, widgets, dom, ajax, params, storage, destroyer, widgetsData) ->
+  'utils/widgetsData'], (events, history, widgets, dom, ajax, storage, destroyer, widgetsData) ->
   ### 
   data:
     <selector>: <plainHTML>
@@ -59,6 +58,7 @@ define [
 
   Transition.first = null
   Transition.last = null
+  Transition.depth = null
   Transition.current = null
 
   Transition:: =
@@ -74,8 +74,10 @@ define [
           isDataTheSame = @data.widgets[selector] is data.widgets[selector]
           if not isDataTheSame
             break
+      else
+        return
 
-      if isDataTheSame = no
+      if not isDataTheSame
         data.index = @index
         @data = data
         if @_invoker? and @data.widgets?
@@ -138,7 +140,7 @@ define [
   Invoker = (@reloadSections) ->
     @_back = null
     @_forward = null
-    @_is_appied = no
+    @_is_applied = no
     @_is_sections_updated = no
 
   Invoker:: =
@@ -154,7 +156,7 @@ define [
     # Применение действий перехода, а также генерация данных для обратного перехода
     #
     run: ->
-      if @_is_appied
+      if @_is_applied
         @undo()
 
       if not @_is_sections_updated or not @_forward or not @_back
@@ -165,16 +167,16 @@ define [
         @_is_sections_updated = yes
 
       @_insertSections @_forward, @_back
-      @_is_appied = yes
+      @_is_applied = yes
 
     #### Invoker.prototype.undo()
     #
     # Отмена действий перехода
     #
     undo: ->
-      return false if not @_forward and not @_back or @_is_appied isnt true
+      return false if not @_forward and not @_back or @_is_applied isnt true
       @_insertSections @_back, @_forward
-      @_is_appied = no
+      @_is_applied = no
 
 
     #### Invoker.prototype._reloadSectionInit(selector, html)
@@ -185,38 +187,38 @@ define [
       prevElement = dom selector
 
       @_back[selector] =
-        widgets: []
         element: prevElement
         widgetsInitData: widgetsData prevElement
 
       nextElement = dom html
 
-      @_forward[selector] = 
-        widgets: []
+      @_forward[selector] =
         element: nextElement
-        widgetsInitData: widgetsData nextElement
 
-    #### Invoker.prototype._insertSections()
-    #
-    # вставка секций из forward и отключение секций из back
-    #
-    _insertSections: (forward, back) ->
-      self = @
-      _.each forward, (data, selector) ->
-        self._initWidgets widgetsData(data.element), (widgetsList) ->
-          forward[selector].widgets = widgetsList
-          replaceableElement = back[selector].element
+    _insertSections: (forward, back, sectionsList) ->
+      if not sectionsList
+        sectionsToInsert = []
+        for selector, data of forward
+          sectionsToInsert.push 
+            forward: forward[selector]
+            back: back[selector]
+        return @_insertSections forward, back, sectionsToInsert
 
-          if back[selector].widgets
-            for widget in back[selector].widgets
-              widget.turnOff()
+      else if sectionsList.length is 0
+        return events.trigger "sections:inserted"
 
-          else if back[selector].widgetsInitData
-            for data in back[selector].widgetsInitData
-              widgets.get(data.name, data.element)?.turnOff()
+      else
+        next = sectionsList.shift()
+        next.forward.widgetsInitData = widgetsData next.forward.element
+        @_initWidgets next.forward.widgetsInitData, (widgetsList) =>
+          next.forward.widgets = widgetsList
+          replaceableElement = next.back.element
+          if next.back.widgetsInitData
+            for widgetData in next.back.widgetsInitData
+              widgets.get(widgetData.name, widgetData.element)?.turnOff()
 
-          replaceableElement.replaceWith data.element
-
+          replaceableElement.replaceWith next.forward.element
+          return @_insertSections forward, back, sectionsList
 
     #### Invoker.prototype._initWidgets(widgetsDataList, ready)
     #
@@ -227,13 +229,20 @@ define [
       list = []
       if widgetsCount is 0
         return ready(list)
-      for data in widgetsDataList
+      for data in widgetsDataList 
         widgets.create data.name, data.element, (widget) ->
           list.push widget
           widget.turnOn()
           widgetsCount -= 1
           if widgetsCount is 0
             ready(list)
+
+
+  #### Transition.current
+  #
+  # ссылка на текущий переход
+  #
+  Transition.current = new Transition
 
   sectionsRequest = null
   loadSections = (url, index) ->
@@ -252,29 +261,19 @@ define [
     new Transition state
 
   events.bind "pageTransition:init", (url, data) ->
-    # here ask for sections in cache and then server for new sections
-    splitted_url = url.split "?"
-    GETUrl = "#{splitted_url[0]}?#{splitted_url[1] or ""}#{params data}"
 
-    state = storage.get "sectionsHistory", GETUrl
+    state = storage.get "sectionsHistory", url
+
     lastStateIndex = Transition.last.index + 1
     if state?
       state.index = lastStateIndex
       initSections state
 
-    loadSections GETUrl, lastStateIndex
-        
+    loadSections url, lastStateIndex
 
-
-  #### Transition.current
-  #
-  # ссылка на текущий переход
-  #
-  Transition.current = new Transition
 
   events.bind "history:popState", (state) ->
     new Transition state
-
     if state?
       loadSections state.url, state.index
     # here ask server for updated sections (history case)
@@ -285,9 +284,5 @@ define [
     storage.save "sectionsHistory", state.url, save_state
     initSections state
 
-  _getCurrentTransition: ->
-    Transition.current
-  _getFirstTransition: ->
-    firstTransition
   _transition: Transition
   _invoker: Invoker

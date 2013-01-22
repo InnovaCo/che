@@ -103,12 +103,14 @@ define [], ->
       if id and @_handlers[id]
         delete  @_handlers[id]
       @
-  
+
+  window.evnts = []
+
   ####  Events
   #
   # Конструктор для шин событий, может создавать новые шины, которые могут наследовать родительские события
   #
-  Events = (@parent) ->
+  Events = (@_id) ->
     ####  events.list
     #
     # Список событий
@@ -125,8 +127,8 @@ define [], ->
     # если указан параметр [inherit], то сохранает в дочернем объекте ссылку на родительский в поле parent,
     # после этого дочерний может обращаться к родительскому за Oops объектами (при вызове create)
     #
-    sprout: (name, inherit) ->
-      instance = new Events(if inherit then @ else null)
+    sprout: (name) ->
+      instance = new Events()
       if name?
         @[name] = instance
 
@@ -137,20 +139,8 @@ define [], ->
     # Создает новое событие, либо отдает уже созданное
     #
     create: (name) ->
-      instance = null
-      if @inherit
-        next = @.parent
-        while next?
-          instance = next.list[name]
-          if instance?
-            next = false
-          else 
-            next = next.parent
-      else 
-        instance = @list[name]
-
-      @list[name] = instance or new Oops(name)
-      
+      if @_id is "root" then window.evnts.push(_.keys(@list).join(""))
+      @list[name] = @list[name] or new Oops name
 
     
     ####  Events::once(name, handler, [context], [options])
@@ -209,4 +199,4 @@ define [], ->
   #
   # представляет собой интерфейс модуля 
   #
-  new Events
+  new Events("root")

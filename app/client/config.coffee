@@ -3,7 +3,7 @@
 # конфиги для черхитектуры
 #
 
-define ->
+define 
   widgetClassName: 'widget'
   widgetDataAttributeName: 'data-js-modules'
   reloadSectionsDataAttributeName: 'data-reload-sections'

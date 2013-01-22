@@ -5,7 +5,7 @@
 
 # Требует модуль 'utils/guid', для генерации уникальных id обработчиков событий
 
-define ["utils/guid"], (guid) ->
+define ["utils/guid", "lib/domReady"], (guid, domReady) ->
 
   
   #### checkIsElementMatchSelector(selector, element, [root])
@@ -232,5 +232,12 @@ define ["utils/guid"], (guid) ->
     #
     replaceWith: (element) ->
       @[0] = @[0].parentNode.replaceChild element[0] or element, @[0]
+
+
+  domQuery.load = (name, req, onLoad, config) ->
+    domReady.load name, req, () ->
+        onLoad domQuery
+      , config
+    domQuery
         
   domQuery

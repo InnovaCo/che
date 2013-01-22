@@ -1,4 +1,4 @@
-define ['dom', 'config', 'events', 'utils/params', 'lib/domReady!'], (dom, config, events, params) ->
+define ['dom!', 'config', 'events', 'utils/params'], (dom, config, events, params) ->
 
   convertRequestData = (paramsString) ->
     list = paramsString.split ///,\s*///

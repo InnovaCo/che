@@ -1,6 +1,6 @@
 (function() {
 
-  define(['dom', 'config', 'events', 'utils/params', 'lib/domReady!'], function(dom, config, events, params) {
+  define(['dom!', 'config', 'events', 'utils/params'], function(dom, config, events, params) {
     var convertRequestData;
     convertRequestData = function(paramsString) {
       var lisItem, list, requestData, splittedData, _i, _len;

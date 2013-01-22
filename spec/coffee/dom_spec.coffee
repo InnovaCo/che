@@ -20,6 +20,9 @@ describe 'dom module', ->
 
     require ['dom'], (domModule) ->
       dom = domModule
+    waitsFor ->
+      dom?
+    runs ->
 
   describe 'initialize dom object', ->
     DOMelement = null
@@ -28,9 +31,7 @@ describe 'dom module', ->
       DOMelement = document.getElementById('test')
 
     it 'should have "on", "off", "find", "get" functions', ->
-      waitsFor ->
-        dom?
-      runs ->
+      
         domObject = dom("div.test ul li a")
         expect(domObject.on).toBeFunction()
         expect(domObject.off).toBeFunction()
@@ -38,18 +39,14 @@ describe 'dom module', ->
         expect(domObject.get).toBeFunction()
 
     it 'should return object with DOMelement when called with selector', ->
-      waitsFor ->
-        dom?
-      runs ->
+      
         domObject = dom("div.test ul li a")
         expect(_.isEqual(DOMelement, domObject[0])).toBe(true)
         expect(domObject.length).toBe(1)
         expect(domObject instanceof dom).toBeTruthy()
 
     it 'should return empty object when called with invalidselector', ->
-      waitsFor ->
-        dom?
-      runs ->
+      
         domObject = dom(".selectorForNoresults")
         expect(domObject.length).toBe(0)
         expect(domObject[0]).toBeUndefined()
@@ -60,9 +57,7 @@ describe 'dom module', ->
       affix "div.test ul li a"
 
     it 'should bind event handler to element', ->
-      waitsFor ->
-        dom?
-      runs ->
+      
         bindSpy = jasmine.createSpy "bindSpy"
         dom("div.test ul li a").on 'click', bindSpy
 
@@ -70,9 +65,7 @@ describe 'dom module', ->
         expect(bindSpy).toHaveBeenCalled()
 
     it 'should delegate event handler to element', ->
-      waitsFor ->
-        dom?
-      runs ->
+      
         bindSpy = jasmine.createSpy "bindSpy"
         dom("div.test").on 'ul li a', 'click', bindSpy
 
@@ -88,9 +81,7 @@ describe 'dom module', ->
       affix "div.test ul li a"
 
     it 'should bind and unbind event handler to element', ->
-      waitsFor ->
-        dom?
-      runs ->
+      
         bindSpy = jasmine.createSpy "bindSpy"
         dom("div.test ul li a").on 'click', bindSpy
         dom("div.test ul li a").off 'click', bindSpy
@@ -99,9 +90,7 @@ describe 'dom module', ->
         expect(bindSpy).not.toHaveBeenCalled()
         
     it 'should delegate event handler to element', ->
-      waitsFor ->
-        dom?
-      runs ->
+      
         bindSpy = jasmine.createSpy "bindSpy"
         dom("div.test").on 'ul li a', 'click', bindSpy
         dom("div.test").off 'ul li a', 'click', bindSpy
@@ -115,16 +104,42 @@ describe 'dom module', ->
       fixture = affix "div.test ul li a#test"
       DOMelement = document.getElementById('test')
     it 'should find element inside', ->
-      waitsFor ->
-        dom?
-      runs ->
         obj = dom('div.test')
         foundObj = obj.find('a#test')
         expect(_.isEqual(foundObj.get(0), DOMelement)).toBeTruthy()
     it 'find should return instance of domQuery', ->
-      waitsFor ->
-        dom?
-      runs ->
         obj = dom('div.test')
         expect(obj instanceof dom).toBeTruthy()
+
+
+  describe 'loader API', ->
+    
+    domReady = null
+    beforeEach ->
+      domReady = null
+      require ['lib/domReady'], (domReadyModule) ->
+        domReady = domReadyModule
+
+      waitsFor ->
+        domReady isnt null
+
+    it 'should call return dom module, when required as loader', ->
+      module = null
+      require ['dom!'], (dom) ->
+        module = dom
+
+      waitsFor ->
+        module?
+      runs ->
+        expect(module).toBe dom
+
+    it 'should call onload with null in build mode', ->
+      onload = jasmine.createSpy 'onload'
+      dom.load "onload", null, onload,
+        isBuild: true
+
+      expect(onload).toHaveBeenCalled()
+      expect(onload.mostRecentCall.args[0]).toBe(dom)
+
+
 

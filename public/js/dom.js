@@ -1,6 +1,6 @@
 (function() {
 
-  define(["utils/guid"], function(guid) {
+  define(["utils/guid", "lib/domReady"], function(guid, domReady) {
     var bindEvent, callEventHandlers, checkIsElementMatchSelector, delegateEvent, domQuery, parseHtml, query, unbindEvent, undelegateEvent;
     checkIsElementMatchSelector = function(selectorOrNodeList, element, root) {
       var list, listElement, _i, _len;
@@ -210,6 +210,12 @@
       replaceWith: function(element) {
         return this[0] = this[0].parentNode.replaceChild(element[0] || element, this[0]);
       }
+    };
+    domQuery.load = function(name, req, onLoad, config) {
+      domReady.load(name, req, function() {
+        return onLoad(domQuery);
+      }, config);
+      return domQuery;
     };
     return domQuery;
   });

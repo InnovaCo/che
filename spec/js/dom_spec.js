@@ -22,9 +22,13 @@
           return element.fireEvent("on" + event.eventType, event);
         }
       };
-      return require(['dom'], function(domModule) {
+      require(['dom'], function(domModule) {
         return dom = domModule;
       });
+      waitsFor(function() {
+        return dom != null;
+      });
+      return runs(function() {});
     });
     describe('initialize dom object', function() {
       var DOMelement;
@@ -35,40 +39,25 @@
         return DOMelement = document.getElementById('test');
       });
       it('should have "on", "off", "find", "get" functions', function() {
-        waitsFor(function() {
-          return dom != null;
-        });
-        return runs(function() {
-          var domObject;
-          domObject = dom("div.test ul li a");
-          expect(domObject.on).toBeFunction();
-          expect(domObject.off).toBeFunction();
-          expect(domObject.find).toBeFunction();
-          return expect(domObject.get).toBeFunction();
-        });
+        var domObject;
+        domObject = dom("div.test ul li a");
+        expect(domObject.on).toBeFunction();
+        expect(domObject.off).toBeFunction();
+        expect(domObject.find).toBeFunction();
+        return expect(domObject.get).toBeFunction();
       });
       it('should return object with DOMelement when called with selector', function() {
-        waitsFor(function() {
-          return dom != null;
-        });
-        return runs(function() {
-          var domObject;
-          domObject = dom("div.test ul li a");
-          expect(_.isEqual(DOMelement, domObject[0])).toBe(true);
-          expect(domObject.length).toBe(1);
-          return expect(domObject instanceof dom).toBeTruthy();
-        });
+        var domObject;
+        domObject = dom("div.test ul li a");
+        expect(_.isEqual(DOMelement, domObject[0])).toBe(true);
+        expect(domObject.length).toBe(1);
+        return expect(domObject instanceof dom).toBeTruthy();
       });
       return it('should return empty object when called with invalidselector', function() {
-        waitsFor(function() {
-          return dom != null;
-        });
-        return runs(function() {
-          var domObject;
-          domObject = dom(".selectorForNoresults");
-          expect(domObject.length).toBe(0);
-          return expect(domObject[0]).toBeUndefined();
-        });
+        var domObject;
+        domObject = dom(".selectorForNoresults");
+        expect(domObject.length).toBe(0);
+        return expect(domObject[0]).toBeUndefined();
       });
     });
     describe('binding events', function() {
@@ -76,32 +65,22 @@
         return affix("div.test ul li a");
       });
       it('should bind event handler to element', function() {
-        waitsFor(function() {
-          return dom != null;
-        });
-        return runs(function() {
-          var bindSpy;
-          bindSpy = jasmine.createSpy("bindSpy");
-          dom("div.test ul li a").on('click', bindSpy);
-          triggerMouseEvent("click", dom("div.test ul li a").get(0));
-          return expect(bindSpy).toHaveBeenCalled();
-        });
+        var bindSpy;
+        bindSpy = jasmine.createSpy("bindSpy");
+        dom("div.test ul li a").on('click', bindSpy);
+        triggerMouseEvent("click", dom("div.test ul li a").get(0));
+        return expect(bindSpy).toHaveBeenCalled();
       });
       return it('should delegate event handler to element', function() {
+        var bindSpy;
+        bindSpy = jasmine.createSpy("bindSpy");
+        dom("div.test").on('ul li a', 'click', bindSpy);
+        triggerMouseEvent("click", dom("div.test ul li a").get(0));
         waitsFor(function() {
-          return dom != null;
+          return 0 < bindSpy.calls.length;
         });
         return runs(function() {
-          var bindSpy;
-          bindSpy = jasmine.createSpy("bindSpy");
-          dom("div.test").on('ul li a', 'click', bindSpy);
-          triggerMouseEvent("click", dom("div.test ul li a").get(0));
-          waitsFor(function() {
-            return 0 < bindSpy.calls.length;
-          });
-          return runs(function() {
-            return expect(bindSpy).toHaveBeenCalled();
-          });
+          return expect(bindSpy).toHaveBeenCalled();
         });
       });
     });
@@ -110,33 +89,23 @@
         return affix("div.test ul li a");
       });
       it('should bind and unbind event handler to element', function() {
-        waitsFor(function() {
-          return dom != null;
-        });
-        return runs(function() {
-          var bindSpy;
-          bindSpy = jasmine.createSpy("bindSpy");
-          dom("div.test ul li a").on('click', bindSpy);
-          dom("div.test ul li a").off('click', bindSpy);
-          triggerMouseEvent("click", dom("div.test ul li a").get(0));
-          return expect(bindSpy).not.toHaveBeenCalled();
-        });
+        var bindSpy;
+        bindSpy = jasmine.createSpy("bindSpy");
+        dom("div.test ul li a").on('click', bindSpy);
+        dom("div.test ul li a").off('click', bindSpy);
+        triggerMouseEvent("click", dom("div.test ul li a").get(0));
+        return expect(bindSpy).not.toHaveBeenCalled();
       });
       return it('should delegate event handler to element', function() {
-        waitsFor(function() {
-          return dom != null;
-        });
-        return runs(function() {
-          var bindSpy;
-          bindSpy = jasmine.createSpy("bindSpy");
-          dom("div.test").on('ul li a', 'click', bindSpy);
-          dom("div.test").off('ul li a', 'click', bindSpy);
-          triggerMouseEvent("click", dom("div.test ul li a").get(0));
-          return expect(bindSpy).not.toHaveBeenCalled();
-        });
+        var bindSpy;
+        bindSpy = jasmine.createSpy("bindSpy");
+        dom("div.test").on('ul li a', 'click', bindSpy);
+        dom("div.test").off('ul li a', 'click', bindSpy);
+        triggerMouseEvent("click", dom("div.test ul li a").get(0));
+        return expect(bindSpy).not.toHaveBeenCalled();
       });
     });
-    return describe('finding objects', function() {
+    describe('finding objects', function() {
       var DOMelement;
       DOMelement = null;
       beforeEach(function() {
@@ -145,25 +114,50 @@
         return DOMelement = document.getElementById('test');
       });
       it('should find element inside', function() {
-        waitsFor(function() {
-          return dom != null;
-        });
-        return runs(function() {
-          var foundObj, obj;
-          obj = dom('div.test');
-          foundObj = obj.find('a#test');
-          return expect(_.isEqual(foundObj.get(0), DOMelement)).toBeTruthy();
-        });
+        var foundObj, obj;
+        obj = dom('div.test');
+        foundObj = obj.find('a#test');
+        return expect(_.isEqual(foundObj.get(0), DOMelement)).toBeTruthy();
       });
       return it('find should return instance of domQuery', function() {
+        var obj;
+        obj = dom('div.test');
+        return expect(obj instanceof dom).toBeTruthy();
+      });
+    });
+    return describe('loader API', function() {
+      var domReady;
+      domReady = null;
+      beforeEach(function() {
+        domReady = null;
+        require(['lib/domReady'], function(domReadyModule) {
+          return domReady = domReadyModule;
+        });
+        return waitsFor(function() {
+          return domReady !== null;
+        });
+      });
+      it('should call return dom module, when required as loader', function() {
+        var module;
+        module = null;
+        require(['dom!'], function(dom) {
+          return module = dom;
+        });
         waitsFor(function() {
-          return dom != null;
+          return module != null;
         });
         return runs(function() {
-          var obj;
-          obj = dom('div.test');
-          return expect(obj instanceof dom).toBeTruthy();
+          return expect(module).toBe(dom);
         });
+      });
+      return it('should call onload with null in build mode', function() {
+        var onload;
+        onload = jasmine.createSpy('onload');
+        dom.load("onload", null, onload, {
+          isBuild: true
+        });
+        expect(onload).toHaveBeenCalled();
+        return expect(onload.mostRecentCall.args[0]).toBe(dom);
       });
     });
   });

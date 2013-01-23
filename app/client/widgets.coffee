@@ -47,35 +47,57 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid"], (events, do
       eventsList[name] = handler
 
 
-    #### unbindWidgetModuleEvents(eventsList)
-    #
-    # Отвязывает обработчиков событий приложения
+  #### unbindWidgetModuleEvents(eventsList)
+  #
+  # Отвязывает обработчиков событий приложения
 
   unbindWidgetModuleEvents = (eventsList) ->
     _.each eventsList, (handler, name) ->
       events.unbind name, handler
+
+
+  #### widgets
+  #
+  # Менеджер виджетов, следит за тем, чтобы лишнего не было создано, а также может удалять уже не нужные экземпляры виджетов
+  #
+
+  widgets = 
+    _instances: {}
+    _id_attr: (name) ->
+      return "data-#{name}-id".replace "/", "-"
+    remove: (widget) ->
+      widget.element.removeAttribute @_id_attr widget.name
+      delete @_instances[widget.id]
+      destroyer widget
+
+    get: (name, element) ->
+      id_attr = @_id_attr name
+      return @_instances[element.getAttribute id_attr]
+
+    add: (name, element, _widget) ->
+      prevInstance = @get name, element
+      if prevInstance?
+        # do some things with existing instance, if need so
+        return prevInstance
+
+      instance = new Widget name, element, _widget
+      instance.element.setAttribute @_id_attr(name), instance.id
+      @_instances[instance.id] = instance
+
+      instance
   
 
   #### Widget(@name, @element, _widget)
   #
   # Конструктор виджетов, инициализирует виджет на DOM-элементе только один раз, в следующие разы возвращает уже созданные экземпляры
+  #
 
   Widget = (@name, @element, _widget) ->
-    @_attr_name = "data-#{@name}-id".replace("/", "-")
-
-    id = @element.getAttribute @_attr_name
-    return widgetsInstances[id] if id and widgetsInstances[id]
-
     _.extend @, _widget
     @id = guid()
     @init?(@element)
     @turnOn()
     @isInitialized = yes
-    
-    
-
-    @element.setAttribute @_attr_name, @id
-    widgetsInstances[@id] = @
 
   Widget:: =
 
@@ -109,20 +131,15 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid"], (events, do
 
     destroy: ->
       @turnOff()
-      @element.removeAttribute @_attr_name
-      delete widgetsInstances[@id]
-      destroyer(@)
+      widgets.remove @
 
-  #### widgets
-  #
-  # интерфейс модуля
-  widgets =
 
-    #### widgets._instances
+
+    #### widgets._manager
     #
-    # Ссылка на список экземпляров виджетов
+    # Ссылка на менеджер виджетов
 
-    _instances: widgetsInstances
+    _manager: widgets
 
     #### widgets._constructor
     #
@@ -136,8 +153,7 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid"], (events, do
 
     get: (name, element) ->
       name = config.baseWidgetsPath + name
-      id = element.getAttribute "data-#{name}-id".replace "/", "-"
-      return @_instances[id]
+      return widgets.get name, element
 
     #### widgets.create(name, element, ready)
     #
@@ -147,7 +163,7 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid"], (events, do
       if not (///^http///).test name
         name = config.baseWidgetsPath + name
       require [name], (widget) ->
-        instance = new Widget(name, element, widget)
+        instance = widgets.add name, element, widget
         console.log "widget", name, element, instance
         ready?(instance)
 

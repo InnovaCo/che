@@ -40,26 +40,45 @@
         return events.unbind(name, handler);
       });
     };
+    widgets = {
+      _instances: {},
+      _id_attr: function(name) {
+        return ("data-" + name + "-id").replace("/", "-");
+      },
+      remove: function(widget) {
+        widget.element.removeAttribute(this._id_attr(widget.name));
+        delete this._instances[widget.id];
+        return destroyer(widget);
+      },
+      get: function(name, element) {
+        var id_attr;
+        id_attr = this._id_attr(name);
+        return this._instances[element.getAttribute(id_attr)];
+      },
+      add: function(name, element, _widget) {
+        var instance, prevInstance;
+        prevInstance = this.get(name, element);
+        if (prevInstance != null) {
+          return prevInstance;
+        }
+        instance = new Widget(name, element, _widget);
+        instance.element.setAttribute(this._id_attr(name), instance.id);
+        this._instances[instance.id] = instance;
+        return instance;
+      }
+    };
     Widget = function(name, element, _widget) {
-      var id;
       this.name = name;
       this.element = element;
-      this._attr_name = ("data-" + this.name + "-id").replace("/", "-");
-      id = this.element.getAttribute(this._attr_name);
-      if (id && widgetsInstances[id]) {
-        return widgetsInstances[id];
-      }
       _.extend(this, _widget);
       this.id = guid();
       if (typeof this.init === "function") {
         this.init(this.element);
       }
       this.turnOn();
-      this.isInitialized = true;
-      this.element.setAttribute(this._attr_name, this.id);
-      return widgetsInstances[this.id] = this;
+      return this.isInitialized = true;
     };
-    Widget.prototype = {
+    return Widget.prototype = {
       turnOn: function() {
         if (this._isOn) {
           return;
@@ -80,19 +99,13 @@
       },
       destroy: function() {
         this.turnOff();
-        this.element.removeAttribute(this._attr_name);
-        delete widgetsInstances[this.id];
-        return destroyer(this);
-      }
-    };
-    return widgets = {
-      _instances: widgetsInstances,
+        return widgets.remove(this);
+      },
+      _manager: widgets,
       _constructor: Widget,
       get: function(name, element) {
-        var id;
         name = config.baseWidgetsPath + name;
-        id = element.getAttribute(("data-" + name + "-id").replace("/", "-"));
-        return this._instances[id];
+        return widgets.get(name, element);
       },
       create: function(name, element, ready) {
         if (!/^http/.test(name)) {
@@ -100,7 +113,7 @@
         }
         return require([name], function(widget) {
           var instance;
-          instance = new Widget(name, element, widget);
+          instance = widgets.add(name, element, widget);
           console.log("widget", name, element, instance);
           return typeof ready === "function" ? ready(instance) : void 0;
         });

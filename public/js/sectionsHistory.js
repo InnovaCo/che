@@ -214,9 +214,10 @@
       return loadSections(url, method);
     });
     events.bind("history:popState", function(state) {
-      console.log("POPSTATE", state);
-      transitions.go(state.index);
-      return loadSections(state.url, state.method, state.index);
+      if (state != null) {
+        transitions.go(state.index);
+        return loadSections(state.url, state.method, state.index);
+      }
     });
     return {
       _transitions: transitions,

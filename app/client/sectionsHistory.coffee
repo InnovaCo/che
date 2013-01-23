@@ -20,6 +20,11 @@ define [
     <selector>: <plainHTML>
   ###
 
+  #### transitions
+  #
+  # Менеджер переходов, создает, либо достает уже ранее созданные переходы
+  # 
+
   transitions =
     last: null
     current: null
@@ -231,8 +236,9 @@ define [
 
 
   events.bind "history:popState", (state) ->
-    transitions.go state.index
-    loadSections state.url, state.method, state.index
+    if state?
+      transitions.go state.index
+      loadSections state.url, state.method, state.index
     # here ask server for updated sections (history case)
 
   _transitions: transitions

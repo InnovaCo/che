@@ -65,7 +65,7 @@
         return runs(function() {
           var element, widgetInstance;
           element = dom("div.widget").get(0);
-          widgetInstance = new widgets._constructor('sampleWidget', element, sampleWidget);
+          widgetInstance = widgets._manager.add('sampleWidget', element, sampleWidget);
           expect(widgetInstance.init).toBeFunction();
           expect(widgetInstance.turnOff).toBeFunction();
           expect(widgetInstance.turnOn).toBeFunction();
@@ -88,9 +88,10 @@
         return runs(function() {
           var element, widgetInstance;
           element = dom("div.widget").get(0);
-          widgetInstance = new widgets._constructor('sampleWidget', element, sampleWidget);
+          widgetInstance = widgets._manager.add('sampleWidget', element, sampleWidget);
+          console.log("ELEMENT", element);
           expect(widgetInstance.element.getAttribute("data-sampleWidget-id")).toBe(widgetInstance.id);
-          return expect(widgets._instances[widgetInstance.id]).toBe(widgetInstance);
+          return expect(widgets._manager._instances[widgetInstance.id]).toBe(widgetInstance);
         });
       });
       return it('should init widget on element only once', function() {
@@ -100,8 +101,8 @@
         return runs(function() {
           var element, widgetInstance1, widgetInstance2;
           element = dom("div.widget").get(0);
-          widgetInstance1 = new widgets._constructor('sampleWidget', element, sampleWidget);
-          widgetInstance2 = new widgets._constructor('sampleWidget', element, sampleWidget);
+          widgetInstance1 = widgets._manager.add('sampleWidget', element, sampleWidget);
+          widgetInstance2 = widgets._manager.add('sampleWidget', element, sampleWidget);
           return expect(widgetInstance1.id).toBe(widgetInstance2.id);
         });
       });
@@ -129,7 +130,7 @@
           var element, widgetInstance;
           jasmine.Clock.useMock();
           element = dom("div.widget").get(0);
-          widgetInstance = new widgets._constructor('sampleWidget', element, sampleWidget);
+          widgetInstance = widgets._manager.add('sampleWidget', element, sampleWidget);
           widgetInstance.turnOff();
           triggerMouseEvent("click", dom("div.action")[0]);
           triggerMouseEvent("click", dom("div.mouser")[0]);
@@ -155,7 +156,7 @@
             return handler.apply(this, args);
           };
           element = dom("div.widget").get(0);
-          widgetInstance = new widgets._constructor('sampleWidget', element, sampleWidget);
+          widgetInstance = widgets._manager.add('sampleWidget', element, sampleWidget);
           widgetInstance.turnOff();
           widgetInstance.turnOn();
           triggerMouseEvent("click", dom("div.action")[0]);

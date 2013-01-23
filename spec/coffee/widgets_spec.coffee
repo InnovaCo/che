@@ -62,7 +62,7 @@ describe "widgets module", ->
         widgets?
       runs ->
         element = dom("div.widget").get(0)
-        widgetInstance = new widgets._constructor 'sampleWidget', element, sampleWidget
+        widgetInstance = widgets._manager.add  'sampleWidget', element, sampleWidget
 
         expect(widgetInstance.init).toBeFunction()
         expect(widgetInstance.turnOff).toBeFunction()
@@ -83,18 +83,20 @@ describe "widgets module", ->
         widgets?
       runs ->
         element = dom("div.widget").get(0)
-        widgetInstance = new widgets._constructor 'sampleWidget', element, sampleWidget
+        widgetInstance = widgets._manager.add 'sampleWidget', element, sampleWidget
+
+        console.log "ELEMENT", element
 
         expect(widgetInstance.element.getAttribute "data-sampleWidget-id").toBe(widgetInstance.id)
-        expect(widgets._instances[widgetInstance.id]).toBe(widgetInstance)
+        expect(widgets._manager._instances[widgetInstance.id]).toBe(widgetInstance)
 
     it 'should init widget on element only once', ->
       waitsFor ->
         widgets?
       runs ->
         element = dom("div.widget").get(0)
-        widgetInstance1 = new widgets._constructor 'sampleWidget', element, sampleWidget
-        widgetInstance2 = new widgets._constructor 'sampleWidget', element, sampleWidget
+        widgetInstance1 = widgets._manager.add 'sampleWidget', element, sampleWidget
+        widgetInstance2 = widgets._manager.add  'sampleWidget', element, sampleWidget
         
         expect(widgetInstance1.id).toBe(widgetInstance2.id)
 
@@ -116,7 +118,7 @@ describe "widgets module", ->
       runs ->
         jasmine.Clock.useMock()
         element = dom("div.widget").get(0)
-        widgetInstance = new widgets._constructor 'sampleWidget', element, sampleWidget
+        widgetInstance = widgets._manager.add 'sampleWidget', element, sampleWidget
 
         widgetInstance.turnOff()
         
@@ -144,7 +146,7 @@ describe "widgets module", ->
           handler.apply(this, args)
 
         element = dom("div.widget").get(0)
-        widgetInstance = new widgets._constructor 'sampleWidget', element, sampleWidget
+        widgetInstance = widgets._manager.add 'sampleWidget', element, sampleWidget
 
         widgetInstance.turnOff()
         widgetInstance.turnOn()

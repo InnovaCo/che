@@ -18,7 +18,7 @@
     });
     history = null;
     beforeEach(function() {
-      history._transition.current = null;
+      history._transitions.current = null;
       return waitsFor(function() {
         return history != null;
       });
@@ -26,30 +26,31 @@
     describe('creating transitions', function() {
       it('should create transition and set firstTransition and currentTransition', function() {
         var nextTransition, transition;
-        transition = new history._transition({
+        transition = history._transitions.create({
           index: 1
         });
-        nextTransition = new history._transition({
+        nextTransition = history._transitions.create({
           widgets: {}
         });
-        expect(history._transition.last).toBe(nextTransition);
-        return expect(history._transition.current).toBe(nextTransition);
+        expect(history._transitions.last).toBe(nextTransition);
+        return expect(history._transitions.current).toBe(nextTransition);
       });
-      it('should create transition and set previous created as .prev', function() {
+      it('should create transition and set previous created as .prev_transition', function() {
         var nextTransition, transition;
-        transition = new history._transition({});
-        nextTransition = new history._transition({});
+        transition = history._transitions.create({});
+        nextTransition = history._transitions.create({});
         expect(transition).toBe(nextTransition.prev_transition);
         return expect(transition.next_transition).toBe(nextTransition);
       });
       return it('should destroy first transition after 10 new created', function() {
         var firstTransition, i, transition, _i;
-        firstTransition = new history._transition({
+        firstTransition = history._transitions.create({
           widgets: {}
         });
         transition = firstTransition;
         for (i = _i = 1; _i < 10; i = ++_i) {
-          transition = new history._transition({
+          transition = history._transitions.create({
+            index: i,
             widgets: {}
           });
         }
@@ -73,12 +74,12 @@
       beforeEach(function() {
         affix("div#one span.section");
         affix("div#two span.section");
-        history._transition.last = null;
-        return history._transition.current = null;
+        history._transitions.last = null;
+        return history._transitions.current = null;
       });
       it('should replace sections', function() {
         var transition;
-        transition = new history._transition(reload_sections);
+        transition = history._transitions.create(reload_sections);
         expect($("#one").length).toBe(0);
         expect($("#two").length).toBe(0);
         expect($("#three span").text()).toBe("hello");
@@ -86,7 +87,7 @@
       });
       return it('should replace sections and undo', function() {
         var transition;
-        transition = new history._transition(reload_sections);
+        transition = history._transitions.create(reload_sections);
         expect($("#one").length).toBe(0);
         expect($("#two").length).toBe(0);
         expect($("#three span").text()).toBe("hello");
@@ -115,12 +116,12 @@
       beforeEach(function() {
         affix("div#one span.section");
         affix("div#two span.section");
-        history._transition.last = null;
-        return history._transition.current = null;
+        history._transitions.last = null;
+        return history._transitions.current = null;
       });
       it("should update sections", function() {
         var transition;
-        transition = new history._transition(reload_sections);
+        transition = history._transitions.create(reload_sections);
         expect($("#one").length).toBe(0);
         expect($("#two").length).toBe(0);
         expect($("#three span").text()).toBe("hello");
@@ -133,7 +134,7 @@
       });
       return it("shouldn't update sections", function() {
         var transition;
-        transition = new history._transition(reload_sections);
+        transition = history._transitions.create(reload_sections);
         expect($("#one").length).toBe(0);
         expect($("#two").length).toBe(0);
         expect($("#three span").text()).toBe("hello");
@@ -158,17 +159,17 @@
       beforeEach(function() {
         affix("div#one span.section");
         affix("div#two.widgets[data-js-modules=gradient] span.section");
-        history._transition.last = null;
-        return history._transition.current = null;
+        history._transitions.last = null;
+        return history._transitions.current = null;
       });
       it("should create invoke object if sections are specified", function() {
         var transition;
-        transition = new history._transition(reload_sections);
+        transition = history._transitions.create(reload_sections);
         return expect(transition._invoker).toBeDefined();
       });
       it("shouldn't create invoke object 'cause sections arn't specified", function() {
         var transition;
-        transition = new history._transition({});
+        transition = history._transitions.create({});
         return expect(transition._invoker).not.toBeDefined();
       });
       it("invoker shouldn't contain data for forward and backward transitions right after initialization", function() {
@@ -186,23 +187,18 @@
         expect(invoker._back).toBeDefined();
         expect(invoker._back["#one"]).toBeDefined();
         expect(invoker._back["#two"]).toBeDefined();
-        expect(invoker._back["#one"].element).toBeDefined();
-        expect(invoker._back["#one"].element[0].innerHTML.toLowerCase()).toBe("<span class=\"section\"></span>");
-        expect(invoker._back["#one"].element[0].getAttribute("id")).toBe("one");
-        expect(invoker._back["#two"].widgetsInitData).toBeDefined();
+        expect(invoker._back["#one"][0].innerHTML.toLowerCase()).toBe("<span class=\"section\"></span>");
+        expect(invoker._back["#one"][0].getAttribute("id")).toBe("one");
         expect(invoker._forward).toBeDefined();
         expect(invoker._forward["#one"]).toBeDefined();
         expect(invoker._forward["#two"]).toBeDefined();
-        expect(invoker._forward["#one"].element[0].innerHTML.toLowerCase()).toBe("<span>hello</span>");
-        expect(invoker._forward["#one"].element[0].getAttribute("id")).toBe("three");
-        return expect(invoker._forward["#one"].element).toBeDefined();
+        expect(invoker._forward["#one"][0].innerHTML.toLowerCase()).toBe("<span>hello</span>");
+        return expect(invoker._forward["#one"][0].getAttribute("id")).toBe("three");
       });
       it("invoker contain data for widgets turning off", function() {
         var invoker;
         invoker = new history._invoker(reload_sections.widgets);
-        invoker.run();
-        expect(invoker._back["#two"].widgetsInitData).toBeDefined();
-        return expect(invoker._back["#two"].widgetsInitData[0].name).toBe('gradient');
+        return invoker.run();
       });
       return it("invoker should change sections", function() {
         var invoker;
@@ -228,8 +224,8 @@
       beforeEach(function() {
         affix("div#one.widgets[data-js-modules=gradient] span.section");
         affix("div#two.widgets[data-js-modules=opacity] span.section");
-        history._transition.last = null;
-        history._transition.current = null;
+        history._transitions.last = null;
+        history._transitions.current = null;
         return spyOn(widgets, "create").andCallThrough();
       });
       it("should init all widgets from new sections", function() {
@@ -301,8 +297,8 @@
         storage.remove("sectionsHistory", window.location.origin);
         affix("div#one span.section");
         spyOn(browserHistory, "pushState");
-        history._transition.last = null;
-        return history._transition.current = null;
+        history._transitions.last = null;
+        return history._transitions.current = null;
       });
       it("should save sections data to localstorage", function() {
         var allDone;
@@ -350,7 +346,7 @@
         });
       });
     });
-    describe('loading transition sections', function() {
+    return describe('loading transition sections', function() {
       var reload_sections;
       reload_sections = null;
       beforeEach(function() {
@@ -370,7 +366,14 @@
         events.bind("sectionsTransition:invoked", function() {
           return allDone = true;
         });
+        history._transitions.last = null;
+        history._transitions.current = null;
+        history._transitions.create({
+          index: 0,
+          widgets: {}
+        });
         events.trigger("history:popState", {
+          index: 0,
           url: window.location.origin,
           title: "second test Title",
           widgets: {
@@ -429,7 +432,6 @@
         });
       });
     });
-    return describe('getting state from history', function() {});
   });
 
 }).call(this);

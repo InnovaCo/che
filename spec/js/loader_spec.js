@@ -19,7 +19,7 @@
         }
         return require(["loader"], function(preloaderModule) {
           requireSpy = spyOn(window, "require").andCallThrough();
-          return loadSpy = spyOn(loader, "loadWidgetModule").andCallThrough();
+          return loadSpy = spyOn(loader, "widgets").andCallThrough();
         });
       });
       it("should find all widgets on page", function() {
@@ -27,9 +27,9 @@
           return loader !== null;
         });
         return runs(function() {
-          loader.searchForWidgets();
-          expect(loadSpy.calls.length).toEqual(10);
-          return expect(loadSpy.mostRecentCall.args[0].name).toBe('module_9');
+          loader.search();
+          expect(loadSpy.calls.length).toEqual(1);
+          return expect(loadSpy.mostRecentCall.args[0][9].name).toBe('module_9');
         });
       });
       return it("should load all found widgets", function() {
@@ -37,7 +37,7 @@
           return loader !== null;
         });
         return runs(function() {
-          loader.searchForWidgets();
+          loader.search();
           expect(requireSpy.calls.length).toEqual(10);
           return expect(requireSpy.mostRecentCall.args[0][0]).toBe('widgets/module_9');
         });
@@ -67,9 +67,9 @@
         });
         return runs(function() {
           var modulesNames;
-          loadSpy = spyOn(loader, "loadWidgetModule").andCallThrough();
-          loader.searchForWidgets($('body')[0]);
-          modulesNames = _.pluck(_.flatten(_.pluck(loadSpy.calls, "args")), "name");
+          loadSpy = spyOn(loader, "widgets").andCallThrough();
+          loader.search($('body')[0]);
+          modulesNames = _.pluck(loadSpy.mostRecentCall.args[0], "name");
           expect(modulesNames.length).toBe(18);
           expect(modulesNames).toContain("module_0");
           expect(modulesNames).toContain("module_2");
@@ -87,9 +87,9 @@
         });
         return runs(function() {
           var modulesNames;
-          loadSpy = spyOn(loader, "loadWidgetModule").andCallThrough();
-          loader.searchForWidgets($('body').html());
-          modulesNames = _.pluck(_.flatten(_.pluck(loadSpy.calls, "args")), "name");
+          loadSpy = spyOn(loader, "widgets").andCallThrough();
+          loader.search($('body').html());
+          modulesNames = _.pluck(loadSpy.mostRecentCall.args[0], "name");
           expect(modulesNames.length).toBe(18);
           expect(modulesNames).toContain("module_0");
           expect(modulesNames).toContain("module_2");

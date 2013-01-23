@@ -1,84 +1,87 @@
 (function() {
 
-  define(['events', 'history', 'widgets', 'dom', 'ajax', 'utils/storage', 'utils/destroyer', 'utils/widgetsData'], function(events, history, widgets, dom, ajax, storage, destroyer, widgetsData) {
+  define(['events', 'history', 'widgets', 'loader', 'dom', 'ajax', 'utils/storage', 'utils/destroyer', 'utils/widgetsData'], function(events, history, widgets, loader, dom, ajax, storage, destroyer, widgetsData) {
     /* 
     data:
       <selector>: <plainHTML>
     */
 
-    var Invoker, Transition, initSections, loadSections, sectionsRequest;
-    Transition = function(data) {
-      var direction, transition, _base, _ref;
-      data = data || {
-        index: 0
-      };
-      if ((Transition.last != null) && data.index <= Transition.last.index) {
-        direction = null;
-        if (data.index === Transition.current.index) {
-          Transition.current.update(data);
-        } else if (Transition.current.index < data.index) {
-          direction = "next";
-        } else if (data.index < Transition.current.index) {
-          direction = "prev";
-        }
-        if (direction != null) {
-          transition = typeof (_base = Transition.current)[direction] === "function" ? _base[direction](data.index) : void 0;
+    var Invoker, Transition, initSections, loadSections, sectionsRequest, transitions;
+    transitions = {
+      last: null,
+      current: null,
+      create: function(data) {
+        var transition;
+        data = data || {
+          index: 0
+        };
+        if ((this.last != null) && data.index <= this.last.index) {
+          transition = this.go(data.index);
           transition.update(data);
+          return transition;
+        } else {
+          this.last = new Transition(data, this.last);
+          return this.last;
         }
-        return Transition.current;
-      } else {
-        this.data = data;
-        this.index = this.data.index = this.data.index || (((_ref = Transition.last) != null ? _ref.index : void 0) + 1) || 0;
-        this.prev_transition = Transition.last;
-        if (Transition.last != null) {
-          Transition.last.next_transition = this;
+      },
+      go: function(index) {
+        var direction, _ref;
+        if (!this.current) {
+          return this.create();
         }
-        Transition.last = this;
-        if (this.data.widgets != null) {
-          this._invoker = new Invoker(this.data.widgets);
-          this.invoke();
+        if (index === ((_ref = this.current) != null ? _ref.index : void 0)) {
+          return this.current;
         }
-        return this;
+        direction = this.current.index < index ? "next" : "prev";
+        return this.current[direction](index);
       }
     };
-    Transition.first = null;
-    Transition.last = null;
-    Transition.depth = null;
-    Transition.current = null;
+    Transition = function(state, last) {
+      var _ref;
+      this.state = state;
+      this.index = this.state.index = this.state.index || (((_ref = transitions.last) != null ? _ref.index : void 0) + 1) || 0;
+      if (last != null) {
+        this.prev_transition = last;
+        last.next_transition = this;
+      }
+      if (this.state.widgets != null) {
+        this._invoker = new Invoker(this.state.widgets);
+        this.invoke();
+      }
+      return this;
+    };
     Transition.prototype = {
-      update: function(data) {
-        var html, isDataTheSame, selector, _ref;
-        isDataTheSame = false;
-        if (this.data.url === data.url) {
-          _ref = data.widgets;
+      update: function(state) {
+        var html, isStateTheSame, selector, _ref;
+        isStateTheSame = false;
+        if (this.state.url === state.url) {
+          _ref = state.widgets;
           for (selector in _ref) {
             html = _ref[selector];
-            isDataTheSame = this.data.widgets[selector] === data.widgets[selector];
-            if (!isDataTheSame) {
+            isStateTheSame = this.state.widgets[selector] === state.widgets[selector];
+            if (!isStateTheSame) {
               break;
             }
           }
         } else {
           return;
         }
-        if (!isDataTheSame) {
-          data.index = this.index;
-          this.data = data;
-          if ((this._invoker != null) && (this.data.widgets != null)) {
-            this._invoker.update(this.data.widgets);
-          } else if (this.data.widgets != null) {
-            this._invoker = new Invoker(this.data.widgets);
+        if (!isStateTheSame) {
+          state.index = this.index;
+          this.state = state;
+          if ((this._invoker != null) && (this.state.widgets != null)) {
+            this._invoker.update(this.state.widgets);
+          } else if (this.state.widgets != null) {
+            this._invoker = new Invoker(this.state.widgets);
           }
-          if (Transition.current === this) {
-            return this.invoke();
-          }
+          return this.invoke();
         }
       },
       next: function(to_transition) {
         if (to_transition === this.index) {
           return this;
         }
-        if (this.next != null) {
+        if (this.next_transition != null) {
           this.next_transition.invoke();
           if (to_transition != null) {
             return this.next_transition.next(to_transition);
@@ -89,7 +92,7 @@
         if (to_transition === this.index) {
           return this;
         }
-        if (this.prev != null) {
+        if (this.prev_transition != null) {
           this.undo();
           if (to_transition != null) {
             return this.prev_transition.prev(to_transition);
@@ -98,19 +101,19 @@
       },
       undo: function() {
         var _ref;
-        Transition.current = this.prev_transition;
+        transitions.current = this.prev_transition;
         if ((_ref = this._invoker) != null) {
           _ref.undo();
         }
-        return events.trigger("sectionsTransition:undone");
+        return events.trigger("sectionsTransition:undone", this);
       },
       invoke: function() {
         var _ref;
-        Transition.current = this;
+        transitions.current = this;
         if ((_ref = this._invoker) != null) {
           _ref.run();
         }
-        return events.trigger("sectionsTransition:invoked");
+        return events.trigger("sectionsTransition:invoked", this);
       }
     };
     Invoker = function(reloadSections) {
@@ -136,7 +139,8 @@
           _ref = this.reloadSections;
           for (selector in _ref) {
             html = _ref[selector];
-            this._reloadSectionInit(selector, html);
+            this._back[selector] = dom(selector);
+            this._forward[selector] = dom(html);
           }
           this._is_sections_updated = true;
         }
@@ -150,123 +154,72 @@
         this._insertSections(this._back, this._forward);
         return this._is_applied = false;
       },
-      _reloadSectionInit: function(selector, html) {
-        var nextElement, prevElement;
-        prevElement = dom(selector);
-        this._back[selector] = {
-          element: prevElement,
-          widgetsInitData: widgetsData(prevElement)
-        };
-        nextElement = dom(html);
-        return this._forward[selector] = {
-          element: nextElement
-        };
-      },
-      _insertSections: function(forward, back, sectionsList) {
-        var data, next, sectionsToInsert, selector,
+      _insertSections: function(forward, back, selectors) {
+        var selector,
           _this = this;
-        if (!sectionsList) {
-          sectionsToInsert = [];
-          for (selector in forward) {
-            data = forward[selector];
-            sectionsToInsert.push({
-              forward: forward[selector],
-              back: back[selector]
-            });
-          }
-          return this._insertSections(forward, back, sectionsToInsert);
-        } else if (sectionsList.length === 0) {
+        selectors = selectors || _.keys(back);
+        if (selectors.length === 0) {
           return events.trigger("sections:inserted");
-        } else {
-          next = sectionsList.shift();
-          next.forward.widgetsInitData = widgetsData(next.forward.element);
-          return this._initWidgets(next.forward.widgetsInitData, function(widgetsList) {
-            var replaceableElement, widgetData, _i, _len, _ref, _ref1;
-            next.forward.widgets = widgetsList;
-            replaceableElement = next.back.element;
-            if (next.back.widgetsInitData) {
-              _ref = next.back.widgetsInitData;
-              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                widgetData = _ref[_i];
-                if ((_ref1 = widgets.get(widgetData.name, widgetData.element)) != null) {
-                  _ref1.turnOff();
-                }
-              }
+        }
+        selector = selectors.shift();
+        return loader.search(forward[selector], function(widgetsList) {
+          var data, _i, _len, _ref, _ref1;
+          _ref = widgetsData(back[selector]);
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            data = _ref[_i];
+            if ((_ref1 = widgets.get(data.name, data.element)) != null) {
+              _ref1.turnOff();
             }
-            replaceableElement.replaceWith(next.forward.element);
-            return _this._insertSections(forward, back, sectionsList);
-          });
-        }
-      },
-      _initWidgets: function(widgetsDataList, ready) {
-        var data, list, widgetsCount, _i, _len, _results;
-        widgetsCount = _.keys(widgetsDataList).length;
-        list = [];
-        if (widgetsCount === 0) {
-          return ready(list);
-        }
-        _results = [];
-        for (_i = 0, _len = widgetsDataList.length; _i < _len; _i++) {
-          data = widgetsDataList[_i];
-          _results.push(widgets.create(data.name, data.element, function(widget) {
-            list.push(widget);
-            widget.turnOn();
-            widgetsCount -= 1;
-            if (widgetsCount === 0) {
-              return ready(list);
-            }
-          }));
-        }
-        return _results;
+          }
+          back[selector].replaceWith(forward[selector]);
+          return _this._insertSections(forward, back, selectors);
+        });
       }
     };
-    Transition.current = new Transition;
+    transitions.current = transitions.create();
     sectionsRequest = null;
-    loadSections = function(url, index) {
+    loadSections = function(url, method, index) {
       if (sectionsRequest != null) {
         sectionsRequest.abort();
       }
       sectionsRequest = ajax.get({
-        url: url
+        url: url,
+        method: method
       });
       return sectionsRequest.success(function(request, state) {
         state.url = url;
         state.index = index;
+        state.method = method;
         return events.trigger("sections:loaded", state);
       });
     };
     initSections = function(state) {
-      var history_state;
-      history_state = history.state || {};
-      if (history_state.url !== state.url) {
-        history.pushState(state, state.title, state.url);
-      }
-      return new Transition(state);
+      var isNewState, method;
+      isNewState = (history.state || {}).url !== state.url;
+      transitions.create(state);
+      method = isNewState ? "pushState" : "replaceState";
+      return history[method](transitions.current.data, state.title, state.url);
     };
-    events.bind("pageTransition:init", function(url, data) {
-      var lastStateIndex, state;
-      state = storage.get("sectionsHistory", url);
-      lastStateIndex = Transition.last.index + 1;
-      if (state != null) {
-        state.index = lastStateIndex;
-        initSections(state);
-      }
-      return loadSections(url, lastStateIndex);
-    });
-    events.bind("history:popState", function(state) {
-      new Transition(state);
-      if (state != null) {
-        return loadSections(state.url, state.index);
-      }
-    });
     events.bind("sections:loaded", function(state) {
-      var save_state;
-      save_state = _.clone(state);
-      delete save_state.index;
-      storage.save("sectionsHistory", state.url, save_state);
+      storage.save("sectionsHistory", state.url, state);
       return initSections(state);
     });
+    events.bind("pageTransition:init", function(url, method) {
+      var state;
+      state = storage.get("sectionsHistory", url);
+      if (state != null) {
+        delete state.index;
+        initSections(state);
+      }
+      return loadSections(url, method);
+    });
+    events.bind("history:popState", function(state) {
+      console.log("POPSTATE", state);
+      transitions.go(state.index);
+      return loadSections(state.url, state.method, state.index);
+    });
     return {
+      _transitions: transitions,
       _transition: Transition,
       _invoker: Invoker
     };

@@ -15,21 +15,21 @@ describe "loader  module", ->
         affix 'div.widget[data-js-modules="module_' + index + '"]'
       require ["loader"], (preloaderModule) ->
         requireSpy = spyOn(window, "require").andCallThrough()
-        loadSpy = spyOn(loader, "loadWidgetModule").andCallThrough()
+        loadSpy = spyOn(loader, "widgets").andCallThrough()
       
     it "should find all widgets on page", ->
       waitsFor ->
         loader isnt null
       runs ->
-        loader.searchForWidgets()
-        expect(loadSpy.calls.length).toEqual(10)
-        expect(loadSpy.mostRecentCall.args[0].name).toBe('module_9')
+        loader.search()
+        expect(loadSpy.calls.length).toEqual(1)
+        expect(loadSpy.mostRecentCall.args[0][9].name).toBe('module_9')
 
     it "should load all found widgets", ->
       waitsFor ->
         loader isnt null
       runs ->
-        loader.searchForWidgets()
+        loader.search()
         expect(requireSpy.calls.length).toEqual(10)
         expect(requireSpy.mostRecentCall.args[0][0]).toBe('widgets/module_9')
 
@@ -54,10 +54,10 @@ describe "loader  module", ->
       waitsFor ->
         loader isnt null
       runs ->
-        loadSpy = spyOn(loader, "loadWidgetModule").andCallThrough()
-        loader.searchForWidgets $('body')[0]
+        loadSpy = spyOn(loader, "widgets").andCallThrough()
+        loader.search $('body')[0]
 
-        modulesNames = _.pluck _.flatten(_.pluck loadSpy.calls, "args"), "name"
+        modulesNames = _.pluck loadSpy.mostRecentCall.args[0], "name"
 
         expect(modulesNames.length).toBe 18
         expect(modulesNames).toContain "module_0"
@@ -73,10 +73,10 @@ describe "loader  module", ->
       waitsFor ->
         loader isnt null
       runs ->
-        loadSpy = spyOn(loader, "loadWidgetModule").andCallThrough()
-        loader.searchForWidgets $('body').html()
+        loadSpy = spyOn(loader, "widgets").andCallThrough()
+        loader.search $('body').html()
 
-        modulesNames = _.pluck _.flatten(_.pluck loadSpy.calls, "args"), "name"
+        modulesNames = _.pluck loadSpy.mostRecentCall.args[0], "name"
 
         expect(modulesNames.length).toBe 18
         expect(modulesNames).toContain "module_0"

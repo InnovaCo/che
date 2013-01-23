@@ -15,31 +15,31 @@ describe 'sectionsHistory module', ->
 
   history = null
   beforeEach ->
-    history._transition.current = null
+    history._transitions.current = null
     waitsFor ->
       history?
 
   describe 'creating transitions', ->
     it 'should create transition and set firstTransition and currentTransition', ->
-        transition = new history._transition({index: 1})
-        nextTransition = new history._transition({widgets: {}})
+        transition = history._transitions.create({index: 1})
+        nextTransition = history._transitions.create({widgets: {}})
 
-        expect(history._transition.last).toBe(nextTransition)
-        expect(history._transition.current).toBe(nextTransition)
+        expect(history._transitions.last).toBe(nextTransition)
+        expect(history._transitions.current).toBe(nextTransition)
 
-    it 'should create transition and set previous created as .prev', ->
-        transition = new history._transition({})
-        nextTransition = new history._transition({})
+    it 'should create transition and set previous created as .prev_transition', ->
+        transition = history._transitions.create({})
+        nextTransition = history._transitions.create({})
 
         expect(transition).toBe(nextTransition.prev_transition)
         expect(transition.next_transition).toBe(nextTransition)
 
     it 'should destroy first transition after 10 new created', ->
-      firstTransition = new history._transition {widgets: {}}
+      firstTransition = history._transitions.create {widgets: {}}
 
       transition = firstTransition
       for i in [1...10]
-        transition = new history._transition {widgets: {}}
+        transition = history._transitions.create {index: i, widgets: {}}
 
       expect(firstTransition).toBeEmpty()
 
@@ -59,11 +59,11 @@ describe 'sectionsHistory module', ->
     beforeEach ->
       affix "div#one span.section"
       affix "div#two span.section"
-      history._transition.last = null
-      history._transition.current = null
+      history._transitions.last = null
+      history._transitions.current = null
 
     it 'should replace sections', ->
-        transition = new history._transition reload_sections
+        transition = history._transitions.create reload_sections
 
         expect($("#one").length).toBe 0
         expect($("#two").length).toBe 0
@@ -71,7 +71,7 @@ describe 'sectionsHistory module', ->
         expect($("#four span").text()).toBe "world"
 
     it 'should replace sections and undo', ->
-        transition = new history._transition reload_sections
+        transition = history._transitions.create reload_sections
 
         expect($("#one").length).toBe 0
         expect($("#two").length).toBe 0
@@ -99,12 +99,12 @@ describe 'sectionsHistory module', ->
     beforeEach ->
       affix "div#one span.section"
       affix "div#two span.section"
-      history._transition.last = null
-      history._transition.current = null
+      history._transitions.last = null
+      history._transitions.current = null
 
 
     it "should update sections", ->
-        transition = new history._transition reload_sections
+        transition = history._transitions.create reload_sections
 
         expect($("#one").length).toBe 0
         expect($("#two").length).toBe 0
@@ -119,7 +119,7 @@ describe 'sectionsHistory module', ->
         expect($("#four span").text()).toBe "Universe"
 
     it "shouldn't update sections", ->
-        transition = new history._transition reload_sections
+        transition = history._transitions.create reload_sections
 
         expect($("#one").length).toBe 0
         expect($("#two").length).toBe 0
@@ -144,15 +144,15 @@ describe 'sectionsHistory module', ->
       affix "div#one span.section"
       affix "div#two.widgets[data-js-modules=gradient] span.section"
 
-      history._transition.last = null
-      history._transition.current = null
+      history._transitions.last = null
+      history._transitions.current = null
 
     it "should create invoke object if sections are specified", ->
-      transition = new history._transition reload_sections
+      transition = history._transitions.create reload_sections
       expect(transition._invoker).toBeDefined()
 
     it "shouldn't create invoke object 'cause sections arn't specified", ->
-      transition = new history._transition {}
+      transition = history._transitions.create {}
       expect(transition._invoker).not.toBeDefined()
 
     it "invoker shouldn't contain data for forward and backward transitions right after initialization", ->
@@ -170,24 +170,22 @@ describe 'sectionsHistory module', ->
       expect(invoker._back).toBeDefined()
       expect(invoker._back["#one"]).toBeDefined()
       expect(invoker._back["#two"]).toBeDefined()
-      expect(invoker._back["#one"].element).toBeDefined()
-      expect(invoker._back["#one"].element[0].innerHTML.toLowerCase()).toBe("<span class=\"section\"></span>")
-      expect(invoker._back["#one"].element[0].getAttribute("id")).toBe("one")
-      expect(invoker._back["#two"].widgetsInitData).toBeDefined()
+      expect(invoker._back["#one"][0].innerHTML.toLowerCase()).toBe("<span class=\"section\"></span>")
+      expect(invoker._back["#one"][0].getAttribute("id")).toBe("one")
+      # expect(invoker._back["#two"].widgetsInitData).toBeDefined()
 
       expect(invoker._forward).toBeDefined()
       expect(invoker._forward["#one"]).toBeDefined()
       expect(invoker._forward["#two"]).toBeDefined()
-      expect(invoker._forward["#one"].element[0].innerHTML.toLowerCase()).toBe("<span>hello</span>")
-      expect(invoker._forward["#one"].element[0].getAttribute("id")).toBe("three")
-      expect(invoker._forward["#one"].element).toBeDefined()
+      expect(invoker._forward["#one"][0].innerHTML.toLowerCase()).toBe("<span>hello</span>")
+      expect(invoker._forward["#one"][0].getAttribute("id")).toBe("three")
 
     it "invoker contain data for widgets turning off", ->
       invoker = new history._invoker(reload_sections.widgets)
       invoker.run()
 
-      expect(invoker._back["#two"].widgetsInitData).toBeDefined()
-      expect(invoker._back["#two"].widgetsInitData[0].name).toBe('gradient')
+      # expect(invoker._back["#two"].widgetsInitData).toBeDefined()
+      # expect(invoker._back["#two"].widgetsInitData[0].name).toBe('gradient')
 
     it "invoker should change sections", ->
       invoker = new history._invoker(reload_sections.widgets)
@@ -212,8 +210,8 @@ describe 'sectionsHistory module', ->
       affix "div#one.widgets[data-js-modules=gradient] span.section"
       affix "div#two.widgets[data-js-modules=opacity] span.section"
 
-      history._transition.last = null
-      history._transition.current = null
+      history._transitions.last = null
+      history._transitions.current = null
 
       spyOn(widgets, "create").andCallThrough()
 
@@ -290,8 +288,8 @@ describe 'sectionsHistory module', ->
 
       spyOn(browserHistory, "pushState")
 
-      history._transition.last = null
-      history._transition.current = null
+      history._transitions.last = null
+      history._transitions.current = null
       
 
 
@@ -353,7 +351,13 @@ describe 'sectionsHistory module', ->
       events.bind "sectionsTransition:invoked", ->
         allDone = yes
 
+      history._transitions.last = null
+      history._transitions.current = null
+
+      history._transitions.create({index: 0, widgets: {}})
+
       events.trigger "history:popState",
+        index: 0
         url: window.location.origin
         title: "second test Title"
         widgets:
@@ -408,5 +412,3 @@ describe 'sectionsHistory module', ->
           expect(storage.get).toHaveBeenCalled()
           expect(storageGetInfo[0]).toBe "sectionsHistory"
           expect(storageGetInfo[1]).toBe window.location.origin
-
-  describe 'getting state from history', ->

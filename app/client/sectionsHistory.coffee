@@ -8,58 +8,56 @@
 define [
   'events', 
   'history',
-  'widgets', 
+  'widgets',
+  'loader',
   'dom', 
   'ajax',
   'utils/storage',
   'utils/destroyer',
-  'utils/widgetsData'], (events, history, widgets, dom, ajax, storage, destroyer, widgetsData) ->
+  'utils/widgetsData'], (events, history, widgets, loader, dom, ajax, storage, destroyer, widgetsData) ->
   ### 
   data:
     <selector>: <plainHTML>
   ###
 
+  transitions =
+    last: null
+    current: null
+    create: (data) ->
+      data = data or {index: 0}
+      if @last? and data.index <= @last.index
+        transition = @go data.index
+        transition.update data
+        return transition
+      else 
+        @last = new Transition data, @last
+        return @last
+
+    go: (index) ->
+      if not @current
+        return @create()
+
+      return @current if index is @current?.index
+      direction = if @current.index < index then "next" else "prev"
+      return @current[direction](index)
+
+
   #### Transition(@data)
   #
   # Конструктор переходов, переходы образуют между собой двусторонний связанный список
   # 
-  Transition = (data) ->
-    data = data or {index: 0}
-    if Transition.last? and data.index <= Transition.last.index
-      direction = null
-      if data.index is Transition.current.index
-        Transition.current.update data
+  Transition = (@state, last) ->
+    @index = @state.index = @state.index or (transitions.last?.index + 1) or 0
 
-      else if Transition.current.index < data.index
-        direction = "next"
-      else if data.index < Transition.current.index
-        direction = "prev"
+    if last?
+      @prev_transition = last
+      last.next_transition = @
 
-      if direction?
-        transition = Transition.current[direction]?(data.index)
-        transition.update data
+    if @state.widgets?
+      @_invoker = new Invoker @state.widgets
+      @invoke()
 
-      return Transition.current
-    else
-      @data = data
-      @index = @data.index = @data.index or (Transition.last?.index + 1) or 0
-
-      @prev_transition = Transition.last
-      if Transition.last?
-        Transition.last.next_transition = @
-
-      Transition.last = @
-
-      if @data.widgets?
-        @_invoker = new Invoker @data.widgets
-        @invoke()
-
-      return @
-
-  Transition.first = null
-  Transition.last = null
-  Transition.depth = null
-  Transition.current = null
+    return @
 
   Transition:: =
   
@@ -67,27 +65,26 @@ define [
     #
     # Обновляет данные секций для перехода. Обновление происходит только если данные отличаются от текущих
     #
-    update: (data) ->
-      isDataTheSame = no
-      if @data.url is data.url
-        for selector, html of data.widgets
-          isDataTheSame = @data.widgets[selector] is data.widgets[selector]
-          if not isDataTheSame
+    update: (state) ->
+      isStateTheSame = no
+      if @state.url is state.url
+        for selector, html of state.widgets
+          isStateTheSame = @state.widgets[selector] is state.widgets[selector]
+          if not isStateTheSame
             break
       else
         return
 
-      if not isDataTheSame
-        data.index = @index
-        @data = data
-        if @_invoker? and @data.widgets?
-          @_invoker.update @data.widgets
-        else if @data.widgets?
-          @_invoker = new Invoker @data.widgets
+      if not isStateTheSame
+        state.index = @index
+        @state = state
+        if @_invoker? and @state.widgets?
+          @_invoker.update @state.widgets
+        else if @state.widgets?
+          @_invoker = new Invoker @state.widgets
 
-        if Transition.current is @
-          @invoke()
-      #check if data is not the same else return
+        @invoke()
+
 
 
     #### Transition.prototype.next([to_transition])
@@ -98,7 +95,7 @@ define [
       if to_transition is @index
         return @
       
-      if @next?
+      if @next_transition?
         @next_transition.invoke()
         if to_transition? then @next_transition.next(to_transition)
 
@@ -110,7 +107,7 @@ define [
       if to_transition is @index
         return @
 
-      if @prev?
+      if @prev_transition?
         @undo()
         if to_transition? then @prev_transition.prev(to_transition)
 
@@ -120,22 +117,22 @@ define [
     # Отмена действий при переходе
     #
     undo: () ->
-      Transition.current = @prev_transition
+      transitions.current = @prev_transition
       @_invoker?.undo()
-      events.trigger "sectionsTransition:undone"
+      events.trigger "sectionsTransition:undone", @
 
     #### Transition.prototype.invoke()
     #
     # Применение действий перехода
     #
     invoke: () ->
-      Transition.current = @
+      transitions.current = @
       @_invoker?.run()
-      events.trigger "sectionsTransition:invoked"
+      events.trigger "sectionsTransition:invoked", @
 
   #### Invoker(@reloadSections)
   #
-  # Конструктор объекта действий при переходе, содежит в себе данные для переходов в обе стороны, используется в Transitions
+  # Конструктор объекта действий при переходе, содежит в себе данные для переходов в обе стороны, используется в transitions
   # 
   Invoker = (@reloadSections) ->
     @_back = null
@@ -163,7 +160,8 @@ define [
         @_back = {}
         @_forward = {}
         for selector, html of @reloadSections
-          @_reloadSectionInit selector, html
+          @_back[selector] = dom selector
+          @_forward[selector] = dom html
         @_is_sections_updated = yes
 
       @_insertSections @_forward, @_back
@@ -178,111 +176,65 @@ define [
       @_insertSections @_back, @_forward
       @_is_applied = no
 
+    _insertSections: (forward, back, selectors) ->
+      selectors = selectors or _.keys back
+      return events.trigger "sections:inserted" if selectors.length is 0
 
-    #### Invoker.prototype._reloadSectionInit(selector, html)
-    #
-    # Инициализация секции для вставки в DOM (создаются данные перехода для секции, а также данные для отмены этого действия)
-    #
-    _reloadSectionInit: (selector, html) ->
-      prevElement = dom selector
+      selector = selectors.shift()
 
-      @_back[selector] =
-        element: prevElement
-        widgetsInitData: widgetsData prevElement
+      loader.search forward[selector], (widgetsList) =>
 
-      nextElement = dom html
+        for data in widgetsData back[selector]
+          widgets.get(data.name, data.element)?.turnOff()
 
-      @_forward[selector] =
-        element: nextElement
-
-    _insertSections: (forward, back, sectionsList) ->
-      if not sectionsList
-        sectionsToInsert = []
-        for selector, data of forward
-          sectionsToInsert.push 
-            forward: forward[selector]
-            back: back[selector]
-        return @_insertSections forward, back, sectionsToInsert
-
-      else if sectionsList.length is 0
-        return events.trigger "sections:inserted"
-
-      else
-        next = sectionsList.shift()
-        next.forward.widgetsInitData = widgetsData next.forward.element
-        @_initWidgets next.forward.widgetsInitData, (widgetsList) =>
-          next.forward.widgets = widgetsList
-          replaceableElement = next.back.element
-          if next.back.widgetsInitData
-            for widgetData in next.back.widgetsInitData
-              widgets.get(widgetData.name, widgetData.element)?.turnOff()
-
-          replaceableElement.replaceWith next.forward.element
-          return @_insertSections forward, back, sectionsList
-
-    #### Invoker.prototype._initWidgets(widgetsDataList, ready)
-    #
-    # инициализация виджетов
-    #
-    _initWidgets: (widgetsDataList, ready) ->
-      widgetsCount = _.keys(widgetsDataList).length
-      list = []
-      if widgetsCount is 0
-        return ready(list)
-      for data in widgetsDataList 
-        widgets.create data.name, data.element, (widget) ->
-          list.push widget
-          widget.turnOn()
-          widgetsCount -= 1
-          if widgetsCount is 0
-            ready(list)
+        back[selector].replaceWith forward[selector]
+        return @_insertSections forward, back, selectors
 
 
-  #### Transition.current
+  #### transitions.current
   #
   # ссылка на текущий переход
   #
-  Transition.current = new Transition
+  transitions.current = transitions.create()
 
   sectionsRequest = null
-  loadSections = (url, index) ->
+  loadSections = (url, method, index) ->
     sectionsRequest?.abort()
     sectionsRequest = ajax.get
-      url: url
+      url: url,
+      method: method
+
     sectionsRequest.success (request, state) ->
       state.url = url
       state.index = index
+      state.method = method
       events.trigger "sections:loaded", state
 
   initSections = (state) ->
-    history_state = history.state or {}
-    if history_state.url isnt state.url
-      history.pushState state, state.title, state.url
-    new Transition state
+    isNewState = (history.state or {}).url isnt state.url
+    transitions.create state
 
-  events.bind "pageTransition:init", (url, data) ->
+    method = if isNewState then "pushState" else "replaceState"
+    history[method] transitions.current.data, state.title, state.url
 
+  events.bind "sections:loaded", (state) ->
+    storage.save "sectionsHistory", state.url, state
+    initSections state
+
+  events.bind "pageTransition:init", (url, method) ->
     state = storage.get "sectionsHistory", url
-
-    lastStateIndex = Transition.last.index + 1
-    if state?
-      state.index = lastStateIndex
+    if state? 
+      delete state.index
       initSections state
 
-    loadSections url, lastStateIndex
+    loadSections url, method
 
 
   events.bind "history:popState", (state) ->
-    new Transition state
-    if state?
-      loadSections state.url, state.index
+    transitions.go state.index
+    loadSections state.url, state.method, state.index
     # here ask server for updated sections (history case)
 
-  events.bind "sections:loaded", (state) ->
-    save_state = _.clone state
-    delete save_state.index
-    storage.save "sectionsHistory", state.url, save_state
-    initSections state
-
+  _transitions: transitions
   _transition: Transition
   _invoker: Invoker

@@ -23,7 +23,7 @@
       data = convertRequestData(this.getAttribute(config.reloadSectionsDataAttributeName));
       url = this.getAttribute('href');
       splitted_url = url.split("?");
-      events.trigger("pageTransition:init", "" + splitted_url[0] + "?" + (splitted_url[1] || "") + "&" + (params(data)));
+      events.trigger("pageTransition:init", ["" + splitted_url[0] + "?" + (splitted_url[1] || "") + "&" + (params(data)), "GET"]);
       e.preventDefault();
       return false;
     });

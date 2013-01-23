@@ -150,7 +150,8 @@
       return div.childNodes;
     };
     domQuery = function(selector) {
-      var elements, self;
+      var elements,
+        _this = this;
       if (this instanceof domQuery) {
         if (selector instanceof domQuery) {
           return selector;
@@ -165,13 +166,13 @@
         } else {
           elements = selector || [document];
         }
-        self = this;
         if (elements.length === void 0) {
           elements = [elements];
         }
         this.length = elements.length;
+        this.selector = selector;
         return _.each(elements, function(element, index) {
-          return self[index] = element;
+          return _this[index] = element;
         });
       } else {
         return new domQuery(selector);

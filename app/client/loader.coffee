@@ -8,29 +8,39 @@ define [
   'widgets',
   'config',
   'utils/widgetsData',
-  'lib/domReady'
-  ], (widgets, config, widgetsData, domReady) ->
-  
-  #### loadWidgetModule(widgetData)
-  #
-  # загружает js-скрипты для виджета, на основе данных о виджете
-  loadWidgetModule = (widgetData) ->
-    widgets.create widgetData.name, widgetData.element
+  'dom!'
+  ], (widgets, config, widgetsData) ->
+   # Интрефейс модуля, вынесены локальные функции для более удобного тестирования
 
-  #### searchForWidgets(node)
-  #
-  # ищет все блоки виджетов и отдает их на загрузку в loadWidgetModule
-  #
-  searchForWidgets = (node) ->
-    loader.loadWidgetModule widgetData for widgetData in widgetsData node
-
-  
-  # Интрефейс модуля, вынесены локальные функции для более удобного тестирования
   loader =
-    loadWidgetModule: loadWidgetModule,
-    searchForWidgets: searchForWidgets
+    #### widgets(listWidgetsData)
+    #
+    # загружает js-скрипты для виджетов
+    #
+    widgets: (listWidgetsData, ready) ->
+      widgetsCount = _.keys(listWidgetsData).length
+      list = []
+      if widgetsCount is 0
+        return ready?(list)
 
+      for data in listWidgetsData
+        widgets.create data.name, data.element, (widget) ->
+          list.push widget
+          widget.turnOn()
+          widgetsCount -= 1
+          if widgetsCount is 0
+            ready?(list, listWidgetsData)
+
+    #### search(node)
+    #
+    # ищет все блоки виджетов и отдает их на загрузку в loadWidgetModule
+    #
+    search: (node, ready) ->
+      loader.widgets widgetsData(node), ready
+
+
+  
   # сразу запускает поиск виджетов
-  domReady searchForWidgets
+  loader.search()
 
   loader

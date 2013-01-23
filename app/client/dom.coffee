@@ -171,12 +171,13 @@ define ["utils/guid", "lib/domReady"], (guid, domReady) ->
       else
         elements = selector or [document]
 
-      self = @
       if elements.length is undefined
         elements = [elements]
+        
       @length = elements.length
-      _.each elements, (element, index) ->
-        self[index] = element
+      @selector = selector
+      _.each elements, (element, index) =>
+        @[index] = element
     else
       new domQuery selector
 

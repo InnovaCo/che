@@ -3,7 +3,7 @@
 # Инициализирует виджеты на DOM-элементах, хранит список инстансов
 #
 
-define ["events", "dom", "utils/destroyer", "config", "utils/guid"], (events, dom, destroyer, config, guid)->
+define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"], (events, dom, destroyer, config, guid, _)->
   widgetsInstances = {}
   eventSplitter = /^(\S+)\s*(.*)$/
 

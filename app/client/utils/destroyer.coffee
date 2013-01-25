@@ -9,7 +9,7 @@
 # уничтожать dom-объекты, вот тут рассказано про это:
 # http://stackoverflow.com/questions/3785258/how-to-remove-dom-elements-without-memory-leaks
 
-define [], ->
+define ["underscore"], (_) ->
   destroyer = (object, is_deep) ->
     _.each object, (property, name) ->
       if object.hasOwnProperty name

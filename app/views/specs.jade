@@ -3,5 +3,10 @@ html
     
     each file in css
       link(rel="stylesheet", type="text/css", href="#{file}")
+
+    script(type="text/javascript", src="public/js/lib/require.js")
+    script(type="text/javascript", src="public/js/lib/jquery.js")
+    script(type="text/javascript", src="public/js/app-require-config.js")
+
     each file in js
       script(type="text/javascript", src="#{file}")

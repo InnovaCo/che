@@ -13,7 +13,8 @@ define [
   'ajax',
   'utils/storage',
   'utils/destroyer',
-  'utils/widgetsData'], (events, history, widgets, loader, dom, ajax, storage, destroyer, widgetsData) ->
+  'utils/widgetsData',
+  'underscore'], (events, history, widgets, loader, dom, ajax, storage, destroyer, widgetsData, _) ->
   ### 
   data:
     <selector>: <plainHTML>

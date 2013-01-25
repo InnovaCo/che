@@ -37,10 +37,7 @@ exports.jasmine_css = (req, res) ->
   res.send fs.readFileSync filePath
 
 appCoreDepency = [
-  "public/js/lib/require-2.1.2.js",
-  "public/js/lib/underscore-1.4.3.js",
-  "public/js/lib/jquery-1.8.3.js",
-  'public/js/app-require-config.js'
+  "public/js/lib/underscore-1.4.3.js"
 ]
 
 jasmineCss = [

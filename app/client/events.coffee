@@ -1,9 +1,9 @@
-#### *module* events
+  #### *module* events
 #
 # Модуль событий приложения, полезен для понижения связности модулей
 #
 
-define [], ->
+define ['underscore'],  (_) ->
 
   
   #### Oops(name)

@@ -5,7 +5,7 @@
 
 # Требует модуль 'utils/guid', для генерации уникальных id обработчиков событий
 
-define ["utils/guid", "lib/domReady"], (guid, domReady) ->
+define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
 
   
   #### checkIsElementMatchSelector(selector, element, [root])
@@ -173,7 +173,7 @@ define ["utils/guid", "lib/domReady"], (guid, domReady) ->
 
       if elements.length is undefined
         elements = [elements]
-        
+
       @length = elements.length
       @selector = selector
       _.each elements, (element, index) =>

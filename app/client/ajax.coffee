@@ -4,7 +4,7 @@
 #
 
 
-define ['events', 'utils/params', "utils/destroyer"], (events, params, destroyer) ->
+define ['events', 'utils/params', "utils/destroyer", "underscore"], (events, params, destroyer, _) ->
 
   createGETurl = (url, data) ->
     splittedUrl = url.split "?"

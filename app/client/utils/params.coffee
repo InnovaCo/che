@@ -1,4 +1,4 @@
-define ->
+define ["underscore"], (_)->
   params  = (data, prefix, result) ->
     result = result or []
     if _.isString data

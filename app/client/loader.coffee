@@ -8,8 +8,9 @@ define [
   'widgets',
   'config',
   'utils/widgetsData',
+  'underscore',
   'dom!'
-  ], (widgets, config, widgetsData) ->
+  ], (widgets, config, widgetsData, _) ->
    # Интрефейс модуля, вынесены локальные функции для более удобного тестирования
 
   loader =

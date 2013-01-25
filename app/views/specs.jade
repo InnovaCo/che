@@ -1,0 +1,7 @@
+html
+  head
+    
+    each file in css
+      link(rel="stylesheet", type="text/css", href="#{file}")
+    each file in js
+      script(type="text/javascript", src="#{file}")

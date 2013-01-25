@@ -1,1 +1,0 @@
-window.FORGET_JQUERY = true

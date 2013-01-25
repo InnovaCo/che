@@ -6,21 +6,24 @@
       <selector>: <plainHTML>
     */
 
-    var Invoker, Transition, initSections, loadSections, sectionsRequest, transitions;
+    var Invoker, Transition, loadSections, sectionsRequest, transitions;
     transitions = {
       last: null,
       current: null,
-      create: function(data) {
-        var transition;
-        data = data || {
+      create: function(state) {
+        var isNewState, method, transition;
+        state = state || {
           index: 0
         };
-        if ((this.last != null) && data.index <= this.last.index) {
-          transition = this.go(data.index);
-          transition.update(data);
+        if ((this.last != null) && state.index <= this.last.index) {
+          transition = this.go(state.index);
+          transition.update(state);
           return transition;
         } else {
-          this.last = new Transition(data, this.last);
+          isNewState = (history.state || {}).url !== state.url;
+          method = isNewState ? "pushState" : "replaceState";
+          history[method](state, state.title, state.url);
+          this.last = new Transition(state, this.last);
           return this.last;
         }
       },
@@ -37,9 +40,8 @@
       }
     };
     Transition = function(state, last) {
-      var _ref;
       this.state = state;
-      this.index = this.state.index = this.state.index || (((_ref = transitions.last) != null ? _ref.index : void 0) + 1) || 0;
+      this.index = this.state.index = this.state.index || ((last != null ? last.index : void 0) + 1) || 0;
       if (last != null) {
         this.prev_transition = last;
         last.next_transition = this;
@@ -193,23 +195,16 @@
         return events.trigger("sections:loaded", state);
       });
     };
-    initSections = function(state) {
-      var isNewState, method;
-      isNewState = (history.state || {}).url !== state.url;
-      transitions.create(state);
-      method = isNewState ? "pushState" : "replaceState";
-      return history[method](transitions.current.data, state.title, state.url);
-    };
     events.bind("sections:loaded", function(state) {
       storage.save("sectionsHistory", state.url, state);
-      return initSections(state);
+      return transitions.create(state);
     });
     events.bind("pageTransition:init", function(url, method) {
       var state;
       state = storage.get("sectionsHistory", url);
       if (state != null) {
         delete state.index;
-        initSections(state);
+        transitions.create(state);
       }
       return loadSections(url, method);
     });

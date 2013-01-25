@@ -1,8 +1,7 @@
 
 module.exports = (req, res) ->
-    console.log "SECTION", req.params.section, console.log req.headers['x-requested-with']
+    console.log("GET")
     if req.headers['x-requested-with'] is 'xmlhttprequest'
-
       jade = require 'jade'
 
       data = {}
@@ -24,4 +23,4 @@ module.exports = (req, res) ->
         res.render req.params.section or "index",
           title: (req.params.section or "index") + " title"
       catch e
-        console.log "another resource"
+        req.next()

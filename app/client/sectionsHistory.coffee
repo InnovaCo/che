@@ -3,7 +3,6 @@
 # Модуль для поддержки истории переходов между страниц при помощи data-reload-sections
 # 
 
-# требует модули 'events', 'widgets', 'dom'
 
 define [
   'events', 
@@ -28,14 +27,18 @@ define [
   transitions =
     last: null
     current: null
-    create: (data) ->
-      data = data or {index: 0}
-      if @last? and data.index <= @last.index
-        transition = @go data.index
-        transition.update data
+    create: (state) ->
+      state = state or {index: 0}
+      if @last? and state.index <= @last.index
+        transition = @go state.index
+        transition.update state
         return transition
-      else 
-        @last = new Transition data, @last
+      else
+        isNewState = (history.state or {}).url isnt state.url
+
+        method = if isNewState then "pushState" else "replaceState"
+        history[method] state, state.title, state.url
+        @last = new Transition state, @last
         return @last
 
     go: (index) ->
@@ -52,7 +55,7 @@ define [
   # Конструктор переходов, переходы образуют между собой двусторонний связанный список
   # 
   Transition = (@state, last) ->
-    @index = @state.index = @state.index or (transitions.last?.index + 1) or 0
+    @index = @state.index = @state.index or (last?.index + 1) or 0
 
     if last?
       @prev_transition = last
@@ -92,7 +95,7 @@ define [
 
 
 
-    #### Transition.prototype.next([to_transition])
+    #### Transition::next([to_transition])
     #
     # Переход вперед. Если переданы параметры перехода, то создается новый объект и ссылка на него записыватся в @next
     #
@@ -104,7 +107,7 @@ define [
         @next_transition.invoke()
         if to_transition? then @next_transition.next(to_transition)
 
-    #### Transition.prototype.prev([to_transition])
+    #### Transition::prev([to_transition])
     #
     # Переход назад
     #
@@ -117,7 +120,7 @@ define [
         if to_transition? then @prev_transition.prev(to_transition)
 
 
-    #### Transition.prototype.undo()
+    #### Transition::undo()
     #
     # Отмена действий при переходе
     #
@@ -126,7 +129,7 @@ define [
       @_invoker?.undo()
       events.trigger "sectionsTransition:undone", @
 
-    #### Transition.prototype.invoke()
+    #### Transition::invoke()
     #
     # Применение действий перехода
     #
@@ -147,13 +150,15 @@ define [
 
   Invoker:: =
 
+    #### Invoker::update()
+    #
+    # Обновление данных о секциях
+    #
     update: (sections) ->
       @reloadSections = sections
       @_is_sections_updated = no
-      # @_back = null
-      # @_forward = null
 
-    #### Invoker.prototype.run()
+    #### Invoker::run()
     #
     # Применение действий перехода, а также генерация данных для обратного перехода
     #
@@ -172,7 +177,7 @@ define [
       @_insertSections @_forward, @_back
       @_is_applied = yes
 
-    #### Invoker.prototype.undo()
+    #### Invoker::undo()
     #
     # Отмена действий перехода
     #
@@ -181,6 +186,11 @@ define [
       @_insertSections @_back, @_forward
       @_is_applied = no
 
+
+    #### Invoker::_insertSections(forward, back)
+    #
+    # Вставка секций forward вместо секций back
+    #
     _insertSections: (forward, back, selectors) ->
       selectors = selectors or _.keys back
       return events.trigger "sections:inserted" if selectors.length is 0
@@ -196,13 +206,21 @@ define [
         return @_insertSections forward, back, selectors
 
 
+  #----
+
   #### transitions.current
   #
   # ссылка на текущий переход
   #
   transitions.current = transitions.create()
 
+
   sectionsRequest = null
+
+  #### loadSections
+  #
+  # Загрузка секций с сервера, обрабатывается только самый последний запрос
+  #
   loadSections = (url, method, index) ->
     sectionsRequest?.abort()
     sectionsRequest = ajax.get
@@ -215,26 +233,33 @@ define [
       state.method = method
       events.trigger "sections:loaded", state
 
-  initSections = (state) ->
-    isNewState = (history.state or {}).url isnt state.url
-    transitions.create state
 
-    method = if isNewState then "pushState" else "replaceState"
-    history[method] transitions.current.data, state.title, state.url
-
+  #### Обработка "sections:loaded"
+  #
+  # Секции сохраняются в localStorage, и далее отдаются на инициализацию
+  #
   events.bind "sections:loaded", (state) ->
     storage.save "sectionsHistory", state.url, state
-    initSections state
+    transitions.create state
 
+
+  #### Обработка pageTransition:init
+  #
+  # Проверяется, есть ли такие секции уже в localStorage, если есть, то используем их и параллельно смотрим на сервере
+  #
   events.bind "pageTransition:init", (url, method) ->
     state = storage.get "sectionsHistory", url
-    if state? 
+    if state?
       delete state.index
-      initSections state
+      transitions.create state
 
     loadSections url, method
 
 
+  #### Обработка history:popState
+  #
+  # Переходит до нужного состояния и проверяет обновления на сервере
+  #
   events.bind "history:popState", (state) ->
     if state?
       transitions.go state.index

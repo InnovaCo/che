@@ -16,6 +16,7 @@ describe 'sectionsHistory module', ->
   history = null
   beforeEach ->
     history._transitions.current = null
+    spyOn(browserHistory, "pushState")
     waitsFor ->
       history?
 
@@ -285,8 +286,6 @@ describe 'sectionsHistory module', ->
     beforeEach ->
       storage.remove "sectionsHistory", window.location.origin
       affix "div#one span.section"
-
-      spyOn(browserHistory, "pushState")
 
       history._transitions.last = null
       history._transitions.current = null

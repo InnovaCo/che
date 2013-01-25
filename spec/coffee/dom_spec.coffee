@@ -22,7 +22,6 @@ describe 'dom module', ->
       dom = domModule
     waitsFor ->
       dom?
-    runs ->
 
   describe 'initialize dom object', ->
     DOMelement = null

@@ -53,26 +53,45 @@ describe 'dom module', ->
 
   describe 'binding events', ->
     beforeEach ->
+      affix "a.test"
+      affix "div.test a"
+      affix "div.test ul a"
       affix "div.test ul li a"
 
     it 'should bind event handler to element', ->
       
-        bindSpy = jasmine.createSpy "bindSpy"
-        dom("div.test ul li a").on 'click', bindSpy
+      bindSpy = jasmine.createSpy "bindSpy"
+      dom("div.test ul li a").on 'click', bindSpy
 
-        triggerMouseEvent("click", dom("div.test ul li a").get(0))
-        expect(bindSpy).toHaveBeenCalled()
+      triggerMouseEvent("click", dom("div.test ul li a").get(0))
+      expect(bindSpy).toHaveBeenCalled()
 
     it 'should delegate event handler to element', ->
       
-        bindSpy = jasmine.createSpy "bindSpy"
-        dom("div.test").on 'ul li a', 'click', bindSpy
+      bindSpy = jasmine.createSpy "bindSpy"
+      dom("div.test").on 'ul li a', 'click', bindSpy
 
-        triggerMouseEvent("click", dom("div.test ul li a").get(0))
-        waitsFor ->
-          0 < bindSpy.calls.length
-        runs ->
-          expect(bindSpy).toHaveBeenCalled()
+      triggerMouseEvent("click", dom("div.test ul li a").get(0))
+      waitsFor ->
+        0 < bindSpy.calls.length
+      runs ->
+        expect(bindSpy).toHaveBeenCalled()
+
+    it 'should delegate event handler to element from body', ->
+      
+      bindSpy = jasmine.createSpy "bindSpy"
+      dom("body").on 'a', 'click', bindSpy
+
+      triggerMouseEvent("click", dom("div.test ul li a").get(0))
+      expect(bindSpy).toHaveBeenCalled()
+
+    it 'should delegate event handler to element from body, when several elements on page', ->
+      
+      bindSpy = jasmine.createSpy "bindSpy"
+      dom("body").on 'a', 'click', bindSpy
+
+      triggerMouseEvent("click", dom("div.test ul li a").get(0))
+      expect(bindSpy).toHaveBeenCalled()
         
 
   describe 'unbinding events', ->

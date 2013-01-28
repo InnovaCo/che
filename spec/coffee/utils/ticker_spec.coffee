@@ -54,7 +54,7 @@ describe "utils/ticker module", ->
       jasmine.Clock.tick 101
 
       expect(call2).toHaveBeenCalled()
-      expect(call2.calls.length).toBeGreaterThan 9
+      expect(call2.calls.length).toBeGreaterThan 8
 
     it "should stop ticker", ->
       newTicker = ticker 10, callback

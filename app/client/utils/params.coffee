@@ -13,6 +13,6 @@ define ["underscore"], (_)->
     result
 
   (data) ->
-    return encodeURI (params data()).join "&" if _.isFunction data
-    return encodeURI (params data).join "&" if _.isObject data
+    return (params data()).join "&" if _.isFunction data
+    return (params data).join "&" if _.isObject data
     return data?.toString()

@@ -1,6 +1,6 @@
 (function() {
 
-  define([], function() {
+  define(["underscore"], function(_) {
     var destroyer;
     destroyer = function(object, is_deep) {
       return _.each(object, function(property, name) {

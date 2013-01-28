@@ -1,6 +1,6 @@
 (function() {
 
-  define(['events', 'history', 'widgets', 'loader', 'dom', 'ajax', 'utils/storage', 'utils/destroyer', 'utils/widgetsData'], function(events, history, widgets, loader, dom, ajax, storage, destroyer, widgetsData) {
+  define(['events', 'history', 'widgets', 'loader', 'dom', 'ajax', 'utils/storage', 'utils/destroyer', 'utils/widgetsData', 'underscore'], function(events, history, widgets, loader, dom, ajax, storage, destroyer, widgetsData, _) {
     /* 
     data:
       <selector>: <plainHTML>

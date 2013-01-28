@@ -69,7 +69,15 @@ module.exports = function(grunt) {
           name: "app",
           include: ["loader", "events"],
           out: "public/js/app-require-optimized.js",
-          optimize: "none"
+          optimize: "none",
+          paths: {
+            "underscore": "lib/underscore"
+          },
+          shim: {
+            "underscore": {
+              exports: "_"
+            }
+          }
         }
       }
     },
@@ -78,7 +86,7 @@ module.exports = function(grunt) {
     /* Jasmine tests */
     jasmine : {
       src : [
-        'public/js/lib/jquery-1.8.3.js', // affix needs jquery (for jasmine fixtures)
+        'public/js/lib/jquery.js', // affix needs jquery (for jasmine fixtures)
         'public/js/app.js'
       ],
       specs : 'spec/js/**/*_spec.js',
@@ -125,8 +133,8 @@ module.exports = function(grunt) {
     concat: {
       app: {
       src: [
-        'public/js/lib/require-2.1.2.js',
-        'public/js/lib/underscore-1.4.3.js',
+        'public/js/lib/require.js',
+        'public/js/lib/underscore.js',
         'public/js/app-require-config.js',
         'public/js/app-require-optimized.js'
       ],

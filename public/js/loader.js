@@ -1,6 +1,6 @@
 (function() {
 
-  define(['widgets', 'config', 'utils/widgetsData', 'dom!'], function(widgets, config, widgetsData) {
+  define(['widgets', 'config', 'utils/widgetsData', 'underscore', 'dom!'], function(widgets, config, widgetsData, _) {
     var loader;
     loader = {
       widgets: function(listWidgetsData, ready) {

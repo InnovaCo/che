@@ -1,6 +1,6 @@
 (function() {
 
-  define([], function() {
+  define(['underscore'], function(_) {
     var Events, Oops;
     Oops = function(name) {
       this.name = name;

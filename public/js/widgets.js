@@ -1,6 +1,6 @@
 (function() {
 
-  define(["events", "dom", "utils/destroyer", "config", "utils/guid"], function(events, dom, destroyer, config, guid) {
+  define(["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"], function(events, dom, destroyer, config, guid, _) {
     var Widget, bindWidgetDomEvents, bindWidgetModuleEvents, eventSplitter, unbindWidgetDomEvents, unbindWidgetModuleEvents, widgets, widgetsInstances;
     widgetsInstances = {};
     eventSplitter = /^(\S+)\s*(.*)$/;

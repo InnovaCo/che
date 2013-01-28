@@ -1,6 +1,6 @@
 (function() {
 
-  define(["utils/guid", "lib/domReady"], function(guid, domReady) {
+  define(["utils/guid", "lib/domReady", "underscore"], function(guid, domReady, _) {
     var bindEvent, callEventHandlers, checkIsElementMatchSelector, delegateEvent, domQuery, parseHtml, query, unbindEvent, undelegateEvent;
     checkIsElementMatchSelector = function(selectorOrNodeList, element, root) {
       var list, listElement, _i, _len;

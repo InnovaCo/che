@@ -22,7 +22,8 @@ exports.jasmine_helper = (req, res) ->
 
 exports.jasmine = (req, res) ->
   res.header 'Content-Type', 'application/x-javascript'
-  filePath = path.resolve(__dirname, "../../node_modules/grunt-jasmine-runner/jasmine/lib/jasmine-core/jasmine.js")
+  # filePath = path.resolve(__dirname, "../../node_modules/grunt-jasmine-runner/jasmine/lib/jasmine-core/jasmine.js")
+  filePath = path.resolve(__dirname, "../../node_modules/jasmine-node/lib/jasmine-node/jasmine-2.0.0.rc1.js")
   res.send fs.readFileSync filePath
 
 exports.jasmine_html = (req, res) ->
@@ -37,7 +38,7 @@ exports.jasmine_css = (req, res) ->
   res.send fs.readFileSync filePath
 
 appCoreDepency = [
-  "public/js/lib/underscore-1.4.3.js"
+  "public/js/lib/underscore.js"
 ]
 
 jasmineCss = [

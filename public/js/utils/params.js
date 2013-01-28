@@ -1,6 +1,6 @@
 (function() {
 
-  define(function() {
+  define(["underscore"], function(_) {
     var params;
     params = function(data, prefix, result) {
       var encodedField, field, nextPrefix, nextValue, value;

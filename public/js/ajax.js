@@ -1,6 +1,6 @@
 (function() {
 
-  define(['events', 'utils/params', "utils/destroyer"], function(events, params, destroyer) {
+  define(['events', 'utils/params', "utils/destroyer", "underscore"], function(events, params, destroyer, _) {
     var Ajax, XMLHttpFactories, ajax, createGETurl, createXMLHTTPObject, defaultOptions, eventName, parser, sendRequest, _i, _len, _ref;
     createGETurl = function(url, data) {
       var getParams, splittedUrl;

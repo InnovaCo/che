@@ -20,10 +20,10 @@
     };
     return function(data) {
       if (_.isFunction(data)) {
-        return encodeURI((params(data())).join("&"));
+        return (params(data())).join("&");
       }
       if (_.isObject(data)) {
-        return encodeURI((params(data)).join("&"));
+        return (params(data)).join("&");
       }
       return data != null ? data.toString() : void 0;
     };

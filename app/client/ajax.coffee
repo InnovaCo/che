@@ -22,6 +22,7 @@ define ['events', 'utils/params', "utils/destroyer", "underscore"], (events, par
     request.responseType = type
     request.open method, url, true
     request.setRequestHeader 'x-requested-with', 'xmlhttprequest'
+    request.setRequestHeader 'X-Che', 'true'
 
     if data?
       data = params data

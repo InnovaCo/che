@@ -17,7 +17,7 @@ describe "utils/params module", ->
           zoo:
             leo: "cat"
 
-      expectParams = "foo=bar&fooBar=foo%2520bar&bar%5Bfoo%5D=bar&bar%5Bzoo%5D%5Bleo%5D=cat"
+      expectParams = "foo=bar&fooBar=foo%20bar&bar[foo]=bar&bar[zoo][leo]=cat"
 
       expect(params testObject).toBe expectParams
 
@@ -31,7 +31,7 @@ describe "utils/params module", ->
           zoo: ->
             leo: "cat"
 
-      expectParams = "foo=bar&fooBar=foo%2520bar&bar%5Bfoo%5D=bar&bar%5Bzoo%5D%5Bleo%5D=cat"
+      expectParams = "foo=bar&fooBar=foo%20bar&bar[foo]=bar&bar[zoo][leo]=cat"
 
       expect(params testObject).toBe expectParams
 
@@ -51,7 +51,7 @@ describe "utils/params module", ->
           zoo: ->
             leo: "cat"
 
-      expectParams = "foo=bar&fooBar=foo%2520bar&bar%5Bfoo%5D=bar&bar%5Bzoo%5D%5Bleo%5D=cat"
+      expectParams = "foo=bar&fooBar=foo%20bar&bar[foo]=bar&bar[zoo][leo]=cat"
 
       expect(params testFunc).toBe expectParams
 

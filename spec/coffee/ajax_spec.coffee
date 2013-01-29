@@ -156,6 +156,18 @@ describe "ajax module", ->
       expect(request.open.mostRecentCall.args[1]).toBe("foo/bar")
       expect(request.send).toHaveBeenCalled()
 
+    it "should send request with x-che header", ->
+      instance = ajax.get
+        url: "foo/bar",
+        data:
+          foo: "bar",
+          bar: 
+            zoo: "cat"
+
+      request = instance._request
+      expect(request.setRequestHeader).toHaveBeenCalled()
+      expect(request.setRequestHeader.calls[1].args.join(',')).toBe "X-Che,true"
+
     it "should send get-request with params", ->
       instance = ajax.get
         url: "foo/bar",

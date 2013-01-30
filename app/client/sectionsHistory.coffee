@@ -11,10 +11,11 @@ define [
   'loader',
   'dom', 
   'ajax',
+  'config',
   'utils/storage',
   'utils/destroyer',
   'utils/widgetsData',
-  'underscore'], (events, history, widgets, loader, dom, ajax, storage, destroyer, widgetsData, _) ->
+  'underscore'], (events, history, widgets, loader, dom, ajax, config, storage, destroyer, widgetsData, _) ->
   ### 
   data:
     <selector>: <plainHTML>
@@ -62,8 +63,8 @@ define [
       @prev_transition = last
       last.next_transition = @
 
-    if @state.widgets?
-      @_invoker = new Invoker @state.widgets
+    if @state.sections?
+      @_invoker = new Invoker @state.sections
       @invoke()
 
     return @
@@ -77,20 +78,17 @@ define [
     update: (state) ->
       isStateTheSame = no
       if @state.url is state.url
-        for selector, html of state.widgets
-          isStateTheSame = @state.widgets[selector] is state.widgets[selector]
-          if not isStateTheSame
-            break
+        isStateTheSame = @state.sections is state.sections
       else
         return
 
       if not isStateTheSame
         state.index = @index
         @state = state
-        if @_invoker? and @state.widgets?
-          @_invoker.update @state.widgets
-        else if @state.widgets?
-          @_invoker = new Invoker @state.widgets
+        if @_invoker? and @state.sections?
+          @_invoker.update @state.sections
+        else if @state.sections?
+          @_invoker = new Invoker @state.sections
 
         @invoke()
 
@@ -144,6 +142,7 @@ define [
   # Конструктор объекта действий при переходе, содежит в себе данные для переходов в обе стороны, используется в transitions
   # 
   Invoker = (@reloadSections) ->
+    console.log "INIT INVOKER", @reloadSections
     @_back = null
     @_forward = null
     @_is_applied = no
@@ -168,11 +167,34 @@ define [
         @undo()
 
       if not @_is_sections_updated or not @_forward or not @_back
+        console.log "RUN", @
+
+        reloadSectionsHtml = dom @reloadSections
+        currentTitle = dom('title')[0]
+        nextTitle = reloadSectionsHtml.find('title')[0]
+
         @_back = {}
         @_forward = {}
-        for selector, html of @reloadSections
-          @_back[selector] = dom selector
-          @_forward[selector] = dom html
+        if currentTitle
+          @_back.title = currentTitle.childNodes[0]
+
+        if nextTitle
+          @_forward.title = nextTitle.childNodes[0]
+
+        for element in reloadSectionsHtml.get()
+          nodeName = element.nodeName.toLowerCase()
+          if nodeName is config.sectionTagName
+            selector = element.getAttribute "data-#{config.sectionSelectorAttributeName}"
+          else if nodeName is 'title'
+            selector = nodeName
+          else
+            continue
+
+          @_back[selector] = Array.prototype.slice.call dom(selector)[0]?.childNodes
+          @_forward[selector] = Array.prototype.slice.call element.childNodes
+
+          console.log @_back, @_forward
+
         @_is_sections_updated = yes
 
       @_insertSections @_forward, @_back
@@ -200,12 +222,23 @@ define [
 
       loader.search forward[selector], (widgetsList) =>
 
-        for data in widgetsData back[selector]
-          widgets.get(data.name, data.element)?.turnOff()
+        container = dom(selector)[0]
 
-        back[selector].replaceWith forward[selector]
+        
+
+        for element in back[selector]
+          console.log "WIDGETS DATA", element, widgetsData element
+          if element.parentNode?
+            element.parentNode.removeChild element
+
+          for data in widgetsData element
+            console.log "OLD WIDGETS", data
+            widgets.get(data.name, data.element)?.turnOff()
+
+        for element in forward[selector]
+          container.appendChild element
+
         return @_insertSections forward, back, selectors
-
 
   #----
 
@@ -228,10 +261,12 @@ define [
       url: url,
       method: method
 
-    sectionsRequest.success (request, state) ->
-      state.url = url
+    sectionsRequest.success (request, sections) ->
+      state.url = ""
       state.index = index
       state.method = method
+      state.sections = sections
+
       events.trigger "sections:loaded", state
 
 
@@ -240,6 +275,7 @@ define [
   # Секции сохраняются в localStorage, и далее отдаются на инициализацию
   #
   events.bind "sections:loaded", (state) ->
+
     storage.save "sectionsHistory", state.url, state
     transitions.create state
 

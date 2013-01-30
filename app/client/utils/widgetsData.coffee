@@ -34,6 +34,8 @@ define ['dom', 'config'], (dom, config) ->
     else
       root = dom document
 
+    console.log "WIDGETS ROOT", root
+
     widgetElements = root.find("." + config.widgetClassName).get()
     for element in widgetElements
       saveTo pairs, element

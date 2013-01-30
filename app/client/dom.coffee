@@ -149,7 +149,7 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
   parseHtml = (plainHtml) ->
     div = document.createElement('DIV')
     div.innerHTML = plainHtml
-    for node in div.childNodes
+    for node in Array.prototype.slice.call div.childNodes
       if node.nodeType is 3 and not ///\S///.test node.nodeValue
         div.removeChild node
     return div.childNodes

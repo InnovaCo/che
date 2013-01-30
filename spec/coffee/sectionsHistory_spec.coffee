@@ -23,7 +23,7 @@ describe 'sectionsHistory module', ->
   describe 'creating transitions', ->
     it 'should create transition and set firstTransition and currentTransition', ->
         transition = history._transitions.create({index: 1})
-        nextTransition = history._transitions.create({widgets: {}})
+        nextTransition = history._transitions.create({sections: ""})
 
         expect(history._transitions.last).toBe(nextTransition)
         expect(history._transitions.current).toBe(nextTransition)
@@ -48,14 +48,8 @@ describe 'sectionsHistory module', ->
 
   describe 'invoking transitions', ->
     reload_sections = 
-      widgets:
-        "#one": "<div id='three'><span>hello</span></div>"
-        "#two": "<div id='four'><span>world</span></div>"
-
-    update_sections = 
-      widgets:
-        "#three": "<div id='three'><span>Hello</span></div>"
-        "#four": "<div id='four'><span>Universe</span></div>"
+      sections: "<section data-selector='#one'><span>hello</span></section>\
+      <section data-selector='#two'><span>world</span></section>"
 
     beforeEach ->
       affix "div#one span.section"
@@ -66,36 +60,38 @@ describe 'sectionsHistory module', ->
     it 'should replace sections', ->
         transition = history._transitions.create reload_sections
 
-        expect($("#one").length).toBe 0
-        expect($("#two").length).toBe 0
-        expect($("#three span").text()).toBe "hello"
-        expect($("#four span").text()).toBe "world"
+        expect($("#one").length).toBe 1
+        expect($("#two").length).toBe 1
+        expect($("#one span.section").length).toBe 0
+        expect($("#two span.section").length).toBe 0
+        expect($("#one span").text()).toBe "hello"
+        expect($("#two span").text()).toBe "world"
 
     it 'should replace sections and undo', ->
         transition = history._transitions.create reload_sections
 
-        expect($("#one").length).toBe 0
-        expect($("#two").length).toBe 0
-        expect($("#three span").text()).toBe "hello"
-        expect($("#four span").text()).toBe "world"
+        expect($("#one").length).toBe 1
+        expect($("#two").length).toBe 1
+        expect($("#one span").text()).toBe "hello"
+        expect($("#two span").text()).toBe "world"
+
+        expect($("#one span.section").length).toBe 0
+        expect($("#two span.section").length).toBe 0
 
         transition.undo()
 
-        expect($("#one").length).toBe 1
-        expect($("#two").length).toBe 1
-        expect($("#three").length).toBe 0
-        expect($("#four").length).toBe 0
+        expect($("#one span.section").length).toBe 1
+        expect($("#two span.section").length).toBe 1
+
 
   describe 'updating transitions', ->
     reload_sections = 
-      widgets:
-        "#one": "<div id='three'><span>hello</span></div>"
-        "#two": "<div id='four'><span>world</span></div>"
+      sections: "<section data-selector='#one'><span>hello</span></section>\
+      <section data-selector='#two'><span>world</span></section>"
 
     update_sections = 
-      widgets:
-        "#one": "<div id='three'><span>Hello</span></div>"
-        "#two": "<div id='four'><span>Universe</span></div>"
+      sections: "<section data-selector='#one'><span>Hello</span></section>\
+      <section data-selector='#two'><span>Universe</span></section>"
 
     beforeEach ->
       affix "div#one span.section"
@@ -107,39 +103,38 @@ describe 'sectionsHistory module', ->
     it "should update sections", ->
         transition = history._transitions.create reload_sections
 
-        expect($("#one").length).toBe 0
-        expect($("#two").length).toBe 0
-        expect($("#three span").text()).toBe "hello"
-        expect($("#four span").text()).toBe "world"
+        expect($("#one").length).toBe 1
+        expect($("#two").length).toBe 1
+        expect($("#one span").text()).toBe "hello"
+        expect($("#two span").text()).toBe "world"
 
         transition.update update_sections
 
-        expect($("#one").length).toBe 0
-        expect($("#two").length).toBe 0
-        expect($("#three span").text()).toBe "Hello"
-        expect($("#four span").text()).toBe "Universe"
+        expect($("#one").length).toBe 1
+        expect($("#two").length).toBe 1
+        expect($("#one span").text()).toBe "Hello"
+        expect($("#two span").text()).toBe "Universe"
 
     it "shouldn't update sections", ->
         transition = history._transitions.create reload_sections
 
-        expect($("#one").length).toBe 0
-        expect($("#two").length).toBe 0
-        expect($("#three span").text()).toBe "hello"
-        expect($("#four span").text()).toBe "world"
+        expect($("#one").length).toBe 1
+        expect($("#two").length).toBe 1
+        expect($("#one span").text()).toBe "hello"
+        expect($("#two span").text()).toBe "world"
 
         transition.update _.extend({}, update_sections, {url: "url"})
 
-        expect($("#one").length).toBe 0
-        expect($("#two").length).toBe 0
-        expect($("#three span").text()).toBe "hello"
-        expect($("#four span").text()).toBe "world"
+        expect($("#one").length).toBe 1
+        expect($("#two").length).toBe 1
+        expect($("#one span").text()).toBe "hello"
+        expect($("#two span").text()).toBe "world"
 
 
   describe 'creating invoke objects', ->
     reload_sections = 
-      widgets:
-        "#one": "<div id='three'><span>hello</span></div>"
-        "#two": "<div id='four' class='widgets' data-js-modules='gradient'><span>world</span></div>"
+      sections: "<section data-selector='#one'><span>hello</span></section>\
+      <section data-selector='#two'><span>world</span></section>"
 
     beforeEach ->
       affix "div#one span.section"
@@ -157,7 +152,7 @@ describe 'sectionsHistory module', ->
       expect(transition._invoker).not.toBeDefined()
 
     it "invoker shouldn't contain data for forward and backward transitions right after initialization", ->
-      invoker = new history._invoker(reload_sections.widgets)
+      invoker = new history._invoker(reload_sections.sections)
 
       expect(invoker._back).toBe null
       expect(invoker._forward).toBe null
@@ -165,51 +160,50 @@ describe 'sectionsHistory module', ->
       expect(invoker._is_sections_updated).toBe false
 
     it "invoker should contain data for forward and backward transitions after it have ran", ->
-      invoker = new history._invoker(reload_sections.widgets)
+      invoker = new history._invoker(reload_sections.sections)
       invoker.run()
 
       expect(invoker._back).toBeDefined()
       expect(invoker._back["#one"]).toBeDefined()
       expect(invoker._back["#two"]).toBeDefined()
-      expect(invoker._back["#one"][0].innerHTML.toLowerCase()).toBe("<span class=\"section\"></span>")
-      expect(invoker._back["#one"][0].getAttribute("id")).toBe("one")
+      expect(invoker._back["#one"][0].outerHTML.toLowerCase()).toBe("<span class=\"section\"></span>")
+      expect(invoker._back["#one"][0].getAttribute("class")).toBe("section")
       # expect(invoker._back["#two"].widgetsInitData).toBeDefined()
 
       expect(invoker._forward).toBeDefined()
       expect(invoker._forward["#one"]).toBeDefined()
       expect(invoker._forward["#two"]).toBeDefined()
-      expect(invoker._forward["#one"][0].innerHTML.toLowerCase()).toBe("<span>hello</span>")
-      expect(invoker._forward["#one"][0].getAttribute("id")).toBe("three")
+      expect(invoker._forward["#one"][0].innerHTML.toLowerCase()).toBe("hello")
+      expect(invoker._forward["#one"][0].getAttribute("class")).toBe(null)
 
     it "invoker contain data for widgets turning off", ->
-      invoker = new history._invoker(reload_sections.widgets)
+      invoker = new history._invoker(reload_sections.sections)
       invoker.run()
 
       # expect(invoker._back["#two"].widgetsInitData).toBeDefined()
       # expect(invoker._back["#two"].widgetsInitData[0].name).toBe('gradient')
 
     it "invoker should change sections", ->
-      invoker = new history._invoker(reload_sections.widgets)
+      invoker = new history._invoker(reload_sections.sections)
       invoker.run()
 
       waits(500)
 
       runs ->
-        expect($("#one").length).toBe 0
-        expect($("#two").length).toBe 0
-        expect($("#three span").text()).toBe "hello"
-        expect($("#four span").text()).toBe "world"
+        expect($("#one").length).toBe 1
+        expect($("#two").length).toBe 1
+        expect($("#one span").text()).toBe "hello"
+        expect($("#two span").text()).toBe "world"
 
 
   describe 'initilize widgets', ->
     reload_sections = 
-      widgets:
-        "#one": "<div id='three' class='widgets' data-js-modules='rotation'><span>hello</span></div>"
-        "#two": "<div id='four' class='widgets' data-js-modules='gradient, opacity'><span>world</span></div>"
+      sections: "<section data-selector='#one'><span class='widgets' data-js-modules='rotation, gradient'>hello</span></section>\
+      <section data-selector='#two'><span class='widgets' data-js-modules='opacity'>world</span></section>"
 
     beforeEach ->
-      affix "div#one.widgets[data-js-modules=gradient] span.section"
-      affix "div#two.widgets[data-js-modules=opacity] span.section"
+      affix "div#one span.section.widgets[data-js-modules=gradient]"
+      affix "div#two span.section.widgets[data-js-modules=opacity]"
 
       history._transitions.last = null
       history._transitions.current = null
@@ -221,7 +215,7 @@ describe 'sectionsHistory module', ->
       events.bind "sections:inserted", ->
         allDone = yes
 
-      invoker = new history._invoker(reload_sections.widgets)
+      invoker = new history._invoker(reload_sections.sections)
       invoker.run()
 
       waitsFor ->
@@ -247,9 +241,8 @@ describe 'sectionsHistory module', ->
 
       allwidgetsReady = no
 
-
-      widgets.create "gradient", $("#one")[0]
-      widgets.create "opacity", $("#two")[0]
+      widgets.create "gradient", $("#one span")[0]
+      widgets.create "opacity", $("#two span")[0]
 
       require ["widgets/gradient", "widgets/rotation", "widgets/opacity"], () ->
         allwidgetsReady = yes
@@ -258,14 +251,14 @@ describe 'sectionsHistory module', ->
         allwidgetsReady is yes
 
       runs ->
-        gradient_widget = widgets.get "gradient", $("#one")[0]
-        opacity_widget = widgets.get "opacity", $("#two")[0]
+        gradient_widget = widgets.get "gradient", $("#one span")[0]
+        opacity_widget = widgets.get "opacity", $("#two span")[0]
 
         allDone = no;
         events.bind "sections:inserted", ->
           allDone = yes
 
-        invoker = new history._invoker(reload_sections.widgets)
+        invoker = new history._invoker reload_sections.sections 
         invoker.run()
 
         waitsFor ->
@@ -279,9 +272,7 @@ describe 'sectionsHistory module', ->
     reload_sections = 
       url: window.location.origin
       title: "test Title"
-      widgets:
-        "#one": "<div id='three' class='widgets' data-js-modules='rotation'><span>hello</span></div>"
-        "#two": "<div id='four' class='widgets' data-js-modules='gradient, opacity'><span>world</span></div>"
+      sections: "<section data-selector='#one'><span class='widgets' data-js-modules='rotation, gradient'>hello</span></section>"
 
     beforeEach ->
       storage.remove "sectionsHistory", window.location.origin
@@ -304,10 +295,8 @@ describe 'sectionsHistory module', ->
 
       runs ->
         savedState = storage.get("sectionsHistory", window.location.origin)
-        expect(savedState.widgets).toBeDefined()
-        expect(savedState.title).toBe(reload_sections.title)
-        expect(savedState.widgets["#one"]).toBe(reload_sections.widgets["#one"])
-        expect(savedState.widgets["#two"]).toBe(reload_sections.widgets["#two"])
+        expect(savedState.sections).toBe(reload_sections.sections)
+        expect(savedState.url).toBe(reload_sections.url)
 
 
     it "should update sections data in localstorage", ->
@@ -320,27 +309,22 @@ describe 'sectionsHistory module', ->
       events.trigger "sections:loaded",
         url: window.location.origin
         title: "second test Title"
-        widgets:
-          "#one": "<div></div>"
+        sections: "<section data-selector='#one'><div></div></section>"
 
       waitsFor ->
         allDone is yes
 
       runs ->
         savedState = storage.get("sectionsHistory", window.location.origin);
-        expect(savedState.widgets).toBeDefined()
-        expect(savedState.title).toBe("second test Title")
-        expect(savedState.widgets["#one"]).toBe("<div></div>")
-        expect(savedState.widgets["#two"]).not.toBeDefined()
+        expect(savedState.sections).toBeDefined()
+        expect(savedState.sections).toBe("<section data-selector='#one'><div></div></section>")
 
   describe 'loading transition sections', ->
     reload_sections = null
     beforeEach ->
       reload_sections = 
         url: window.location.origin
-        title: "test Title"
-        widgets:
-          "#one": "<div id='three' class='widgets' data-js-modules='rotation'><span>hello</span></div>"
+        sections: "<section data-selector='#one'><span class='widgets' data-js-modules='rotation, gradient'>hello</span></section>"
 
       affix "div#one span.section"
       spyOn ajax, "get"
@@ -353,14 +337,12 @@ describe 'sectionsHistory module', ->
       history._transitions.last = null
       history._transitions.current = null
 
-      history._transitions.create({index: 0, widgets: {}})
+      history._transitions.create({index: 0, sections: "<div></div>"})
 
       events.trigger "history:popState",
         index: 0
         url: window.location.origin
-        title: "second test Title"
-        widgets:
-          "#one": "<div></div>"
+        sections: "<section data-selector='#one'><div></div></section>"
 
       waitsFor ->
         allDone is yes

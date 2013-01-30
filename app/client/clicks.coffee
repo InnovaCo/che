@@ -19,7 +19,7 @@ define ['dom!', 'config', 'events', 'utils/params'], (dom, config, events, param
 
     splitted_url = url.split "?"
 
-    events.trigger "pageTransition:init", ["#{splitted_url[0]}?#{splitted_url[1] or ""}&#{params data}", "GET"]
+    events.trigger "pageTransition:init", ["#{splitted_url[0]}?#{if splitted_url[1] then splitted_url[1] + "&" else ""}#{params data}", "GET"]
     e.preventDefault()
     return false
   events.bind "sectionsTransition:invoked, sectionsTransition:undone", ->

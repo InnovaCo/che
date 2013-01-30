@@ -259,13 +259,15 @@ define [
     sectionsRequest?.abort()
     sectionsRequest = ajax.get
       url: url,
-      method: method
+      method: method,
+      type: "text"
 
-    sectionsRequest.success (request, sections) ->
-      state.url = ""
-      state.index = index
-      state.method = method
-      state.sections = sections
+    sectionsRequest.success (request, sections) ->  
+      state =
+        url: request.getResponseHeader("x-che-url")
+        index: index
+        method: method
+        sections: sections
 
       events.trigger "sections:loaded", state
 

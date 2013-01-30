@@ -22,7 +22,7 @@ define ['events', 'utils/params', "utils/destroyer", "underscore"], (events, par
     request.responseType = type
     request.open method, url, true
     request.setRequestHeader 'x-requested-with', 'xmlhttprequest'
-    request.setRequestHeader 'X-Che', 'true'
+    request.setRequestHeader 'x-che', 'true'
 
     if data?
       data = params data
@@ -90,6 +90,8 @@ define ['events', 'utils/params', "utils/destroyer", "underscore"], (events, par
     json: (text) ->
       console.log text
       JSON.parse text
+    text: (text) ->
+      text
     default: (text) ->
       text
 

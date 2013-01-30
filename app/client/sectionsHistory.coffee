@@ -37,7 +37,6 @@ define [
         return transition
       else
         isNewState = (history.state or {}).url isnt state.url
-
         method = if isNewState then "pushState" else "replaceState"
         history[method] state, state.title, state.url
         @last = new Transition state, @last
@@ -142,7 +141,6 @@ define [
   # Конструктор объекта действий при переходе, содежит в себе данные для переходов в обе стороны, используется в transitions
   # 
   Invoker = (@reloadSections) ->
-    console.log "INIT INVOKER", @reloadSections
     @_back = null
     @_forward = null
     @_is_applied = no
@@ -167,7 +165,6 @@ define [
         @undo()
 
       if not @_is_sections_updated or not @_forward or not @_back
-        console.log "RUN", @
 
         reloadSectionsHtml = dom @reloadSections
         currentTitle = dom('title')[0]
@@ -190,10 +187,9 @@ define [
           else
             continue
 
-          @_back[selector] = Array.prototype.slice.call dom(selector)[0]?.childNodes
-          @_forward[selector] = Array.prototype.slice.call element.childNodes
-
-          console.log @_back, @_forward
+          if dom(selector)[0]?
+            @_back[selector] = Array.prototype.slice.call dom(selector)[0].childNodes
+            @_forward[selector] = Array.prototype.slice.call element.childNodes
 
         @_is_sections_updated = yes
 
@@ -220,19 +216,19 @@ define [
 
       selector = selectors.shift()
 
+      if selector is "title"
+        dom('title')[0].innerHtml = forward[selector]
+        return @_insertSections forward, back, selectors
+
       loader.search forward[selector], (widgetsList) =>
 
         container = dom(selector)[0]
-
         
-
         for element in back[selector]
-          console.log "WIDGETS DATA", element, widgetsData element
           if element.parentNode?
             element.parentNode.removeChild element
 
           for data in widgetsData element
-            console.log "OLD WIDGETS", data
             widgets.get(data.name, data.element)?.turnOff()
 
         for element in forward[selector]
@@ -262,9 +258,9 @@ define [
       method: method,
       type: "text"
 
-    sectionsRequest.success (request, sections) ->  
+    sectionsRequest.success (request, sections) ->
       state =
-        url: request.getResponseHeader("x-che-url")
+        url: request.getResponseHeader "x-che-url"
         index: index
         method: method
         sections: sections
@@ -288,11 +284,12 @@ define [
   #
   events.bind "pageTransition:init", (url, method) ->
     state = storage.get "sectionsHistory", url
+    index = transitions.last?.index + 1 or 0
     if state?
-      delete state.index
+      state.index = index
       transitions.create state
 
-    loadSections url, method
+    loadSections url, method, index
 
 
   #### Обработка history:popState
@@ -302,7 +299,8 @@ define [
   events.bind "history:popState", (state) ->
     if state?
       transitions.go state.index
-      loadSections state.url, state.method, state.index
+      if state.url?
+        loadSections state.url, state.method, state.index
     # here ask server for updated sections (history case)
 
   _transitions: transitions

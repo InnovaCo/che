@@ -324,7 +324,7 @@ describe 'sectionsHistory module', ->
     beforeEach ->
       reload_sections = 
         url: window.location.origin
-        sections: "<section data-selector='#one'><span class='widgets' data-js-modules='rotation, gradient'>hello</span></section>"
+        sections: "<title>TITLE!</title><section data-selector='#one'>sdkjhfksjd<span class='widgets' data-js-modules='rotation, gradient'>hello</span></section>"
 
       affix "div#one span.section"
       spyOn ajax, "get"

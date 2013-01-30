@@ -9,7 +9,9 @@ define ['dom', 'config'], (dom, config) ->
   # сохраняет в массив данные о виджете для переданного элемента
   #
   saveTo = (arrayOfPairs, element) ->
-    names = (element.getAttribute config.widgetDataAttributeName)?.replace(///^\s|\s$///, '').split(///\s*,\s*///)
+    names = null
+    if element and element.getAttribute?
+      names = (element.getAttribute config.widgetDataAttributeName)?.replace(///^\s|\s$///, '').split(///\s*,\s*///)
 
     return false if not names
 
@@ -33,8 +35,6 @@ define ['dom', 'config'], (dom, config) ->
         saveTo pairs, rootElement
     else
       root = dom document
-
-    console.log "WIDGETS ROOT", root
 
     widgetElements = root.find("." + config.widgetClassName).get()
     for element in widgetElements

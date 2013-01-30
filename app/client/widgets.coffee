@@ -164,6 +164,5 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
         name = config.baseWidgetsPath + name
       require [name], (widget) ->
         instance = widgets.add name, element, widget
-        console.log "widget", name, element, instance
         ready?(instance)
 

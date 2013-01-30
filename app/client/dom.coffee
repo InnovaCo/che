@@ -49,7 +49,8 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
           root = [root]
         result = []
         _.each root, (root) ->
-          result = result.concat(Array.prototype.slice.call root.querySelectorAll(selector))
+          if root.querySelectorAll?
+            result = result.concat(Array.prototype.slice.call root.querySelectorAll(selector))
         return result
       else 
         return selector
@@ -171,7 +172,7 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
       else
         elements = selector or [document]
 
-      if elements.length is undefined
+      if elements.length is undefined or elements.nodeType is 3
         elements = [elements]
 
       @length = elements.length

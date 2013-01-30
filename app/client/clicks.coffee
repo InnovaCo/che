@@ -6,8 +6,8 @@ define ['dom!', 'config', 'events', 'utils/params'], (dom, config, events, param
     for lisItem in list
       splittedData = lisItem.split ///:\s*///
       if splittedData[0] isnt "pageView"
-        requestData.widgets = requestData.widgets or {}
-        requestData.widgets[splittedData[0]] = splittedData[1]
+        requestData.widget = requestData.widget or {}
+        requestData.widget[splittedData[0]] = splittedData[1]
       else
         requestData[splittedData[0]] = splittedData[1]
 

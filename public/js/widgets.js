@@ -114,7 +114,6 @@
         return require([name], function(widget) {
           var instance;
           instance = widgets.add(name, element, widget);
-          console.log("widget", name, element, instance);
           return typeof ready === "function" ? ready(instance) : void 0;
         });
       }

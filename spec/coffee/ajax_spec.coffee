@@ -60,7 +60,7 @@ describe "ajax module", ->
       expect(request.open.mostRecentCall.args[2]).toBe(true)
 
       expect(request.send).toHaveBeenCalled()
-      expect(request.send.mostRecentCall.args[0]).toBe('foo=bar&bar[zoo]=cat')
+      expect(request.send.mostRecentCall.args[0]).toBe('foo=bar&bar%5Bzoo%5D=cat')
       expect(request.onreadystatechange).toBeFunction()
       expect(request.setRequestHeader).toHaveBeenCalled()
 
@@ -180,7 +180,7 @@ describe "ajax module", ->
 
       expect(request.open).toHaveBeenCalled()
       expect(request.open.mostRecentCall.args[0]).toBe("GET")
-      expect(request.open.mostRecentCall.args[1]).toBe("foo/bar?foo=bar&bar[zoo]=cat")
+      expect(request.open.mostRecentCall.args[1]).toBe("foo/bar?foo=bar&bar%5Bzoo%5D=cat")
       expect(request.send).toHaveBeenCalled()
 
 

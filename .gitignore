@@ -19,3 +19,6 @@ _SpecRunner.html
 /.junit-output
 /.idea*
 /node_modules
+/public/js
+/spec/js
+/spec/helpers/js

@@ -17,7 +17,7 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
     root = root or document
     list = if _.isString(selectorOrNodeList) then domQuery(root).find(selectorOrNodeList).get() else selectorOrNodeList
     for listElement in list
-      return true if listElement is element
+      return listElement if listElement is element
 
     return checkIsElementMatchSelector list, element.parentNode, root
   
@@ -99,7 +99,6 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
   delegateEvent = (node, selector, eventName, handler) ->
     if not node.domQueryDelegateHandler
       delegateHandler = (e) ->
-
         eventObject = e or window.event
         target = eventObject.target or eventObject.srcElement
         if target.nodeType is 3 # defeat Safari bug
@@ -109,8 +108,9 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
           handlers = node.domQueryHandlers[eventObject.type]
           result = true
           _.each handlers, (handlers, selector) ->
-            if checkIsElementMatchSelector selector, target, node
-              result = callEventHandlers handlers, eventObject, target
+            targetElement = checkIsElementMatchSelector selector, target, node
+            if targetElement
+              result = callEventHandlers handlers, eventObject, targetElement
           result
 
       bindEvent node, eventName, delegateHandler

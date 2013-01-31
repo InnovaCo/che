@@ -101,6 +101,19 @@ describe 'dom module', ->
       triggerMouseEvent("click", dom("div.test ul li a span").get(0))
       expect(bindSpy).toHaveBeenCalled()
 
+    it 'should return correct target to event handler, when event triggered on element inside of selector matched element', ->
+      bindSpy = jasmine.createSpy "bindSpy"
+      target = null
+      original = dom("div.test ul li a").get 0
+      dom("div.test").on 'ul li a', 'click', () ->        
+        target = @
+        bindSpy()
+
+      
+      triggerMouseEvent("click", dom("div.test ul li a span").get(0))
+      console.log target, original
+      expect(target).toBe original
+
     it 'shouldn\'t delegate event handler to element, when event triggered on parent of root', ->
 
       bindSpy = jasmine.createSpy "bindSpy"

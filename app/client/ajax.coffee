@@ -137,7 +137,7 @@ define ['events', 'utils/params', "utils/destroyer", "underscore"], (events, par
           options.type or "",
           options.method or defaultOptions.method,
           @_events,
-          options.headers or {}
+          options.headers
       @
 
     #### Ajax::abort(options)
@@ -174,7 +174,8 @@ define ['events', 'utils/params', "utils/destroyer", "underscore"], (events, par
 
   ajax.get = (options) ->
     options.method = "GET"
-    options.url = createGETurl options.url, options.data
+    if options.url?
+      options.url = createGETurl options.url, options.data
     new Ajax(options)
 
   ajax

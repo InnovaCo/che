@@ -19,7 +19,7 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
     for listElement in list
       return true if listElement is element
 
-    return checkIsElementMatchSelector(list, element.parent, root)
+    return checkIsElementMatchSelector list, element.parentNode, root
   
   #### callEventHandlers(handlers, eventObj)
   #
@@ -104,25 +104,14 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
         target = eventObject.target or eventObject.srcElement
         if target.nodeType is 3 # defeat Safari bug
           target = target.parentNode
-
+      
         if node.domQueryHandlers[eventObject.type]
           handlers = node.domQueryHandlers[eventObject.type]
-          targetFinded = false
           result = true
-
-          # Надо пробежать по всему DOM-дереву вверх, чтобы сымитировать bubbling
-          checkTarget = (handlers, targetToCheck) ->
-            # Проверяем сам селектор, а если не подходит, то идем вверх по парентам
-            _.each handlers, (handlers, selector) ->
-              if checkIsElementMatchSelector selector, targetToCheck
-                result = callEventHandlers handlers, eventObject, targetToCheck
-                targetFinded = true
-
-            checkTarget(handlers, targetToCheck.parentNode) if not targetFinded and targetToCheck.parentNode
-
-          # запускаем поиск цели, начиная с самой вложенной
-          checkTarget handlers, target
-          return result
+          _.each handlers, (handlers, selector) ->
+            if checkIsElementMatchSelector selector, target, node
+              result = callEventHandlers handlers, eventObject, target
+          result
 
       bindEvent node, eventName, delegateHandler
       node.domQueryDelegateHandler = delegateHandler
@@ -133,6 +122,7 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
     node.domQueryHandlers[eventName][selector] = node.domQueryHandlers[eventName][selector] or []
     node.domQueryHandlers[eventName][selector].push handler
 
+  
   #### undelegateEvent(node, selector, eventName, handler)
   #
   # Отвязывает обработчика от делегирования событий с элементов по селектору

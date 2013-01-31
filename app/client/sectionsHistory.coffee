@@ -217,7 +217,7 @@ define [
       selector = selectors.shift()
 
       if selector is "title"
-        dom('title')[0].innerHtml = forward[selector]
+        dom('title')[0].innerHTML = forward[selector]
         return @_insertSections forward, back, selectors
 
       loader.search forward[selector], (widgetsList) =>
@@ -260,7 +260,7 @@ define [
 
     sectionsRequest.success (request, sections) ->
       state =
-        url: request.getResponseHeader "x-che-url"
+        url: request.getResponseHeader "X-Che-Url"
         index: index
         method: method
         sections: sections

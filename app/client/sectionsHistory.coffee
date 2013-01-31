@@ -302,7 +302,7 @@ define [
       if state.url?
         loadSections state.url, state.method, state.index
     # here ask server for updated sections (history case)
-
+  _loadSections: loadSections
   _transitions: transitions
   _transition: Transition
   _invoker: Invoker

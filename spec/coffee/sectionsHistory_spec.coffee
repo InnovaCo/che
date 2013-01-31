@@ -329,7 +329,41 @@ describe 'sectionsHistory module', ->
       affix "div#one span.section"
       spyOn ajax, "get"
 
+    it "should load sections and correctly convert in to state object", ->
+      sections = "<title>TITLE!</title><section data-selector='#one'>sdkjhfksjd<span class='widgets' data-js-modules='rotation, gradient'>hello</span></section>"
+      realAjaxGet = ajax.get
+      fakeAjaxGet = (params) ->
+        return requestStub
+
+      ajax.get = fakeAjaxGet
+
+      request = 
+        responseText: sections
+        getResponseHeader: (header) ->
+          return "http://test.com/one/two" if header is "X-Che-Url"
+
+
+      requestStub = 
+        abort: jasmine.createSpy("abort")
+
+        success: (handler) ->
+          handler request, sections
+
+      spyOn(events, "trigger").andCallThrough()
+
+      history._loadSections "http://test.com/one/two", "GET", 1
+
+      state = events.trigger.mostRecentCall.args[1]
+
+      expect(state.url).toBe("http://test.com/one/two")
+      expect(state.sections).toBe("<title>TITLE!</title><section data-selector='#one'>sdkjhfksjd<span class='widgets' data-js-modules='rotation, gradient'>hello</span></section>")
+      expect(state.method).toBe('GET')
+      expect(state.index).toBe(1)
+
+      ajax.get = realAjaxGet
+
     it "should update sections from server, when traversing history", ->
+      
       allDone = no
       events.bind "sectionsTransition:invoked", ->
         allDone = yes
@@ -348,12 +382,15 @@ describe 'sectionsHistory module', ->
         allDone is yes
 
       runs ->
+        console.log "AJAXX", ajax.get.calls
         requestInfo = ajax.get.mostRecentCall.args[0]
+
         expect(ajax.get).toHaveBeenCalled()
         expect(requestInfo.url).toBe(window.location.origin)
 
 
     it "should load sections from server, when going forward", ->
+      
       allDone = no
       events.bind "sectionsTransition:invoked", ->
         allDone = yes
@@ -372,27 +409,28 @@ describe 'sectionsHistory module', ->
 
 
     it "should load sections from localstorage, when going forward, and then update from server", ->
-        allDone = no
-        events.bind "sectionsTransition:invoked", ->
-          allDone = yes
+      
+      allDone = no
+      events.bind "sectionsTransition:invoked", ->
+        allDone = yes
 
-        spyOn(storage, "get").andCallThrough()
-        storage.save "sectionsHistory", reload_sections.url, reload_sections
+      spyOn(storage, "get").andCallThrough()
+      storage.save "sectionsHistory", reload_sections.url, reload_sections
 
-        events.trigger "pageTransition:init", window.location.origin, {}
+      events.trigger "pageTransition:init", window.location.origin, {}
 
-        waitsFor ->
-          allDone is yes
+      waitsFor ->
+        allDone is yes
 
-        runs ->
-          requestInfo = ajax.get.mostRecentCall.args[0]
-          storageGetInfo = storage.get.mostRecentCall.args
+      runs ->
+        requestInfo = ajax.get.mostRecentCall.args[0]
+        storageGetInfo = storage.get.mostRecentCall.args
 
-          expect(ajax.get).toHaveBeenCalled()
-          expect(requestInfo.url).toBe window.location.origin
-          expect(storage.get).toHaveBeenCalled()
-          expect(storageGetInfo[0]).toBe "sectionsHistory"
-          expect(storageGetInfo[1]).toBe window.location.origin
+        expect(ajax.get).toHaveBeenCalled()
+        expect(requestInfo.url).toBe window.location.origin
+        expect(storage.get).toHaveBeenCalled()
+        expect(storageGetInfo[0]).toBe "sectionsHistory"
+        expect(storageGetInfo[1]).toBe window.location.origin
 
   describe "traversing history back", ->
     it "should change layout to previous state", ->

@@ -21,6 +21,10 @@ define [
     <selector>: <plainHTML>
   ###
 
+  helpers = 
+    stateId: (state) ->
+      return state.url + "|header:#{state.header}"
+
   #### transitions
   #
   # Менеджер переходов, создает, либо достает уже ранее созданные переходы
@@ -263,6 +267,7 @@ define [
     sectionsRequest.success (request, sections) ->
       state =
         url: request.getResponseHeader "X-Che-Url"
+        header: sectionsHeader
         index: index
         method: method
         sections: sections
@@ -276,7 +281,7 @@ define [
   #
   events.bind "sections:loaded", (state) ->
 
-    storage.save "sectionsHistory", state.url + " header:#{state.sectionsHeader}", state
+    storage.save "sectionsHistory", helpers.stateId(state), state
     transitions.create state
 
 
@@ -285,7 +290,10 @@ define [
   # Проверяется, есть ли такие секции уже в localStorage, если есть, то используем их и параллельно смотрим на сервере
   #
   events.bind "pageTransition:init", (url, sectionsHeader, method) ->
-    state = storage.get "sectionsHistory", url + " header:#{sectionsHeader}"
+    state = storage.get "sectionsHistory", helpers.stateId
+      url: url,
+      header: sectionsHeader
+
     index = transitions.last?.index + 1 or 0
     if state?
       state.index = index

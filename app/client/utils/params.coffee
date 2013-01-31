@@ -5,8 +5,7 @@ define ["underscore"], (_)->
       result.push (prefix or "") + "=#{encodeURIComponent data}"
     else
       for field, value of data
-        encodedField = encodeURIComponent field
-        nextPrefix = if prefix? then prefix + "[#{encodedField}]" else encodedField
+        nextPrefix = if prefix? then prefix + encodeURIComponent("[#{field}]") else encodeURIComponent field
         nextValue = value?() or value
         params nextValue, nextPrefix, result
 

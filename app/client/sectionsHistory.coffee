@@ -260,7 +260,7 @@ define [
 
     sectionsRequest.success (request, sections) ->
       state =
-        url: request.getResponseHeader "x-che-url"
+        url: request.getResponseHeader "X-Che-Url"
         index: index
         method: method
         sections: sections

@@ -56,7 +56,8 @@ describe 'dom module', ->
       affix "a.test"
       affix "div.test a"
       affix "div.test ul a"
-      affix "div.test ul li a"
+      affix "div.test ul li a span"
+      affix "span.test ul li a span.test"
 
     it 'should bind event handler to element', ->
       
@@ -92,6 +93,29 @@ describe 'dom module', ->
 
       triggerMouseEvent("click", dom("div.test ul li a").get(0))
       expect(bindSpy).toHaveBeenCalled()
+
+    it 'should delegate event handler to element, when event triggered on element inside of selector matched element', ->
+      bindSpy = jasmine.createSpy "bindSpy"
+      dom("div.test").on 'ul li a', 'click', bindSpy
+
+      triggerMouseEvent("click", dom("div.test ul li a span").get(0))
+      expect(bindSpy).toHaveBeenCalled()
+
+    it 'shouldn\'t delegate event handler to element, when event triggered on parent of root', ->
+
+      bindSpy = jasmine.createSpy "bindSpy"
+      dom("div.test ul").on 'ul li a', 'click', bindSpy
+
+      triggerMouseEvent("click", dom("div.test").get(0))
+      expect(bindSpy).not.toHaveBeenCalled()
+
+    it 'shouldn\'t delegate event handler to element, when event triggered on parent of root and globally matches selector', ->
+
+      bindSpy = jasmine.createSpy "bindSpy"
+      dom("span.test ul").on 'span.test', 'click', bindSpy
+
+      triggerMouseEvent("click", dom("span.test").get(0))
+      expect(bindSpy).not.toHaveBeenCalled()
         
 
   describe 'unbinding events', ->

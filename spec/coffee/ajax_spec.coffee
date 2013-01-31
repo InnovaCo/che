@@ -166,7 +166,7 @@ describe "ajax module", ->
 
       request = instance._request
       expect(request.setRequestHeader).toHaveBeenCalled()
-      expect(request.setRequestHeader.calls[1].args.join(',')).toBe "x-che,true"
+      expect(request.setRequestHeader.calls[1].args.join(',')).toBe "X-Che,true"
 
     it "should send get-request with params", ->
       instance = ajax.get

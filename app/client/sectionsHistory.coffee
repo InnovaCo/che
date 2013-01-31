@@ -251,11 +251,13 @@ define [
   #
   # Загрузка секций с сервера, обрабатывается только самый последний запрос
   #
-  loadSections = (url, method, index) ->
+  loadSections = (url, method, sectionsHeader, index) ->
     sectionsRequest?.abort()
     sectionsRequest = ajax.get
       url: url,
       method: method,
+      headers: 
+        "X-Che-Sections": sectionsHeader
       type: "text"
 
     sectionsRequest.success (request, sections) ->
@@ -274,7 +276,7 @@ define [
   #
   events.bind "sections:loaded", (state) ->
 
-    storage.save "sectionsHistory", state.url, state
+    storage.save "sectionsHistory", state.url + " header:#{state.sectionsHeader}", state
     transitions.create state
 
 
@@ -282,14 +284,14 @@ define [
   #
   # Проверяется, есть ли такие секции уже в localStorage, если есть, то используем их и параллельно смотрим на сервере
   #
-  events.bind "pageTransition:init", (url, method) ->
-    state = storage.get "sectionsHistory", url
+  events.bind "pageTransition:init", (url, sectionsHeader, method) ->
+    state = storage.get "sectionsHistory", url + " header:#{sectionsHeader}"
     index = transitions.last?.index + 1 or 0
     if state?
       state.index = index
       transitions.create state
 
-    loadSections url, method, index
+    loadSections url, method, sectionsHeader, index
 
 
   #### Обработка history:popState
@@ -300,7 +302,7 @@ define [
     if state?
       transitions.go state.index
       if state.url?
-        loadSections state.url, state.method, state.index
+        loadSections state.url, state.method, state.sectionsHeader, state.index
     # here ask server for updated sections (history case)
   _loadSections: loadSections
   _transitions: transitions

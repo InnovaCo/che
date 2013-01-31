@@ -11,11 +11,11 @@ define ['events', 'utils/params', "utils/destroyer", "underscore"], (events, par
     getParams = if data? then "?#{params data}"  else if splittedUrl[1] then "?#{splittedUrl[1]}" else ""
     "#{splittedUrl[0]}#{getParams}"
 
-  #### sendRequest(url, data, type, eventsSprout)
+  #### sendRequest(url, data, type, eventsSprout, headers)
   #
   # функция для отправки запроса на сервер
   #
-  sendRequest = (url, data, type, method, eventsSprout) ->
+  sendRequest = (url, data, type, method, eventsSprout, headers) ->
     request = createXMLHTTPObject()
     return false if not request 
 
@@ -23,6 +23,9 @@ define ['events', 'utils/params', "utils/destroyer", "underscore"], (events, par
     request.open method, url, true
     request.setRequestHeader 'X-Requested-With', 'XMLHttpRequest'
     request.setRequestHeader 'X-Che', 'true'
+    if headers?
+      for headerName, headerValue of headers
+        request.setRequestHeader headerName, headerValue
 
     if data?
       data = params data
@@ -133,7 +136,8 @@ define ['events', 'utils/params', "utils/destroyer", "underscore"], (events, par
           options.data or {},
           options.type or "",
           options.method or defaultOptions.method,
-          @_events 
+          @_events,
+          options.headers or {}
       @
 
     #### Ajax::abort(options)

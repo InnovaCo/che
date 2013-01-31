@@ -217,7 +217,7 @@ define [
       selector = selectors.shift()
 
       if selector is "title"
-        dom('title')[0].innerHtml = forward[selector]
+        dom('title')[0].innerHTML = forward[selector]
         return @_insertSections forward, back, selectors
 
       loader.search forward[selector], (widgetsList) =>

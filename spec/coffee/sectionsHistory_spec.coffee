@@ -393,3 +393,9 @@ describe 'sectionsHistory module', ->
           expect(storage.get).toHaveBeenCalled()
           expect(storageGetInfo[0]).toBe "sectionsHistory"
           expect(storageGetInfo[1]).toBe window.location.origin
+
+  describe "traversing history back", ->
+    it "should change layout to previous state", ->
+    it "should change url to previous state", ->
+    it "should change layout to previous 3th state, when going to 3th prev state", ->
+    it "should change url to previous 3th state, when going to 3th prev state", ->

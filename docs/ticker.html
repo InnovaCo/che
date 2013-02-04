@@ -1,0 +1,34 @@
+<!DOCTYPE html>  <html> <head>   <title>ticker.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="ajax.html">                 ajax.coffee               </a>                                           <a class="source" href="app-require-config.html">                 app-require-config.coffee               </a>                                           <a class="source" href="app.html">                 app.coffee               </a>                                           <a class="source" href="clicks.html">                 clicks.coffee               </a>                                           <a class="source" href="config.html">                 config.coffee               </a>                                           <a class="source" href="dom.html">                 dom.coffee               </a>                                           <a class="source" href="events.html">                 events.coffee               </a>                                           <a class="source" href="history.html">                 history.coffee               </a>                                           <a class="source" href="async.html">                 async.coffee               </a>                                           <a class="source" href="loader.html">                 loader.coffee               </a>                                           <a class="source" href="sectionsHistory.html">                 sectionsHistory.coffee               </a>                                           <a class="source" href="destroyer.html">                 destroyer.coffee               </a>                                           <a class="source" href="guid.html">                 guid.coffee               </a>                                           <a class="source" href="log.html">                 log.coffee               </a>                                           <a class="source" href="logWriter.html">                 logWriter.coffee               </a>                                           <a class="source" href="params.html">                 params.coffee               </a>                                           <a class="source" href="storage.html">                 storage.coffee               </a>                                           <a class="source" href="ticker.html">                 ticker.coffee               </a>                                           <a class="source" href="widgetsData.html">                 widgetsData.coffee               </a>                                           <a class="source" href="widgets.html">                 widgets.coffee               </a>                                           <a class="source" href="gradient.html">                 gradient.coffee               </a>                                           <a class="source" href="opacity.html">                 opacity.coffee               </a>                                           <a class="source" href="perspective.html">                 perspective.coffee               </a>                                           <a class="source" href="rotation.html">                 rotation.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               ticker.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>                            </td>             <td class="code">               <div class="highlight"><pre><span class="nx">define</span> <span class="p">[],</span> <span class="nf">() -&gt;</span>
+  <span class="nv">Ticker = </span><span class="nf">(period, callback) -&gt;</span>
+    <span class="vi">@period = </span><span class="nb">parseInt</span> <span class="nx">period</span><span class="p">,</span> <span class="mi">10</span>
+    <span class="vi">@_callbacks = </span><span class="p">[]</span>
+    <span class="k">if</span> <span class="nx">callback</span>
+      <span class="nx">@listen</span> <span class="nx">callback</span>
+    <span class="nx">@</span>
+
+  <span class="nv">Ticker:: =</span>
+    <span class="nv">listen: </span><span class="nf">(callback) -&gt;</span>
+      <span class="nx">@_callbacks</span><span class="p">.</span><span class="nx">push</span> <span class="nx">callback</span>
+      <span class="nx">@</span>
+
+    <span class="nv">start: </span><span class="nf">() -&gt;</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;start&quot;</span><span class="p">,</span> <span class="nx">@period</span>
+      <span class="vi">@_interval = </span><span class="nx">setTimeout</span> <span class="o">=&gt;</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;call setTimeout: &quot;</span><span class="p">,</span> <span class="nx">@period</span><span class="p">,</span> <span class="nx">@_callbacks</span>
+        <span class="nx">@_tick</span><span class="p">()</span>
+        <span class="nx">@start</span><span class="p">()</span>
+      <span class="p">,</span> <span class="nx">@period</span>
+
+
+    <span class="nv">stop: </span><span class="nf">() -&gt;</span>
+      <span class="nx">clearTimeout</span> <span class="nx">@_interval</span>
+
+    <span class="nv">_tick: </span><span class="nf">() -&gt;</span>
+      <span class="k">for</span> <span class="nx">callback</span> <span class="k">in</span> <span class="nx">@_callbacks</span>
+        <span class="nx">setTimeout</span> <span class="nx">callback</span>
+
+
+  <span class="nf">(period, callback) -&gt;</span>
+    <span class="k">new</span> <span class="nx">Ticker</span> <span class="nx">period</span><span class="p">,</span> <span class="nx">callback</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 

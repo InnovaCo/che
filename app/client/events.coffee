@@ -60,8 +60,8 @@ define ['underscore'],  (_) ->
     dispatch: (args) -> 
       args = if _.isArray(args) then args else [args]
       @_handlersCallOrder = _.keys(@_handlers).sort()
+      args.push this._data()
       @_lastArgs = args
-      @_lastArgs.push this._data()
 
       @_nextHandlerCall(args)
       @

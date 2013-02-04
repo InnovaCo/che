@@ -114,6 +114,7 @@ define [
           
           events.trigger "pageTransition:success",
             direction: "forward"
+      @
 
     #### Transition::prev([to_transition])
     #
@@ -128,6 +129,7 @@ define [
         asyncQueue.next ->
           events.trigger "pageTransition:success",
             direction: "back"
+      @
 
 
     #### Transition::undo()

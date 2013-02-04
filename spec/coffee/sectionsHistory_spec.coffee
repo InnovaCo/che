@@ -15,15 +15,17 @@ describe 'sectionsHistory module', ->
     ajax = ajaxModule
     async = asyncModule
 
-  history = null
   beforeEach ->
-    history._queue.stop()
-    history._transitions.current = null
     spyOn(browserHistory, "pushState")
     waitsFor ->
       history?
 
   describe 'creating transitions', ->
+    beforeEach ->
+      history._queue.stop()
+      history._transitions.last = null
+      history._transitions.current = history._transitions.create()
+
     it 'should create transition and set firstTransition and currentTransition', ->
         transition = history._transitions.create({index: 1})
         nextTransition = history._transitions.create({sections: ""})
@@ -59,7 +61,7 @@ describe 'sectionsHistory module', ->
       affix "div#two span.section"
       history._queue.stop()
       history._transitions.last = null
-      history._transitions.current = null
+      history._transitions.current = history._transitions.create()
 
     it 'should replace sections', ->
         allDone = false
@@ -80,8 +82,18 @@ describe 'sectionsHistory module', ->
           expect($("#two span").text()).toBe "world"
 
     it 'should replace sections and undo', ->
-        transition = history._transitions.create reload_sections
+      allDoneForward = no
+      allDone = no
+      events.bind "pageTransition:success", (info) ->
+        allDone = info.direction is "back"
+        allDoneForward = info.direction is "forward"
 
+      transition = history._transitions.create reload_sections
+
+      waitsFor ->
+        allDoneForward
+
+      runs ->
         expect($("#one").length).toBe 1
         expect($("#two").length).toBe 1
         expect($("#one span").text()).toBe "hello"
@@ -90,10 +102,15 @@ describe 'sectionsHistory module', ->
         expect($("#one span.section").length).toBe 0
         expect($("#two span.section").length).toBe 0
 
-        transition.undo()
+        transition.prev()
+        console.log "prev"
 
-        expect($("#one span.section").length).toBe 1
-        expect($("#two span.section").length).toBe 1
+        waitsFor ->
+          allDone
+
+        runs ->
+          expect($("#one span.section").length).toBe 1
+          expect($("#two span.section").length).toBe 1
 
 
   describe 'updating transitions', ->
@@ -110,7 +127,7 @@ describe 'sectionsHistory module', ->
       affix "div#two span.section"
       history._queue.stop()
       history._transitions.last = null
-      history._transitions.current = null
+      history._transitions.current = history._transitions.create()
 
     afterEach ->
       history._queue = async()
@@ -157,7 +174,7 @@ describe 'sectionsHistory module', ->
       affix "div#one span.section"
       affix "div#two.widgets[data-js-modules=gradient] span.section"
       history._transitions.last = null
-      history._transitions.current = null
+      history._transitions.current = history._transitions.create()
 
     it "should create invoke object if sections are specified", ->
       transition = history._transitions.create reload_sections
@@ -229,7 +246,7 @@ describe 'sectionsHistory module', ->
       affix "div#two span.section.widgets[data-js-modules=opacity]"
 
       history._transitions.last = null
-      history._transitions.current = null
+      history._transitions.current = history._transitions.create()
 
       spyOn(widgets, "create").andCallThrough()
 
@@ -304,7 +321,7 @@ describe 'sectionsHistory module', ->
 
       history._queue.stop()
       history._transitions.last = null
-      history._transitions.current = null
+      history._transitions.current = history._transitions.create()
       
 
 
@@ -399,7 +416,7 @@ describe 'sectionsHistory module', ->
         allDone = yes
 
       history._transitions.last = null
-      history._transitions.current = null
+      history._transitions.current = history._transitions.create()
 
       history._transitions.create({index: 0, sections: "<div></div>"})
 
@@ -501,10 +518,12 @@ describe 'sectionsHistory module', ->
         history._transitions.create state
 
       events.bind "pageTransition:success", (info) ->
+        console.log arguments
         if info.direction is "back"
           allDone = yes
 
       history._transitions.go 1
+      console.log "go!"
 
 
       waitsFor ->

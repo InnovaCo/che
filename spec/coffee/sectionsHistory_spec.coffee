@@ -272,6 +272,7 @@ describe 'sectionsHistory module', ->
     reload_sections = 
       url: window.location.origin
       title: "test Title"
+      header: "header"
       sections: "<section data-selector='#one'><span class='widgets' data-js-modules='rotation, gradient'>hello</span></section>"
 
     beforeEach ->
@@ -294,7 +295,7 @@ describe 'sectionsHistory module', ->
         allDone is yes
 
       runs ->
-        savedState = storage.get("sectionsHistory", window.location.origin)
+        savedState = storage.get("sectionsHistory", window.location.origin + "|header:header")
         expect(savedState.sections).toBe(reload_sections.sections)
         expect(savedState.url).toBe(reload_sections.url)
 
@@ -309,13 +310,14 @@ describe 'sectionsHistory module', ->
       events.trigger "sections:loaded",
         url: window.location.origin
         title: "second test Title"
+        header: "123"
         sections: "<section data-selector='#one'><div></div></section>"
 
       waitsFor ->
         allDone is yes
 
       runs ->
-        savedState = storage.get("sectionsHistory", window.location.origin);
+        savedState = storage.get("sectionsHistory", window.location.origin + "|header:123");
         expect(savedState.sections).toBeDefined()
         expect(savedState.sections).toBe("<section data-selector='#one'><div></div></section>")
 
@@ -327,15 +329,11 @@ describe 'sectionsHistory module', ->
         sections: "<title>TITLE!</title><section data-selector='#one'>sdkjhfksjd<span class='widgets' data-js-modules='rotation, gradient'>hello</span></section>"
 
       affix "div#one span.section"
-      spyOn ajax, "get"
+      spyOn(ajax, "get").andCallThrough()
 
     it "should load sections and correctly convert in to state object", ->
       sections = "<title>TITLE!</title><section data-selector='#one'>sdkjhfksjd<span class='widgets' data-js-modules='rotation, gradient'>hello</span></section>"
-      realAjaxGet = ajax.get
-      fakeAjaxGet = (params) ->
-        return requestStub
-
-      ajax.get = fakeAjaxGet
+      
 
       request = 
         responseText: sections
@@ -345,22 +343,29 @@ describe 'sectionsHistory module', ->
 
       requestStub = 
         abort: jasmine.createSpy("abort")
-
         success: (handler) ->
           handler request, sections
 
+      realAjaxGet = ajax.get
+      fakeAjaxGet = (params) ->
+        return requestStub
+
+      ajax.get = fakeAjaxGet
+
       spyOn(events, "trigger").andCallThrough()
 
-      history._loadSections "http://test.com/one/two", "GET", 1
+      history._loadSections "http://test.com/one/two", "GET", "sections header", 1
 
       state = events.trigger.mostRecentCall.args[1]
 
       expect(state.url).toBe("http://test.com/one/two")
       expect(state.sections).toBe("<title>TITLE!</title><section data-selector='#one'>sdkjhfksjd<span class='widgets' data-js-modules='rotation, gradient'>hello</span></section>")
       expect(state.method).toBe('GET')
+      expect(state.header).toBe("sections header")
       expect(state.index).toBe(1)
 
       ajax.get = realAjaxGet
+
 
     it "should update sections from server, when traversing history", ->
       
@@ -415,9 +420,9 @@ describe 'sectionsHistory module', ->
         allDone = yes
 
       spyOn(storage, "get").andCallThrough()
-      storage.save "sectionsHistory", reload_sections.url, reload_sections
+      storage.save "sectionsHistory", window.location.origin + "|header:HEADER", reload_sections
 
-      events.trigger "pageTransition:init", window.location.origin, {}
+      events.trigger "pageTransition:init", [window.location.origin, "HEADER", {}]
 
       waitsFor ->
         allDone is yes
@@ -425,12 +430,12 @@ describe 'sectionsHistory module', ->
       runs ->
         requestInfo = ajax.get.mostRecentCall.args[0]
         storageGetInfo = storage.get.mostRecentCall.args
-
+        
         expect(ajax.get).toHaveBeenCalled()
         expect(requestInfo.url).toBe window.location.origin
         expect(storage.get).toHaveBeenCalled()
         expect(storageGetInfo[0]).toBe "sectionsHistory"
-        expect(storageGetInfo[1]).toBe window.location.origin
+        expect(storageGetInfo[1]).toBe window.location.origin + "|header:HEADER"
 
   describe "traversing history back", ->
     it "should change layout to previous state", ->

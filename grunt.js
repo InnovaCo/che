@@ -133,8 +133,8 @@ module.exports = function(grunt) {
     concat: {
       app: {
       src: [
-        'public/js/lib/require.js',
-        'public/js/lib/underscore.js',
+//        'public/js/lib/require.js',
+//        'public/js/lib/underscore.js',
         'public/js/app-require-config.js',
         'public/js/app-require-optimized.js'
       ],

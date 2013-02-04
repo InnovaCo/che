@@ -86,6 +86,8 @@ module.exports = function(grunt) {
     /* Jasmine tests */
     jasmine : {
       src : [
+        'public/js/lib/require.js',
+        'public/js/lib/underscore.js',
         'public/js/lib/jquery.js', // affix needs jquery (for jasmine fixtures)
         'public/js/app.js'
       ],
@@ -164,6 +166,6 @@ module.exports = function(grunt) {
   
   grunt.registerTask('require', 'coffee requirejs stylus concat clean');
   grunt.registerTask('spec', 'require jasmine');
-  grunt.registerTask('spec-server', 'require jasmine-server');
-  grunt.registerTask('default', 'spec-server docco');
+  grunt.registerTask('spec-server', 'require docco jasmine-server');
+  grunt.registerTask('default', 'require');
 };

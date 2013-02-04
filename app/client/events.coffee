@@ -29,8 +29,8 @@ define ['underscore'],  (_) ->
     #
     # Вызывает очередного обработчика, прерывает цепочку, если обаботчик вернул false
     #
-    _handlerCaller: (handler)->
-      result = handler.apply handler.context, @_lastArgs
+    _handlerCaller: (handler, args)->
+      result = handler.apply handler.context, args
       # to stop propagation
       if result is false
         @_handlersCallOrder = []
@@ -40,16 +40,16 @@ define ['underscore'],  (_) ->
     #
     # Достает очередного обработчика события и передает его для вызова
     #
-    _nextHandlerCall: ->
+    _nextHandlerCall: (args) ->
       handlerId = @_handlersCallOrder.shift()
       if handlerId
         handler = @_handlers[handlerId]
         self = @
         if handler.options.isSync
-          @_handlerCaller handler
+          @_handlerCaller handler, args
         else
           _.delay -> 
-            self._handlerCaller handler
+            self._handlerCaller handler, args
         @_nextHandlerCall()
 
     
@@ -58,11 +58,12 @@ define ['underscore'],  (_) ->
     # Запускает исполнение обработчиков события
     #
     dispatch: (args) -> 
+      args = if _.isArray(args) then args else [args]
       @_handlersCallOrder = _.keys(@_handlers).sort()
-      @_lastArgs = if _.isArray(args) then args else [args]
+      @_lastArgs = args
       @_lastArgs.push this._data()
 
-      @_nextHandlerCall()
+      @_nextHandlerCall(args)
       @
 
     

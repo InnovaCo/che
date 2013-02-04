@@ -5,16 +5,19 @@ describe 'sectionsHistory module', ->
   storage = null
   browserHistory = null
   ajax = null
-  require ['sectionsHistory', 'events', 'widgets', 'utils/storage', 'history', 'ajax'], (historyModule, eventsModule, widgetsModule, storageModule, browserHistoryModule, ajaxModule) ->
+  async = null
+  require ['sectionsHistory', 'events', 'widgets', 'utils/storage', 'history', 'ajax', 'lib/async'], (historyModule, eventsModule, widgetsModule, storageModule, browserHistoryModule, ajaxModule, asyncModule) ->
     history = historyModule
     events = eventsModule
     widgets = widgetsModule
     storage = storageModule
     browserHistory = browserHistoryModule
     ajax = ajaxModule
+    async = asyncModule
 
   history = null
   beforeEach ->
+    history._queue.stop()
     history._transitions.current = null
     spyOn(browserHistory, "pushState")
     waitsFor ->
@@ -54,18 +57,27 @@ describe 'sectionsHistory module', ->
     beforeEach ->
       affix "div#one span.section"
       affix "div#two span.section"
+      history._queue.stop()
       history._transitions.last = null
       history._transitions.current = null
 
     it 'should replace sections', ->
+        allDone = false
+
+        events.bind "sections:inserted", ->
+          allDone = true
+
         transition = history._transitions.create reload_sections
 
-        expect($("#one").length).toBe 1
-        expect($("#two").length).toBe 1
-        expect($("#one span.section").length).toBe 0
-        expect($("#two span.section").length).toBe 0
-        expect($("#one span").text()).toBe "hello"
-        expect($("#two span").text()).toBe "world"
+        waitsFor ->
+          allDone?
+        runs ->
+          expect($("#one").length).toBe 1
+          expect($("#two").length).toBe 1
+          expect($("#one span.section").length).toBe 0
+          expect($("#two span.section").length).toBe 0
+          expect($("#one span").text()).toBe "hello"
+          expect($("#two span").text()).toBe "world"
 
     it 'should replace sections and undo', ->
         transition = history._transitions.create reload_sections
@@ -96,8 +108,12 @@ describe 'sectionsHistory module', ->
     beforeEach ->
       affix "div#one span.section"
       affix "div#two span.section"
+      history._queue.stop()
       history._transitions.last = null
       history._transitions.current = null
+
+    afterEach ->
+      history._queue = async()
 
 
     it "should update sections", ->
@@ -133,13 +149,13 @@ describe 'sectionsHistory module', ->
 
   describe 'creating invoke objects', ->
     reload_sections = 
-      sections: "<section data-selector='#one'><span>hello</span></section>\
+      sections: "<title>megatitle!</title><section data-selector='#one'><span>hello</span></section>\
       <section data-selector='#two'><span>world</span></section>"
 
     beforeEach ->
+      history._queue.stop()
       affix "div#one span.section"
       affix "div#two.widgets[data-js-modules=gradient] span.section"
-
       history._transitions.last = null
       history._transitions.current = null
 
@@ -184,12 +200,18 @@ describe 'sectionsHistory module', ->
       # expect(invoker._back["#two"].widgetsInitData[0].name).toBe('gradient')
 
     it "invoker should change sections", ->
+      allDone = no;
+      events.bind "sections:inserted", ->
+        allDone = yes
+
       invoker = new history._invoker(reload_sections.sections)
       invoker.run()
 
-      waits(500)
+      waitsFor ->
+        allDone is yes
 
       runs ->
+        expect($('title').text()).toBe "megatitle!"
         expect($("#one").length).toBe 1
         expect($("#two").length).toBe 1
         expect($("#one span").text()).toBe "hello"
@@ -202,6 +224,7 @@ describe 'sectionsHistory module', ->
       <section data-selector='#two'><span class='widgets' data-js-modules='opacity'>world</span></section>"
 
     beforeEach ->
+      history._queue.stop()
       affix "div#one span.section.widgets[data-js-modules=gradient]"
       affix "div#two span.section.widgets[data-js-modules=opacity]"
 
@@ -279,6 +302,7 @@ describe 'sectionsHistory module', ->
       storage.remove "sectionsHistory", window.location.origin
       affix "div#one span.section"
 
+      history._queue.stop()
       history._transitions.last = null
       history._transitions.current = null
       
@@ -328,6 +352,7 @@ describe 'sectionsHistory module', ->
         url: window.location.origin
         sections: "<title>TITLE!</title><section data-selector='#one'>sdkjhfksjd<span class='widgets' data-js-modules='rotation, gradient'>hello</span></section>"
 
+      history._queue.stop()
       affix "div#one span.section"
       spyOn(ajax, "get").andCallThrough()
 
@@ -430,7 +455,7 @@ describe 'sectionsHistory module', ->
       runs ->
         requestInfo = ajax.get.mostRecentCall.args[0]
         storageGetInfo = storage.get.mostRecentCall.args
-        
+
         expect(ajax.get).toHaveBeenCalled()
         expect(requestInfo.url).toBe window.location.origin
         expect(storage.get).toHaveBeenCalled()
@@ -438,7 +463,56 @@ describe 'sectionsHistory module', ->
         expect(storageGetInfo[1]).toBe window.location.origin + "|header:HEADER"
 
   describe "traversing history back", ->
+    reloadSectionsArr = null
+    originHistoryIndex = null 
+    beforeEach ->
+      history._queue.stop()
+      history._queue = async()
+      affix "div#one span.first"
+      
+      reloadSectionsArr = [
+        index: 1
+        url: "http://sections.com/one"
+        sections: "<title>TITLE! number 1</title><section data-selector='#one'>sdkjhfksjd<span class='widgets' data-js-modules='rotation, gradient'>hello</span></section>"
+      , 
+        index: 2
+        url: "http://sections.com/two"
+        sections: "<title>TITLE! number 2</title><section data-selector='#one'><span>Yo!</span>Man!</section>"
+      ,
+        index: 3
+        url: "http://sections.com/three"
+        sections: "<title>TITLE! number 3</title><section data-selector='#one'>Gangham<span class='yo'>style!</span></section>"
+      ,
+        index: 4
+        url: "http://sections.com/four"
+        sections: "<title>TITLE! number 4</title><section data-selector='#one'>Snop doggy<span class='yo'>dog!</span></section>"
+      ,
+        index: 5
+        url: "http://sections.com/five"
+        sections: "<title>TITLE! number 5</title><section data-selector='#one'><span class='end'>circus end!</span></section>"
+      ]
+
+    afterEach ->
+      # window.history.go 1
+
     it "should change layout to previous state", ->
+      allDone = no
+      for state in reloadSectionsArr
+        history._transitions.create state
+
+      events.bind "pageTransition:success", (info) ->
+        if info.direction is "back"
+          allDone = yes
+
+      history._transitions.go 1
+
+
+      waitsFor ->
+        allDone
+      runs ->
+        expect($("title").text()).toBe "TITLE! number 1"
+        expect($("#one span").text()).toBe "hello"
+
     it "should change url to previous state", ->
     it "should change layout to previous 3th state, when going to 3th prev state", ->
     it "should change url to previous 3th state, when going to 3th prev state", ->

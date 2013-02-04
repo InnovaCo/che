@@ -12,14 +12,17 @@ define [
   'dom', 
   'ajax',
   'config',
+  'lib/async',
   'utils/storage',
   'utils/destroyer',
   'utils/widgetsData',
-  'underscore'], (events, history, widgets, loader, dom, ajax, config, storage, destroyer, widgetsData, _) ->
+  'underscore'], (events, history, widgets, loader, dom, ajax, config, async, storage, destroyer, widgetsData, _) ->
   ### 
   data:
     <selector>: <plainHTML>
   ###
+
+  asyncQueue = async()
 
   helpers = 
     stateId: (state) ->
@@ -68,7 +71,7 @@ define [
 
     if @state.sections?
       @_invoker = new Invoker @state.sections
-      @invoke()
+      last.next()
 
     return @
 
@@ -102,24 +105,29 @@ define [
     # Переход вперед. Если переданы параметры перехода, то создается новый объект и ссылка на него записыватся в @next
     #
     next: (to_transition) ->
-      if to_transition is @index
-        return @
-      
-      if @next_transition?
+      if to_transition isnt @index and @next_transition?
         @next_transition.invoke()
         if to_transition? then @next_transition.next(to_transition)
+
+      if to_transition is @index or not to_transition
+        asyncQueue.next ->
+          
+          events.trigger "pageTransition:success",
+            direction: "forward"
 
     #### Transition::prev([to_transition])
     #
     # Переход назад
     #
     prev: (to_transition) ->
-      if to_transition is @index
-        return @
-
-      if @prev_transition?
+      if to_transition isnt @index and @prev_transition?
         @undo()
         if to_transition? then @prev_transition.prev(to_transition)
+
+      if to_transition is @index or not to_transition
+        asyncQueue.next ->
+          events.trigger "pageTransition:success",
+            direction: "back"
 
 
     #### Transition::undo()
@@ -165,39 +173,41 @@ define [
     # Применение действий перехода, а также генерация данных для обратного перехода
     #
     run: ->
+
       if @_is_applied
         @undo()
-
       if not @_is_sections_updated or not @_forward or not @_back
+        asyncQueue.next =>
+          reloadSectionsHtml = dom @reloadSections
 
-        reloadSectionsHtml = dom @reloadSections
-        currentTitle = dom('title')[0]
-        nextTitle = reloadSectionsHtml.find('title')[0]
+          if not dom('title')[0]
+            dom('head')[0].appendChild document.createElement('title')
 
-        @_back = {}
-        @_forward = {}
-        if currentTitle
-          @_back.title = currentTitle.childNodes[0]
+          @_back = {}
+          @_forward = {}
 
-        if nextTitle
-          @_forward.title = nextTitle.childNodes[0]
+          for element in reloadSectionsHtml.get()
+            nodeName = element.nodeName.toLowerCase()
 
-        for element in reloadSectionsHtml.get()
-          nodeName = element.nodeName.toLowerCase()
-          if nodeName is config.sectionTagName
-            selector = element.getAttribute "data-#{config.sectionSelectorAttributeName}"
-          else if nodeName is 'title'
-            selector = nodeName
-          else
-            continue
+            if nodeName is config.sectionTagName
+              selector = element.getAttribute "data-#{config.sectionSelectorAttributeName}"
+            else if nodeName is 'title'
+              selector = nodeName
+            else
+              continue
 
-          if dom(selector)[0]?
-            @_back[selector] = Array.prototype.slice.call dom(selector)[0].childNodes
-            @_forward[selector] = Array.prototype.slice.call element.childNodes
+            if dom(selector)[0]?
+              @_back[selector] = Array.prototype.slice.call dom(selector)[0].childNodes
+              @_forward[selector] = Array.prototype.slice.call element.childNodes
 
         @_is_sections_updated = yes
 
-      @_insertSections @_forward, @_back
+
+      asyncQueue.next =>
+        forward: @_forward
+        back: @_back
+
+      @_insertSections()
       @_is_applied = yes
 
     #### Invoker::undo()
@@ -205,8 +215,12 @@ define [
     # Отмена действий перехода
     #
     undo: ->
-      return false if not @_forward and not @_back or @_is_applied isnt true
-      @_insertSections @_back, @_forward
+      return false if @_is_applied isnt true
+      asyncQueue.next =>
+        forward: @_back or {}
+        back: @_forward or {}
+
+      @_insertSections()
       @_is_applied = no
 
 
@@ -215,30 +229,37 @@ define [
     # Вставка секций forward вместо секций back
     #
     _insertSections: (forward, back, selectors) ->
-      selectors = selectors or _.keys back
-      return events.trigger "sections:inserted" if selectors.length is 0
 
-      selector = selectors.shift()
+      asyncQueue.next (sections) ->
+        insertionData = {}
 
-      if selector is "title"
-        dom('title')[0].innerHTML = forward[selector]
-        return @_insertSections forward, back, selectors
+        for selector in _.keys sections.back
+          insertionData[selector] = 
+            back: sections.back[selector]
+            forward: sections.forward[selector]
 
-      loader.search forward[selector], (widgetsList) =>
+        insertionData
 
-        container = dom(selector)[0]
-        
-        for element in back[selector]
-          if element.parentNode?
-            element.parentNode.removeChild element
+      .each (section, selector, context) ->
+        context.pause()
 
-          for data in widgetsData element
-            widgets.get(data.name, data.element)?.turnOff()
+        loader.search section.forward, (widgetsList) =>
+          container = dom(selector)[0]
+          
+          for element in section.back
+            if element.parentNode?
+              element.parentNode.removeChild element
 
-        for element in forward[selector]
-          container.appendChild element
+            for data in widgetsData element
+              widgets.get(data.name, data.element)?.turnOff()
 
-        return @_insertSections forward, back, selectors
+          for element in section.forward
+            container.appendChild element
+         
+          context.resume()
+
+      .next ->
+        events.trigger "sections:inserted"
 
   #----
 
@@ -284,7 +305,6 @@ define [
     storage.save "sectionsHistory", helpers.stateId(state), state
     transitions.create state
 
-
   #### Обработка pageTransition:init
   #
   # Проверяется, есть ли такие секции уже в localStorage, если есть, то используем их и параллельно смотрим на сервере
@@ -316,3 +336,4 @@ define [
   _transitions: transitions
   _transition: Transition
   _invoker: Invoker
+  _queue: asyncQueue

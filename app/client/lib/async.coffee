@@ -38,23 +38,22 @@ define ["underscore"], (_) ->
     complete_handlers.push complete  if _.isFunction(complete)
 
     iteration_complete = ->
+      state.is_complete = true
       state.result = state.data unless state.result
       helpers.call_complete_handlers complete_handlers, state, balancer
 
     iteration = if _.isFunction iterator then ->
       return false if state.is_wait
-      if keys.length isnt 0 and not state.is_complete
-        next_index = keys.shift()
-        result = iterator state.data[next_index], next_index, iteration_initializer
-        if result isnt undefined
-          state.result = (if _.isArray state.data then [] else {}) unless state.result
-          state.result[next_index] = result
-      else
-        state.is_complete = true
-        iteration_complete()
-        return state
+      return iteration_complete() if state.is_complete or keys.length is 0
+
+      next_index = keys.shift()
+      result = iterator state.data[next_index], next_index, iteration_initializer
+      if result isnt undefined
+        state.result = (if _.isArray state.data then [] else {}) unless state.result
+        state.result[next_index] = result
 
       balancer.start iteration
+
 
     else ->
       state.is_complete = true
@@ -74,6 +73,7 @@ define ["underscore"], (_) ->
       iteration_complete() if state.is_complete
 
     iteration_initializer.stop = ->
+      keys = []
       state.is_complete = true
 
     iteration_initializer.pause = () ->
@@ -90,6 +90,8 @@ define ["underscore"], (_) ->
     @_last_iteration = async_iterate()
     @_last_iteration data or []
     @_balancer = new BatchBalancer
+    @_id = _.uniqueId()
+    @_current_iteration = @_last_iteration
     @
 
   Worker:: =
@@ -97,13 +99,16 @@ define ["underscore"], (_) ->
       new_iteration = async_iterate(data.iterator, @_balancer, data.complete)
       prev_iteration = @_last_iteration
       @_last_iteration = new_iteration
-      prev_iteration.complete (state) ->
+      prev_iteration.complete (state) => 
+        @_current_iteration = new_iteration
         new_iteration state.result
 
       @
 
+
     stop: ->
-      @_last_iteration.stop()
+      @_current_iteration.stop()
+        
       @
 
     use: (data) ->

@@ -22,15 +22,15 @@ define [
       widgetsCount = _.keys(listWidgetsData).length
       list = []
       if widgetsCount is 0
-        return ready?(list)
-
-      for data in listWidgetsData
-        widgets.create data.name, data.element, (widget) ->
-          list.push widget
-          widget.turnOn()
-          widgetsCount -= 1
-          if widgetsCount is 0
-            ready?(list, listWidgetsData)
+        ready?(list)
+      else
+        for data in listWidgetsData
+          widgets.create data.name, data.element, (widget) ->
+            list.push widget
+            widget.turnOn()
+            widgetsCount -= 1
+            if widgetsCount is 0
+              ready?(list, listWidgetsData)
 
     #### search(node)
     #
@@ -40,7 +40,6 @@ define [
       loader.widgets widgetsData(node), ready
 
 
-  
   # сразу запускает поиск виджетов
   loader.search()
 

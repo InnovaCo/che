@@ -19,15 +19,24 @@ describe 'sectionsHistory module', ->
 
   resetModules = () ->
     events.list = bindedEvents
-    history._queue.stop()
     history._transitions.last = null
-    console.log "reset"
     history._transitions.current = history._transitions.create()
+
+    
+
 
   beforeEach ->
     spyOn(browserHistory, "pushState")
     waitsFor ->
       history?
+
+  afterEach ->
+    allDone = false
+    history._queue.stop()
+    history._queue.next ->
+      allDone = true
+    waitsFor ->
+      allDone
 
   describe 'creating transitions', ->
     beforeEach ->
@@ -66,21 +75,19 @@ describe 'sectionsHistory module', ->
     beforeEach ->
       affix "div#one span.section"
       affix "div#two span.section"
-      events.list = {}
-      history._queue.stop()
-      history._transitions.last = null
-      history._transitions.current = history._transitions.create()
+      resetModules()
 
     it 'should replace sections', ->
-        allDone = false
+        sectionsReplaced = false
 
-        events.bind "sections:inserted", ->
-          allDone = true
+        events.bind "pageTransition:success", ->
+          sectionsReplaced = true
 
         transition = history._transitions.create reload_sections
 
         waitsFor ->
-          allDone?
+          sectionsReplaced
+
         runs ->
           expect($("#one").length).toBe 1
           expect($("#two").length).toBe 1
@@ -111,7 +118,6 @@ describe 'sectionsHistory module', ->
         expect($("#two span.section").length).toBe 0
 
         transition.prev()
-        console.log "prev"
 
         waitsFor ->
           allDone
@@ -369,7 +375,6 @@ describe 'sectionsHistory module', ->
       events.bind "sectionsTransition:invoked", ->
         allDone = yes
 
-      console.log "load"
       events.trigger "sections:loaded", reload_sections
 
       waitsFor ->
@@ -468,7 +473,6 @@ describe 'sectionsHistory module', ->
         allDone is yes
 
       runs ->
-        console.log "AJAXX", ajax.get.calls
         requestInfo = ajax.get.mostRecentCall.args[0]
 
         expect(ajax.get).toHaveBeenCalled()
@@ -520,10 +524,10 @@ describe 'sectionsHistory module', ->
 
   describe "traversing history back", ->
     reloadSectionsArr = null
-    originHistoryIndex = null 
+    originHistoryIndex = null
     beforeEach ->
       resetModules()
-      affix "div#one span.first"
+      affix "div.backHistory#one span.first"
       
       reloadSectionsArr = [
         index: 1
@@ -552,23 +556,20 @@ describe 'sectionsHistory module', ->
 
     it "should change layout to previous state", ->
       allDone = no
-      for state in reloadSectionsArr
-        history._transitions.create state
-
       events.bind "pageTransition:success", (info) ->
-        console.log arguments
         if info.direction is "back"
           allDone = yes
 
-      history._transitions.go 1
-      console.log "go!"
+      for state in reloadSectionsArr
+        history._transitions.create state
 
+      history._transitions.go 1
 
       waitsFor ->
         allDone
       runs ->
         expect($("title").text()).toBe "TITLE! number 1"
-        expect($("#one span").text()).toBe "hello"
+        expect($("div.backHistory#one span.widgets").text()).toBe "hello"
 
     it "should change url to previous state", ->
     it "should change layout to previous 3th state, when going to 3th prev state", ->

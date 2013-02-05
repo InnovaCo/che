@@ -128,7 +128,6 @@ define [
 
       if to_transition is @index or not to_transition
         asyncQueue.next ->
-          console.log "TRIGGER success"
           events.trigger "pageTransition:success",
             direction: "back"
       @
@@ -237,7 +236,6 @@ define [
 
       asyncQueue.next (sections) ->
         insertionData = {}
-
         for selector in _.keys sections.back
           insertionData[selector] = 
             back: sections.back[selector]
@@ -250,17 +248,22 @@ define [
 
         loader.search section.forward, (widgetsList) =>
           container = dom(selector)[0]
-          
+
+          for element in Array.prototype.slice.call container.childNodes
+            element.parentNode.removeChild element
+
+          for element in section.forward
+            container.appendChild element
+
           for element in section.back
-            if element.parentNode?
-              element.parentNode.removeChild element
+            # if element.parentNode?
+            #   element.parentNode.removeChild element
 
             for data in widgetsData element
               widgets.get(data.name, data.element)?.turnOff()
 
-          for element in section.forward
-            container.appendChild element
-         
+          
+          
           context.resume()
 
       .next ->

@@ -12,9 +12,7 @@ define [], () ->
       @
 
     start: () ->
-      console.log "start", @period
       @_interval = setTimeout =>
-        console.log "call setTimeout: ", @period, @_callbacks
         @_tick()
         @start()
       , @period

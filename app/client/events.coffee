@@ -27,13 +27,11 @@ define ['underscore'],  (_) ->
     
     ####  Oops.prototype._handlerCaller
     #
-    # Вызывает очередного обработчика, прерывает цепочку, если обаботчик вернул false
+    # Вызывает очередного обработчика
     #
-    _handlerCaller: (handler, args)->
-      result = handler.apply handler.context, args
-      # to stop propagation
-      if result is false
-        @_handlersCallOrder = []
+    _handlerCaller: (handler, args) ->
+      handler.apply handler.context, args
+      
 
     
     ####  Oops.prototype._nextHandlerCall
@@ -44,13 +42,12 @@ define ['underscore'],  (_) ->
       handlerId = @_handlersCallOrder.shift()
       if handlerId
         handler = @_handlers[handlerId]
-        self = @
         if handler.options.isSync
           @_handlerCaller handler, args
         else
-          _.delay -> 
-            self._handlerCaller handler, args
-        @_nextHandlerCall()
+          _.delay => 
+            @_handlerCaller handler, args
+        @_nextHandlerCall(args)
 
     
     ####  Oops.prototype.dispatch(args)
@@ -63,7 +60,7 @@ define ['underscore'],  (_) ->
       args.push this._data()
       @_lastArgs = args
 
-      @_nextHandlerCall(args)
+      @_nextHandlerCall args 
       @
 
     

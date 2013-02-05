@@ -6,14 +6,23 @@ describe 'sectionsHistory module', ->
   browserHistory = null
   ajax = null
   async = null
+  bindedEvents = null
   require ['sectionsHistory', 'events', 'widgets', 'utils/storage', 'history', 'ajax', 'lib/async'], (historyModule, eventsModule, widgetsModule, storageModule, browserHistoryModule, ajaxModule, asyncModule) ->
     history = historyModule
     events = eventsModule
+    bindedEvents = events.list
     widgets = widgetsModule
     storage = storageModule
     browserHistory = browserHistoryModule
     ajax = ajaxModule
     async = asyncModule
+
+  resetModules = () ->
+    events.list = bindedEvents
+    history._queue.stop()
+    history._transitions.last = null
+    console.log "reset"
+    history._transitions.current = history._transitions.create()
 
   beforeEach ->
     spyOn(browserHistory, "pushState")
@@ -22,9 +31,7 @@ describe 'sectionsHistory module', ->
 
   describe 'creating transitions', ->
     beforeEach ->
-      history._queue.stop()
-      history._transitions.last = null
-      history._transitions.current = history._transitions.create()
+      resetModules()
 
     it 'should create transition and set firstTransition and currentTransition', ->
         transition = history._transitions.create({index: 1})
@@ -59,6 +66,7 @@ describe 'sectionsHistory module', ->
     beforeEach ->
       affix "div#one span.section"
       affix "div#two span.section"
+      events.list = {}
       history._queue.stop()
       history._transitions.last = null
       history._transitions.current = history._transitions.create()
@@ -115,53 +123,82 @@ describe 'sectionsHistory module', ->
 
   describe 'updating transitions', ->
     reload_sections = 
+      url: "test.com"
       sections: "<section data-selector='#one'><span>hello</span></section>\
       <section data-selector='#two'><span>world</span></section>"
 
     update_sections = 
+      url: "test.com"
       sections: "<section data-selector='#one'><span>Hello</span></section>\
       <section data-selector='#two'><span>Universe</span></section>"
 
     beforeEach ->
       affix "div#one span.section"
       affix "div#two span.section"
-      history._queue.stop()
-      history._transitions.last = null
-      history._transitions.current = history._transitions.create()
-
-    afterEach ->
-      history._queue = async()
+      resetModules()
 
 
     it "should update sections", ->
+        isCreated = no
+
+        events.bind "pageTransition:success", ->
+          isCreated = yes
+
         transition = history._transitions.create reload_sections
 
-        expect($("#one").length).toBe 1
-        expect($("#two").length).toBe 1
-        expect($("#one span").text()).toBe "hello"
-        expect($("#two span").text()).toBe "world"
+        waitsFor ->
+          isCreated
 
-        transition.update update_sections
+        runs ->
 
-        expect($("#one").length).toBe 1
-        expect($("#two").length).toBe 1
-        expect($("#one span").text()).toBe "Hello"
-        expect($("#two span").text()).toBe "Universe"
+          expect($("#one").length).toBe 1
+          expect($("#two").length).toBe 1
+          expect($("#one span").text()).toBe "hello"
+          expect($("#two span").text()).toBe "world"
+
+          isUPdated = no
+
+          events.bind "pageTransition:updated", ->
+            isUPdated = yes
+
+          transition.update _.extend({}, update_sections)
+
+          waitsFor ->
+            isUPdated
+
+          runs ->
+            expect($("#one").length).toBe 1
+            expect($("#two").length).toBe 1
+            expect($("#one span").text()).toBe "Hello"
+            expect($("#two span").text()).toBe "Universe"
 
     it "shouldn't update sections", ->
+        isCreated = no
+
+        events.bind "pageTransition:success", ->
+          isCreated = yes
+
         transition = history._transitions.create reload_sections
 
-        expect($("#one").length).toBe 1
-        expect($("#two").length).toBe 1
-        expect($("#one span").text()).toBe "hello"
-        expect($("#two span").text()).toBe "world"
+        waitsFor ->
+          isCreated
 
-        transition.update _.extend({}, update_sections, {url: "url"})
+        runs ->
 
-        expect($("#one").length).toBe 1
-        expect($("#two").length).toBe 1
-        expect($("#one span").text()).toBe "hello"
-        expect($("#two span").text()).toBe "world"
+          expect($("#one").length).toBe 1
+          expect($("#two").length).toBe 1
+          expect($("#one span").text()).toBe "hello"
+          expect($("#two span").text()).toBe "world"
+
+          transition.update _.extend({}, reload_sections, {url: "url"})
+
+          waits 500
+
+          runs ->
+            expect($("#one").length).toBe 1
+            expect($("#two").length).toBe 1
+            expect($("#one span").text()).toBe "hello"
+            expect($("#two span").text()).toBe "world"
 
 
   describe 'creating invoke objects', ->
@@ -170,11 +207,9 @@ describe 'sectionsHistory module', ->
       <section data-selector='#two'><span>world</span></section>"
 
     beforeEach ->
-      history._queue.stop()
       affix "div#one span.section"
       affix "div#two.widgets[data-js-modules=gradient] span.section"
-      history._transitions.last = null
-      history._transitions.current = history._transitions.create()
+      resetModules()
 
     it "should create invoke object if sections are specified", ->
       transition = history._transitions.create reload_sections
@@ -193,21 +228,29 @@ describe 'sectionsHistory module', ->
       expect(invoker._is_sections_updated).toBe false
 
     it "invoker should contain data for forward and backward transitions after it have ran", ->
+      isInvoked = no
       invoker = new history._invoker(reload_sections.sections)
       invoker.run()
 
-      expect(invoker._back).toBeDefined()
-      expect(invoker._back["#one"]).toBeDefined()
-      expect(invoker._back["#two"]).toBeDefined()
-      expect(invoker._back["#one"][0].outerHTML.toLowerCase()).toBe("<span class=\"section\"></span>")
-      expect(invoker._back["#one"][0].getAttribute("class")).toBe("section")
-      # expect(invoker._back["#two"].widgetsInitData).toBeDefined()
+      history._queue.next ->
+        isInvoked = yes
 
-      expect(invoker._forward).toBeDefined()
-      expect(invoker._forward["#one"]).toBeDefined()
-      expect(invoker._forward["#two"]).toBeDefined()
-      expect(invoker._forward["#one"][0].innerHTML.toLowerCase()).toBe("hello")
-      expect(invoker._forward["#one"][0].getAttribute("class")).toBe(null)
+      waitsFor ->
+        isInvoked
+
+      runs ->
+        expect(invoker._back).toBeDefined()
+        expect(invoker._back["#one"]).toBeDefined()
+        expect(invoker._back["#two"]).toBeDefined()
+        expect(invoker._back["#one"][0].outerHTML.toLowerCase()).toBe("<span class=\"section\"></span>")
+        expect(invoker._back["#one"][0].getAttribute("class")).toBe("section")
+        # expect(invoker._back["#two"].widgetsInitData).toBeDefined()
+
+        expect(invoker._forward).toBeDefined()
+        expect(invoker._forward["#one"]).toBeDefined()
+        expect(invoker._forward["#two"]).toBeDefined()
+        expect(invoker._forward["#one"][0].innerHTML.toLowerCase()).toBe("hello")
+        expect(invoker._forward["#one"][0].getAttribute("class")).toBe(null)
 
     it "invoker contain data for widgets turning off", ->
       invoker = new history._invoker(reload_sections.sections)
@@ -241,12 +284,10 @@ describe 'sectionsHistory module', ->
       <section data-selector='#two'><span class='widgets' data-js-modules='opacity'>world</span></section>"
 
     beforeEach ->
-      history._queue.stop()
       affix "div#one span.section.widgets[data-js-modules=gradient]"
       affix "div#two span.section.widgets[data-js-modules=opacity]"
 
-      history._transitions.last = null
-      history._transitions.current = history._transitions.create()
+      resetModules()
 
       spyOn(widgets, "create").andCallThrough()
 
@@ -319,9 +360,7 @@ describe 'sectionsHistory module', ->
       storage.remove "sectionsHistory", window.location.origin
       affix "div#one span.section"
 
-      history._queue.stop()
-      history._transitions.last = null
-      history._transitions.current = history._transitions.create()
+      resetModules()
       
 
 
@@ -330,6 +369,7 @@ describe 'sectionsHistory module', ->
       events.bind "sectionsTransition:invoked", ->
         allDone = yes
 
+      console.log "load"
       events.trigger "sections:loaded", reload_sections
 
       waitsFor ->
@@ -365,11 +405,10 @@ describe 'sectionsHistory module', ->
   describe 'loading transition sections', ->
     reload_sections = null
     beforeEach ->
+      resetModules()
       reload_sections = 
         url: window.location.origin
         sections: "<title>TITLE!</title><section data-selector='#one'>sdkjhfksjd<span class='widgets' data-js-modules='rotation, gradient'>hello</span></section>"
-
-      history._queue.stop()
       affix "div#one span.section"
       spyOn(ajax, "get").andCallThrough()
 
@@ -483,8 +522,7 @@ describe 'sectionsHistory module', ->
     reloadSectionsArr = null
     originHistoryIndex = null 
     beforeEach ->
-      history._queue.stop()
-      history._queue = async()
+      resetModules()
       affix "div#one span.first"
       
       reloadSectionsArr = [

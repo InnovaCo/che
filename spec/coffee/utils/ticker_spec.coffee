@@ -7,7 +7,6 @@ describe "utils/ticker module", ->
       ticker = tickerModule
 
     jasmine.Clock.useMock()
-    console.log setTimeout, jasmine.Clock.installed.setTimeout, jasmine.Clock.tick
     waitsFor ->
       ticker?
 

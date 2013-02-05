@@ -68,7 +68,6 @@ define [
     if last?
       @prev_transition = last
       last.next_transition = @
-
     if @state.sections?
       @_invoker = new Invoker @state.sections
       last.next()
@@ -98,6 +97,9 @@ define [
 
         @invoke()
 
+        asyncQueue.next ->
+          events.trigger "pageTransition:updated", {}
+
 
 
     #### Transition::next([to_transition])
@@ -111,7 +113,6 @@ define [
 
       if to_transition is @index or not to_transition
         asyncQueue.next ->
-          
           events.trigger "pageTransition:success",
             direction: "forward"
       @
@@ -127,6 +128,7 @@ define [
 
       if to_transition is @index or not to_transition
         asyncQueue.next ->
+          console.log "TRIGGER success"
           events.trigger "pageTransition:success",
             direction: "back"
       @
@@ -206,6 +208,7 @@ define [
 
 
       asyncQueue.next =>
+
         forward: @_forward
         back: @_back
 
@@ -303,7 +306,6 @@ define [
   # Секции сохраняются в localStorage, и далее отдаются на инициализацию
   #
   events.bind "sections:loaded", (state) ->
-
     storage.save "sectionsHistory", helpers.stateId(state), state
     transitions.create state
 

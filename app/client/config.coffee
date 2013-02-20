@@ -7,6 +7,6 @@ define
   widgetClassName: 'widget'
   widgetDataAttributeName: 'data-js-modules'
   reloadSectionsDataAttributeName: 'data-reload-sections'
-  baseWidgetsPath: 'widgets/'
+  baseWidgetsPath: ''
   sectionTagName: "section"
   sectionSelectorAttributeName: "selector"

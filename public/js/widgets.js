@@ -1,7 +1,7 @@
 (function() {
 
   define(["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"], function(events, dom, destroyer, config, guid, _) {
-    var Widget, bindWidgetDomEvents, bindWidgetModuleEvents, eventSplitter, unbindWidgetDomEvents, unbindWidgetModuleEvents, widgets, widgetsInstances;
+    var Widget, bindWidgetDomEvents, bindWidgetModuleEvents, eventSplitter, unbindWidgetDomEvents, unbindWidgetModuleEvents, widgets, widgetsInstances, widgetsInterface;
     widgetsInstances = {};
     eventSplitter = /^(\S+)\s*(.*)$/;
     bindWidgetDomEvents = function(eventsList, widget) {
@@ -43,7 +43,7 @@
     widgets = {
       _instances: {},
       _id_attr: function(name) {
-        return ("data-" + name + "-id").replace("/", "-");
+        return ("data-" + name + "-id").replace(/\//g, "-");
       },
       remove: function(widget) {
         widget.element.removeAttribute(this._id_attr(widget.name));
@@ -78,7 +78,7 @@
       this.turnOn();
       return this.isInitialized = true;
     };
-    return Widget.prototype = {
+    Widget.prototype = {
       turnOn: function() {
         if (this._isOn) {
           return;
@@ -100,7 +100,9 @@
       destroy: function() {
         this.turnOff();
         return widgets.remove(this);
-      },
+      }
+    };
+    return widgetsInterface = {
       _manager: widgets,
       _constructor: Widget,
       get: function(name, element) {

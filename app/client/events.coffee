@@ -137,7 +137,6 @@ define ['underscore'],  (_) ->
     # Создает новое событие, либо отдает уже созданное
     #
     create: (name) ->
-      if @_id is "root" then window.evnts.push(_.keys(@list).join(""))
       @list[name] = @list[name] or new Oops name
 
     

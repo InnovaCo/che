@@ -4,4 +4,4 @@
 
 # Подключает модули 'loader', 'lib/domReady'
 
-requirejs ['loader', 'clicks', 'sectionsHistory'], (loader) ->
+requirejs ['loader', 'clicks', 'sections'], (loader) ->

@@ -1,14 +1,31 @@
-describe 'sectionsHistory module', ->
-  history = null
+describe 'sections module', ->
+  sections = null
   events = null
   widgets = null
   storage = null
   browserHistory = null
   ajax = null
   async = null
+  queue = null
   bindedEvents = null
-  require ['sectionsHistory', 'events', 'widgets', 'utils/storage', 'history', 'ajax', 'lib/async'], (historyModule, eventsModule, widgetsModule, storageModule, browserHistoryModule, ajaxModule, asyncModule) ->
-    history = historyModule
+  Invoker = null
+  sectionsLoader = null
+  require [
+    'sections',
+    'sections/asyncQueue', 
+    'sections/invoker',
+    'sections/loader',
+    'events',
+    'widgets',
+    'utils/storage',
+    'history',
+    'ajax',
+    'lib/async'
+    ], (sectionsModule, queueModule, invokerModule, loaderModule, eventsModule, widgetsModule, storageModule, browserHistoryModule, ajaxModule, asyncModule) ->
+    sections = sectionsModule
+    queue = queueModule
+    Invoker = invokerModule
+    sectionsLoader = loaderModule
     events = eventsModule
     bindedEvents = events.list
     widgets = widgetsModule
@@ -19,21 +36,20 @@ describe 'sectionsHistory module', ->
 
   resetModules = () ->
     events.list = bindedEvents
-    history._transitions.last = null
-    history._transitions.current = history._transitions.create()
+    sections._transitions.last = null
+    sections._transitions.current = sections._transitions.create()
 
     
-
-
   beforeEach ->
     spyOn(browserHistory, "pushState")
+    
     waitsFor ->
-      history?
+      sections?
 
   afterEach ->
     allDone = false
-    history._queue.stop()
-    history._queue.next ->
+    queue.stop()
+    queue.next ->
       allDone = true
     waitsFor ->
       allDone
@@ -43,25 +59,28 @@ describe 'sectionsHistory module', ->
       resetModules()
 
     it 'should create transition and set firstTransition and currentTransition', ->
-        transition = history._transitions.create({index: 1})
-        nextTransition = history._transitions.create({sections: ""})
+      jasmine.Clock.useMock();
+      transition = sections._transitions.create({index: 1})
+      nextTransition = sections._transitions.create({sections: ""})
 
-        expect(history._transitions.last).toBe(nextTransition)
-        expect(history._transitions.current).toBe(nextTransition)
+      jasmine.Clock.tick(1000);
+
+      expect(sections._transitions.last).toBe(nextTransition)
+      expect(sections._transitions.current).toBe(nextTransition)
 
     it 'should create transition and set previous created as .prev_transition', ->
-        transition = history._transitions.create({})
-        nextTransition = history._transitions.create({})
+      transition = sections._transitions.create({})
+      nextTransition = sections._transitions.create({})
 
-        expect(transition).toBe(nextTransition.prev_transition)
-        expect(transition.next_transition).toBe(nextTransition)
+      expect(transition).toBe(nextTransition.prev_transition)
+      expect(transition.next_transition).toBe(nextTransition)
 
     it 'should destroy first transition after 10 new created', ->
-      firstTransition = history._transitions.create {widgets: {}}
+      firstTransition = sections._transitions.create {widgets: {}}
 
       transition = firstTransition
       for i in [1...10]
-        transition = history._transitions.create {index: i, widgets: {}}
+        transition = sections._transitions.create {index: i, widgets: {}}
 
       expect(firstTransition).toBeEmpty()
 
@@ -83,7 +102,7 @@ describe 'sectionsHistory module', ->
         events.bind "pageTransition:success", ->
           sectionsReplaced = true
 
-        transition = history._transitions.create reload_sections
+        transition = sections._transitions.create reload_sections
 
         waitsFor ->
           sectionsReplaced
@@ -100,10 +119,9 @@ describe 'sectionsHistory module', ->
       allDoneForward = no
       allDone = no
       events.bind "pageTransition:success", (info) ->
-        allDone = info.direction is "back"
-        allDoneForward = info.direction is "forward"
+        allDoneForward = info.transition.index is 1
 
-      transition = history._transitions.create reload_sections
+      transition = sections._transitions.create reload_sections
 
       waitsFor ->
         allDoneForward
@@ -117,7 +135,11 @@ describe 'sectionsHistory module', ->
         expect($("#one span.section").length).toBe 0
         expect($("#two span.section").length).toBe 0
 
+        events.bind "pageTransition:success", (info) ->
+          allDone = info.transition.index is 0
+
         transition.prev()
+
 
         waitsFor ->
           allDone
@@ -150,7 +172,7 @@ describe 'sectionsHistory module', ->
         events.bind "pageTransition:success", ->
           isCreated = yes
 
-        transition = history._transitions.create reload_sections
+        transition = sections._transitions.create reload_sections
 
         waitsFor ->
           isCreated
@@ -184,7 +206,7 @@ describe 'sectionsHistory module', ->
         events.bind "pageTransition:success", ->
           isCreated = yes
 
-        transition = history._transitions.create reload_sections
+        transition = sections._transitions.create reload_sections
 
         waitsFor ->
           isCreated
@@ -218,15 +240,15 @@ describe 'sectionsHistory module', ->
       resetModules()
 
     it "should create invoke object if sections are specified", ->
-      transition = history._transitions.create reload_sections
+      transition = sections._transitions.create reload_sections
       expect(transition._invoker).toBeDefined()
 
     it "shouldn't create invoke object 'cause sections arn't specified", ->
-      transition = history._transitions.create {}
+      transition = sections._transitions.create {}
       expect(transition._invoker).not.toBeDefined()
 
     it "invoker shouldn't contain data for forward and backward transitions right after initialization", ->
-      invoker = new history._invoker(reload_sections.sections)
+      invoker = new Invoker(reload_sections.sections)
 
       expect(invoker._back).toBe null
       expect(invoker._forward).toBe null
@@ -235,10 +257,10 @@ describe 'sectionsHistory module', ->
 
     it "invoker should contain data for forward and backward transitions after it have ran", ->
       isInvoked = no
-      invoker = new history._invoker(reload_sections.sections)
+      invoker = new Invoker(reload_sections.sections)
       invoker.run()
 
-      history._queue.next ->
+      queue.next ->
         isInvoked = yes
 
       waitsFor ->
@@ -259,7 +281,7 @@ describe 'sectionsHistory module', ->
         expect(invoker._forward["#one"][0].getAttribute("class")).toBe(null)
 
     it "invoker contain data for widgets turning off", ->
-      invoker = new history._invoker(reload_sections.sections)
+      invoker = new Invoker(reload_sections.sections)
       invoker.run()
 
       # expect(invoker._back["#two"].widgetsInitData).toBeDefined()
@@ -270,7 +292,7 @@ describe 'sectionsHistory module', ->
       events.bind "sections:inserted", ->
         allDone = yes
 
-      invoker = new history._invoker(reload_sections.sections)
+      invoker = new Invoker(reload_sections.sections)
       invoker.run()
 
       waitsFor ->
@@ -286,12 +308,12 @@ describe 'sectionsHistory module', ->
 
   describe 'initilize widgets', ->
     reload_sections = 
-      sections: "<section data-selector='#one'><span class='widgets' data-js-modules='rotation, gradient'>hello</span></section>\
-      <section data-selector='#two'><span class='widgets' data-js-modules='opacity'>world</span></section>"
+      sections: "<section data-selector='#one'><span class='widgets' data-js-modules='widgets/rotation, widgets/gradient'>hello</span></section>\
+      <section data-selector='#two'><span class='widgets' data-js-modules='widgets/opacity'>world</span></section>"
 
     beforeEach ->
-      affix "div#one span.section.widgets[data-js-modules=gradient]"
-      affix "div#two span.section.widgets[data-js-modules=opacity]"
+      affix("div#one span.section.widgets").find('span').attr("data-js-modules", "widgets/gradient")
+      affix("div#two span.section.widgets").find('span').attr("data-js-modules", "widgets/opacity")
 
       resetModules()
 
@@ -302,7 +324,7 @@ describe 'sectionsHistory module', ->
       events.bind "sections:inserted", ->
         allDone = yes
 
-      invoker = new history._invoker(reload_sections.sections)
+      invoker = new Invoker(reload_sections.sections)
       invoker.run()
 
       waitsFor ->
@@ -311,15 +333,15 @@ describe 'sectionsHistory module', ->
       runs ->
         expect(widgets.create.calls.length).toBe(3)
 
-        expect(widgets.create.calls[0].args[0]).toBe("rotation")
+        expect(widgets.create.calls[0].args[0]).toBe("widgets/rotation")
         expect(widgets.create.calls[0].args[1]).toBeDomElement()
         expect(widgets.create.calls[0].args[2]).toBeFunction()
 
-        expect(widgets.create.calls[1].args[0]).toBe("gradient")
+        expect(widgets.create.calls[1].args[0]).toBe("widgets/gradient")
         expect(widgets.create.calls[1].args[1]).toBeDomElement()
         expect(widgets.create.calls[1].args[2]).toBeFunction()
 
-        expect(widgets.create.calls[2].args[0]).toBe("opacity")
+        expect(widgets.create.calls[2].args[0]).toBe("widgets/opacity")
         expect(widgets.create.calls[2].args[1]).toBeDomElement()
         expect(widgets.create.calls[2].args[2]).toBeFunction()
 
@@ -328,8 +350,8 @@ describe 'sectionsHistory module', ->
 
       allwidgetsReady = no
 
-      widgets.create "gradient", $("#one span")[0]
-      widgets.create "opacity", $("#two span")[0]
+      widgets.create "widgets/gradient", $("#one span")[0]
+      widgets.create "widgets/opacity", $("#two span")[0]
 
       require ["widgets/gradient", "widgets/rotation", "widgets/opacity"], () ->
         allwidgetsReady = yes
@@ -338,14 +360,14 @@ describe 'sectionsHistory module', ->
         allwidgetsReady is yes
 
       runs ->
-        gradient_widget = widgets.get "gradient", $("#one span")[0]
-        opacity_widget = widgets.get "opacity", $("#two span")[0]
+        gradient_widget = widgets.get "widgets/gradient", $("#one span")[0]
+        opacity_widget = widgets.get "widgets/opacity", $("#two span")[0]
 
         allDone = no;
         events.bind "sections:inserted", ->
           allDone = yes
 
-        invoker = new history._invoker reload_sections.sections 
+        invoker = new Invoker reload_sections.sections 
         invoker.run()
 
         waitsFor ->
@@ -360,7 +382,7 @@ describe 'sectionsHistory module', ->
       url: window.location.origin
       title: "test Title"
       header: "header"
-      sections: "<section data-selector='#one'><span class='widgets' data-js-modules='rotation, gradient'>hello</span></section>"
+      sections: "<section data-selector='#one'><span class='widgets' data-js-modules='widgets/rotation, widgets/gradient'>hello</span></section>"
 
     beforeEach ->
       storage.remove "sectionsHistory", window.location.origin
@@ -372,7 +394,7 @@ describe 'sectionsHistory module', ->
 
     it "should save sections data to localstorage", ->
       allDone = no
-      events.bind "sectionsTransition:invoked", ->
+      events.bind "transition:invoked", ->
         allDone = yes
 
       events.trigger "sections:loaded", reload_sections
@@ -388,7 +410,7 @@ describe 'sectionsHistory module', ->
 
     it "should update sections data in localstorage", ->
       allDone = no
-      events.bind "sectionsTransition:invoked", ->
+      events.bind "transition:invoked", ->
         allDone = yes
 
       storage.save "sectionsHistory", reload_sections.url, reload_sections
@@ -413,16 +435,16 @@ describe 'sectionsHistory module', ->
       resetModules()
       reload_sections = 
         url: window.location.origin
-        sections: "<title>TITLE!</title><section data-selector='#one'>sdkjhfksjd<span class='widgets' data-js-modules='rotation, gradient'>hello</span></section>"
+        sections: "<title>TITLE!</title><section data-selector='#one'>sdkjhfksjd<span class='widgets' data-js-modules='widgets/rotation, widgets/gradient'>hello</span></section>"
       affix "div#one span.section"
       spyOn(ajax, "get").andCallThrough()
 
     it "should load sections and correctly convert in to state object", ->
-      sections = "<title>TITLE!</title><section data-selector='#one'>sdkjhfksjd<span class='widgets' data-js-modules='rotation, gradient'>hello</span></section>"
+      loadedSections = "<title>TITLE!</title><section data-selector='#one'>sdkjhfksjd<span class='widgets' data-js-modules='widgets/rotation, widgets/gradient'>hello</span></section>"
       
 
       request = 
-        responseText: sections
+        responseText: loadedSections
         getResponseHeader: (header) ->
           return "http://test.com/one/two" if header is "X-Che-Url"
 
@@ -430,7 +452,7 @@ describe 'sectionsHistory module', ->
       requestStub = 
         abort: jasmine.createSpy("abort")
         success: (handler) ->
-          handler request, sections
+          handler request, loadedSections
 
       realAjaxGet = ajax.get
       fakeAjaxGet = (params) ->
@@ -440,12 +462,12 @@ describe 'sectionsHistory module', ->
 
       spyOn(events, "trigger").andCallThrough()
 
-      history._loadSections "http://test.com/one/two", "GET", "sections header", 1
+      sectionsLoader "http://test.com/one/two", "GET", "sections header", 1
 
       state = events.trigger.mostRecentCall.args[1]
 
       expect(state.url).toBe("http://test.com/one/two")
-      expect(state.sections).toBe("<title>TITLE!</title><section data-selector='#one'>sdkjhfksjd<span class='widgets' data-js-modules='rotation, gradient'>hello</span></section>")
+      expect(state.sections).toBe("<title>TITLE!</title><section data-selector='#one'>sdkjhfksjd<span class='widgets' data-js-modules='widgets/rotation, widgets/gradient'>hello</span></section>")
       expect(state.method).toBe('GET')
       expect(state.header).toBe("sections header")
       expect(state.index).toBe(1)
@@ -453,16 +475,16 @@ describe 'sectionsHistory module', ->
       ajax.get = realAjaxGet
 
 
-    it "should update sections from server, when traversing history", ->
+    it "should update sections from server, when traversing sections", ->
       
       allDone = no
-      events.bind "sectionsTransition:invoked", ->
+      events.bind "transition:invoked", ->
         allDone = yes
 
-      history._transitions.last = null
-      history._transitions.current = history._transitions.create()
+      sections._transitions.last = null
+      sections._transitions.current = sections._transitions.create()
 
-      history._transitions.create({index: 0, sections: "<div></div>"})
+      sections._transitions.create({index: 0, sections: "<div></div>"})
 
       events.trigger "history:popState",
         index: 0
@@ -474,7 +496,6 @@ describe 'sectionsHistory module', ->
 
       runs ->
         requestInfo = ajax.get.mostRecentCall.args[0]
-
         expect(ajax.get).toHaveBeenCalled()
         expect(requestInfo.url).toBe(window.location.origin)
 
@@ -482,7 +503,7 @@ describe 'sectionsHistory module', ->
     it "should load sections from server, when going forward", ->
       
       allDone = no
-      events.bind "sectionsTransition:invoked", ->
+      events.bind "transition:invoked", ->
         allDone = yes
 
       storage.save "sectionsHistory", reload_sections.url, reload_sections
@@ -501,7 +522,7 @@ describe 'sectionsHistory module', ->
     it "should load sections from localstorage, when going forward, and then update from server", ->
       
       allDone = no
-      events.bind "sectionsTransition:invoked", ->
+      events.bind "transition:invoked", ->
         allDone = yes
 
       spyOn(storage, "get").andCallThrough()
@@ -522,7 +543,7 @@ describe 'sectionsHistory module', ->
         expect(storageGetInfo[0]).toBe "sectionsHistory"
         expect(storageGetInfo[1]).toBe window.location.origin + "|header:HEADER"
 
-  describe "traversing history back", ->
+  describe "traversing sections back", ->
     reloadSectionsArr = null
     originHistoryIndex = null
     beforeEach ->
@@ -532,7 +553,7 @@ describe 'sectionsHistory module', ->
       reloadSectionsArr = [
         index: 1
         url: "http://sections.com/one"
-        sections: "<title>TITLE! number 1</title><section data-selector='#one'>sdkjhfksjd<span class='widgets' data-js-modules='rotation, gradient'>hello</span></section>"
+        sections: "<title>TITLE! number 1</title><section data-selector='#one'>sdkjhfksjd<span class='widgets' data-js-modules='widgets/rotation, widgets/gradient'>hello</span></section>"
       , 
         index: 2
         url: "http://sections.com/two"
@@ -552,18 +573,22 @@ describe 'sectionsHistory module', ->
       ]
 
     afterEach ->
-      # window.history.go 1
+      # window.sections.go 1
 
     it "should change layout to previous state", ->
       allDone = no
-      events.bind "pageTransition:success", (info) ->
-        if info.direction is "back"
-          allDone = yes
 
       for state in reloadSectionsArr
-        history._transitions.create state
+        sections._transitions.create state
 
-      history._transitions.go 1
+      events.bind "pageTransition:success", (info) ->
+        if info.transition.index is 5
+          events.bind "pageTransition:success", (info) ->
+            if info.transition.index is 1
+              allDone = yes
+          sections._transitions.go 1
+
+      
 
       waitsFor ->
         allDone

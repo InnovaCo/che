@@ -1,4 +1,5 @@
-define ['dom!', 'config', 'events', 'utils/params'], (dom, config, events, params) ->
+define ['dom!', 'config', 'events', 'utils/params', "history"], (dom, config, events, params, history) ->
+  return false if not history
 
   convertRequestData = (paramsString) ->
     list = paramsString.split ///,\s*///

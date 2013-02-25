@@ -1,36 +1,23 @@
 define ['events', 'dom'], (events, dom) ->
-  if window.history?
-    originOnpopstate = window.onpopstate
-    window.onpopstate = (popStateEvent)->
-      if originOnpopstate?
-        originOnpopstate.apply window, arguments
+  return false if not window.history
 
-      events.trigger "history:popState", popStateEvent.state
+  originOnpopstate = window.onpopstate
+  window.onpopstate = (popStateEvent)->
+    if originOnpopstate?
+      originOnpopstate.apply window, arguments
 
-    originPushState = window.history.pushState
+    events.trigger "history:popState", popStateEvent.state
 
-    window.history.pushState = ->
-      originPushState.apply window.history, arguments
-      events.trigger "history:pushState", Array::slice.call arguments
+  originPushState = window.history.pushState
 
-    originReplaceState = window.history.pushState
+  window.history.pushState = ->
+    originPushState.apply window.history, arguments
+    events.trigger "history:pushState", Array::slice.call arguments
 
-    window.history.replaceState = ->
-      originReplaceState.apply window.history, arguments
-      events.trigger "history:replaceState", Array::slice.call Array, arguments
+  originReplaceState = window.history.pushState
 
-    return window.history
-  else
-    return false
+  window.history.replaceState = ->
+    originReplaceState.apply window.history, arguments
+    events.trigger "history:replaceState", Array::slice.call Array, arguments
 
-
-  HashHistory = () ->
-
-  HashHistory:: =
-    length: 0
-    state: null
-    go: (n) -> # Метод, позволяющий гулять по истории. В качестве аргумента передается смещение, относительно текущей позиции. Если передан 0, то будет обновлена текущая страница. Если индекс выходит за пределы истории, то ничего не произойдет.
-    back: () -> # Метод, идентичный вызову go(-1)
-    forward: () -> # Метод, идентичный вызову go(1)
-    pushState: (data, title, url) -> # Добавляет элемент истории.
-    replaceState: (data, title, url) -> # Обновляет текущий элемент истории  
+  return window.history

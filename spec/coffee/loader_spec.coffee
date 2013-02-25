@@ -29,7 +29,7 @@ describe "loader  module", ->
     it "should load all found widgets", ->
       loader.search()
       expect(requireSpy.calls.length).toEqual(10)
-      expect(requireSpy.mostRecentCall.args[0][0]).toBe('widgets/module_9')
+      expect(requireSpy.mostRecentCall.args[0][0]).toBe('module_9')
 
 
   describe 'searching for modules data', ->

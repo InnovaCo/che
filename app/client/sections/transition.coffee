@@ -1,7 +1,11 @@
 define [
   "sections/invoker",
   "sections/asyncQueue",
-  "events"], (Invoker, asyncQueue, events) ->
+  "events",
+  "utils/destroyer"], (Invoker, asyncQueue, events, destroyer) ->
+
+  transitionsCompressDepth = 5
+  transitionsDestroyDepth = 10
     #### Transition(@data)
   #
   # Конструктор переходов, переходы образуют между собой двусторонний связанный список
@@ -15,6 +19,10 @@ define [
     if @state.sections?
       @_invoker = new Invoker @state.sections
       last.next()
+
+    events.bind "pageTransition:success", (info) =>
+      if @index < info.transition.index - transitionsDestroyDepth
+        @destroy()
 
     return @
 
@@ -44,6 +52,9 @@ define [
         asyncQueue.next ->
           events.trigger "pageTransition:updated", {}
 
+
+    destroy: () ->
+      destroyer @
 
 
     #### Transition::next([to_transition])

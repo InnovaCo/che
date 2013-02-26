@@ -12,8 +12,11 @@ beforeEach ->
     toBeObject: ->
       _.isObject(@actual)
 
-    toBeEqual: (expecting)->
+    toBeEqual: (expecting) ->
       _.isEqual(@actual, expecting)
+
+    toBeString: ->
+      _.isString @actual
 
     toBeDomElement: () ->
       return @actual.nodeType is 1 and @actual.nodeName? and @actual.nodeType?

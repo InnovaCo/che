@@ -143,6 +143,11 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
       handlers.splice index, 1
       node.domQueryHandlers[eventName][selector] = handlers
 
+  domToHtml = (domObject) ->
+    div = document.createElement('DIV')
+    div.appendChild domObject
+    div.innerHTML
+
   #### parseHtml(plainHtml)
   #
   # Превращает html-текст в DOM-объекты
@@ -226,6 +231,12 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
         @[index]
       else
         return Array.prototype.slice.call @
+
+    toString: () ->
+      _.map @get(), (node) ->
+        domToHtml node
+      .join ""
+
 
 
     #### domQuery.prototype.replaceWith(element)

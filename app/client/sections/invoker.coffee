@@ -116,13 +116,10 @@ define [
         loader.search section.forward, (widgetsList) =>
           container = dom(selector)[0]
 
-          console.log "Container", container, selector
-
           for element in Array.prototype.slice.call container.childNodes
             element.parentNode.removeChild element
 
           for element in section.forward
-            console.log "ELEMENT", element, container, selector
             container.appendChild element
 
           for element in section.back

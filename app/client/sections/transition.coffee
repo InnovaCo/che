@@ -6,23 +6,36 @@ define [
 
   transitionsCompressDepth = 5
   transitionsDestroyDepth = 10
-    #### Transition(@data)
+  
+  #### Transition(@data)
   #
   # Конструктор переходов, переходы образуют между собой двусторонний связанный список
   # 
   Transition = (@state, last) ->
     @index = @state.index = @state.index or (last?.index + 1) or 0
 
+    
+    if @state.sections?
+      @_invoker = new Invoker @state.sections
+      
     if last?
       @prev_transition = last
       last.next_transition = @
-    if @state.sections?
-      @_invoker = new Invoker @state.sections
       last.next()
 
-    events.bind "pageTransition:success", (info) =>
-      if @index < info.transition.index - transitionsDestroyDepth
-        @destroy()
+      # Удаление старых записей
+      # Стоит отметить, что проход всей цепочки вполне себе хороший способ удалить старые записи
+      # так как позволяет удалять старые запиписи именно в этой цепочке переходов, не трогая остальные,
+      # которые могут быть созданы про многочиленных переходах по истории и ссылкам на странице
+
+      depth = transitionsDestroyDepth
+      prevTransition = @
+      while depth--
+        prevTransition = prevTransition.prev_transition
+        if not prevTransition?
+          break;
+
+      prevTransition?.destroy()
 
     return @
 

@@ -1,4 +1,4 @@
-define ["history", "events", "sections/loader", "sections/transition", "utils/storage"],  (history, events, sectionsLoader, Transition, storage) ->
+define ["history", "events", "sections/loader", "sections/transition", "sections/cache"],  (history, events, sectionsLoader, Transition, cache) ->
   return false if not history
 
   helpers = 
@@ -36,24 +36,22 @@ define ["history", "events", "sections/loader", "sections/transition", "utils/st
 
 
   events.bind "transition:current:update", (transition) ->
-    transitions.current = transition;
+    transitions.current = transition
 
   #### Обработка "sections:loaded"
   #
-  # Секции сохраняются в localStorage, и далее отдаются на инициализацию
+  # Секции сохраняются в кэш, и далее отдаются на инициализацию
   #
   events.bind "sections:loaded", (state) ->
-    storage.save "sectionsHistory", helpers.stateId(state), state
+    cache.save state
     transitions.create state
 
   #### Обработка pageTransition:init
   #
-  # Проверяется, есть ли такие секции уже в localStorage, если есть, то используем их и параллельно смотрим на сервере
+  # Проверяется, есть ли такие секции уже в кэше, если есть, то используем их и параллельно смотрим на сервере
   #
   events.bind "pageTransition:init", (url, sectionsHeader, method) ->
-    state = storage.get "sectionsHistory", helpers.stateId
-      url: url,
-      header: sectionsHeader
+    state = cache.get url, sectionsHeader
 
     index = transitions.last?.index + 1 or 0
     if state?

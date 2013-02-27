@@ -46,6 +46,7 @@ define ['underscore'],  (_) ->
           @_handlerCaller handler, args
         else
           _.delay => 
+
             @_handlerCaller handler, args
         @_nextHandlerCall(args)
 

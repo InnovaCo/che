@@ -1,24 +1,13 @@
-define ['dom!', 'config', 'events', 'utils/params', "history"], (dom, config, events, params, history) ->
+define ["clicks/forms", "clicks/anchors", "history"], (forms, anchors, history) ->
   return false if not history
 
-  convertRequestData = (paramsString) ->
-    list = paramsString.split ///,\s*///
-    requestData = {}
-    for lisItem in list
-      splittedData = lisItem.split ///:\s*///
-      requestData[splittedData[0]] = splittedData[1]
+  handler = (url, data, method) ->
+    events.trigger "pageTransition:init", [url, data, method]
 
-    return requestData
+  forms handler
+  anchors handler
 
-
-  dom('body').on "a[#{config.reloadSectionsDataAttributeName}]", "click", (e) ->
-    data = @getAttribute config.reloadSectionsDataAttributeName
-    url = @getAttribute 'href'
-
-    events.trigger "pageTransition:init", [url, data, "GET"]
-    e.preventDefault()
-    return false
-  events.bind "sectionsTransition:invoked, sectionsTransition:undone", ->
-    events.trigger "pageTransition:stop"
+  events.bind "pageTransition:success", (data) ->
+    events.trigger "pageTransition:stop", data
     # sectionsRequest.complete (data) ->
     #   events.trigger "newSectionsLoaded", [data, requestData]

@@ -75,16 +75,6 @@ describe 'sections module', ->
       expect(transition).toBe(nextTransition.prev_transition)
       expect(transition.next_transition).toBe(nextTransition)
 
-    it 'should destroy first transition after 10 new created', ->
-      firstTransition = sections._transitions.create {widgets: {}}
-
-      transition = firstTransition
-      for i in [1...10]
-        transition = sections._transitions.create {index: i, widgets: {}}
-
-      expect(firstTransition).toBeEmpty()
-
-
 
   describe 'invoking transitions', ->
     reload_sections = 

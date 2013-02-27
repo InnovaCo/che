@@ -7,17 +7,52 @@ define [
   "utils/widgetsData",
   "widgets",
   "underscore"], (asyncQueue, dom, events, loader, config, widgetsData, widgets, _) ->
+
+
   #### Invoker(@reloadSections)
   #
   # Конструктор объекта действий при переходе, содежит в себе данные для переходов в обе стороны, используется в transitions
   # 
   Invoker = (@reloadSections) ->
+
     @_back = null
     @_forward = null
     @_is_applied = no
     @_is_sections_updated = no
 
   Invoker:: =
+
+    initializeSections: () ->
+      if not @_is_sections_updated or not @_forward or not @_back
+        asyncQueue.next =>
+          @_isCompressed = no
+          reloadSectionsHtml = dom @reloadSections
+
+          if not dom('title')[0]
+            dom('head')[0].appendChild document.createElement 'title'
+
+          @_back = {}
+          @_forward = {}
+
+          for element in reloadSectionsHtml.get()
+            nodeName = element.nodeName.toLowerCase()
+
+            if nodeName is config.sectionTagName
+              selector = element.getAttribute "data-#{config.sectionSelectorAttributeName}"
+            else if nodeName is 'title'
+              selector = nodeName
+            else
+              continue
+
+            if dom(selector)[0]?
+
+              @_back[selector] = Array.prototype.slice.call dom(selector)[0].childNodes
+              @_forward[selector] = Array.prototype.slice.call element.childNodes
+
+        @_is_sections_updated = yes
+        
+
+
 
     #### Invoker::update()
     #
@@ -35,32 +70,8 @@ define [
 
       if @_is_applied
         @undo()
-      if not @_is_sections_updated or not @_forward or not @_back
-        asyncQueue.next =>
-          reloadSectionsHtml = dom @reloadSections
 
-          if not dom('title')[0]
-            dom('head')[0].appendChild document.createElement('title')
-
-          @_back = {}
-          @_forward = {}
-
-          for element in reloadSectionsHtml.get()
-            nodeName = element.nodeName.toLowerCase()
-
-            if nodeName is config.sectionTagName
-              selector = element.getAttribute "data-#{config.sectionSelectorAttributeName}"
-            else if nodeName is 'title'
-              selector = nodeName
-            else
-              continue
-
-            if dom(selector)[0]?
-              @_back[selector] = Array.prototype.slice.call dom(selector)[0].childNodes
-              @_forward[selector] = Array.prototype.slice.call element.childNodes
-
-        @_is_sections_updated = yes
-
+      @initializeSections()
 
       asyncQueue.next =>
 

@@ -6,7 +6,7 @@ define ["utils/storage"], (storage) ->
 
 
   save: (state) ->
-    return false if state.method?.toLowerString() is "post"
+    return false if _.isString(state.method) and state.method.toLowerCase() is "post"
     storage.save "sectionsHistory", helpers.stateId(state.url, state.header), state
 
   get: (url, header) ->

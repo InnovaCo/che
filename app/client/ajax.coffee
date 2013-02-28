@@ -38,16 +38,19 @@ define ['events', 'utils/params', "utils/destroyer", "underscore"], (events, par
     request.onreadystatechange = ->
       return if request.readyState isnt 4
 
-      data = if request.responseText? then (parser[type] or parser.json) request.responseText else ""
       if request.status isnt 200 and request.status isnt 304
-        eventsSprout.trigger "error", [request, data]
-      else
-        eventsSprout.trigger "success", [request, data]
+        eventsSprout.trigger "error", [request, null]
+        eventsSprout.trigger "complete", [request, null]
+        return
 
+      data = if request.responseText? then (parser[type] or parser.json) request.responseText else ""
+      
+      eventsSprout.trigger "success", [request, data]
       eventsSprout.trigger "complete", [request, data]
 
     if request.readyState is 4
-      eventsSprout.trigger "complete", [request]
+      data = if request.responseText? then (parser[type] or parser.json) request.responseText else ""
+      eventsSprout.trigger "complete", [request, data]
       return request
 
     eventsSprout.trigger "start", [request]

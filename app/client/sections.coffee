@@ -1,9 +1,14 @@
+#### *module* sections
+#
+# Основной модуль для работы с секциями, умеет загружать, кэшировать и менять секции с помощью модулей
+# "sections/loader", "sections/transition", "sections/cache".
+# Также не будет работать, если модуль history возвращает false (это происходит при отсутствии historyAPI)
+#
+
+
+
 define ["history", "events", "sections/loader", "sections/transition", "sections/cache"],  (history, events, sectionsLoader, Transition, cache) ->
   return false if not history
-
-  helpers = 
-    stateId: (state) ->
-      return state.url + "|header:#{state.header}"
 
   #### transitions
   #
@@ -11,8 +16,21 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
   # 
 
   transitions =
+    ###### transitions.last
+    # Самый последний созданный переход
+    #
     last: null
+
+    ###### transitions.current
+    # Текущий примененный переход, в случае, когда был переход назад по истории, current не равен last
+    #
     current: null
+
+    ###### transitions.create(state)
+    # Создает новый объект перехода, устанавливает в нем ссылки на предыдущий, а сам новый теперь записывается в last,
+    # кроме того, обновляются, либо записываются данные в historyState. Если же такой переход уже был создан (state имеет параметр index), то 
+    # совершается ищем по индексу нужный переход, применяем его (функция transitions.go) и обновляем его данные
+    #
     create: (state) ->
       state = state or {index: 0}
       if @last? and state.index <= @last.index
@@ -26,6 +44,10 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
         @last = new Transition state, @last
         return @last
 
+    ###### transitions.create(state)
+    # Запускает все переходы от текущего до перехода с указанным индексом
+    #
+
     go: (index) ->
       if not @current
         return @create()
@@ -34,11 +56,14 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
       direction = if @current.index < index then "next" else "prev"
       return @current[direction](index)
 
-
+  #### Обработка события "transition:current:update"
+  #
+  # Обновление ссылки на текущий переход
+  #
   events.bind "transition:current:update", (transition) ->
     transitions.current = transition
 
-  #### Обработка "sections:loaded"
+  #### Обработка события "sections:loaded"
   #
   # Секции сохраняются в кэш, и далее отдаются на инициализацию
   #
@@ -46,7 +71,7 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
     cache.save state
     transitions.create state
 
-  #### Обработка pageTransition:init
+  #### Обработка события pageTransition:init
   #
   # Проверяется, есть ли такие секции уже в кэше, если есть, то используем их и параллельно смотрим на сервере
   #
@@ -61,7 +86,7 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
     sectionsLoader url, method, sectionsHeader, index
 
 
-  #### Обработка history:popState
+  #### Обработка события history:popState
   #
   # Переходит до нужного состояния и проверяет обновления на сервере
   #
@@ -72,6 +97,11 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
         sectionsLoader state.url, state.method, state.sectionsHeader, state.index
     # here ask server for updated sections (history case)
 
+
+  #### Событие transition:current:update
+  #
+  # Создается первый пустой переход, он отражает текущее состояние страницы
+  #
   events.trigger "transition:current:update", transitions.create()
 
   return {

@@ -45,7 +45,7 @@ describe "clicks module", ->
     afterEach ->
       events.list = eventsList
 
-    it "should trigger event, when have attr with reload sections params", ->
+    it "should trigger pageTransition:init event, when have attr with reload sections params", ->
       handler = jasmine.createSpy("handler") 
 
       events.bind "pageTransition:init", ->

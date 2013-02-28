@@ -6,9 +6,7 @@ define ["clicks/forms", "clicks/anchors", "history", "events"], (forms, anchors,
 
   events.bind "pageTransition:success", (data) ->
     events.trigger "pageTransition:stop", data
-    # sectionsRequest.complete (data) ->
-    #   events.trigger "newSectionsLoaded", [data, requestData]
-
+    
   init = () ->
     forms handler
     anchors handler

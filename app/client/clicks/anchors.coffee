@@ -3,6 +3,7 @@ define ['dom!', 'config', 'events'], (dom, config, events) ->
 
   dom('body').on "a[#{config.reloadSectionsDataAttributeName}]", "click", (e) ->
     if clicks?
+      
       data = @getAttribute config.reloadSectionsDataAttributeName
       url = @getAttribute 'href'
       clicks.trigger "anchor:click", [url, data, "GET"]

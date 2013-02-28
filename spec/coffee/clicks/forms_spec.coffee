@@ -12,7 +12,7 @@ describe "clicks/forms module", ->
   beforeEach ->
     forms.reset()
 
-  describe "anchor clicking", ->
+  describe "forms clicking", ->
     triggerMouseEvent = null
 
     beforeEach ->

@@ -132,8 +132,9 @@ define ['events', 'utils/params', "utils/destroyer", "underscore"], (events, par
         @_events = events.sprout()
 
         for eventName in ["start", "success", "error", "complete"]
-          if _.isFunction options[eventName] then @_events.bind eventName, options[eventName], 
+          if _.isFunction options[eventName] then @_events.bind eventName, options[eventName], {},
             recall: true
+            isSync: true
 
         @_request = sendRequest options.url,
           options.data or {},

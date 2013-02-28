@@ -19,7 +19,7 @@ define ['events', 'utils/params', "utils/destroyer", "underscore"], (events, par
     request = createXMLHTTPObject()
     return false if not request 
 
-    request.responseType = type
+    # request.responseType = type
     request.open method, url, true
     request.setRequestHeader 'X-Requested-With', 'XMLHttpRequest'
     request.setRequestHeader 'X-Che', 'true'

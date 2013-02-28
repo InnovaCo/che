@@ -32,7 +32,7 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
     # совершается ищем по индексу нужный переход, применяем его (функция transitions.go) и обновляем его данные
     #
     create: (state) ->
-      state = state or {index: 0}
+      state = state or {index: 0, url: window.location.href}
       if @last? and state.index <= @last.index
         transition = @go state.index
         transition.update state

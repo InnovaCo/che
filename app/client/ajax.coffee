@@ -19,7 +19,7 @@ define ['events', 'utils/params', "utils/destroyer", "underscore"], (events, par
     request = createXMLHTTPObject()
     return false if not request 
 
-    request.responseType = type
+    # request.responseType = type
     request.open method, url, true
     request.setRequestHeader 'X-Requested-With', 'XMLHttpRequest'
     request.setRequestHeader 'X-Che', 'true'
@@ -34,9 +34,9 @@ define ['events', 'utils/params', "utils/destroyer", "underscore"], (events, par
 
     # слушаем изменение состояния запроса
     # и отправляем различные события
-
+    # — не должен выполняться, если был отменен
     request.onreadystatechange = ->
-      return if request.readyState isnt 4
+      return if request.readyState isnt 4 or request.status is 0
 
       if request.status isnt 200 and request.status isnt 304
         eventsSprout.trigger "error", [request, null]

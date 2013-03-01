@@ -9,10 +9,7 @@
 
 <p>функция для отправки запроса на сервер</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">sendRequest = </span><span class="nf">(url, data, type, method, eventsSprout, headers) -&gt;</span>
     <span class="nv">request = </span><span class="nx">createXMLHTTPObject</span><span class="p">()</span>
-    <span class="k">return</span> <span class="kc">false</span> <span class="k">if</span> <span class="o">not</span> <span class="nx">request</span> 
-
-    <span class="nv">request.responseType = </span><span class="nx">type</span>
-    <span class="nx">request</span><span class="p">.</span><span class="nx">open</span> <span class="nx">method</span><span class="p">,</span> <span class="nx">url</span><span class="p">,</span> <span class="kc">true</span>
+    <span class="k">return</span> <span class="kc">false</span> <span class="k">if</span> <span class="o">not</span> <span class="nx">request</span> </pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>request.responseType = type</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">request</span><span class="p">.</span><span class="nx">open</span> <span class="nx">method</span><span class="p">,</span> <span class="nx">url</span><span class="p">,</span> <span class="kc">true</span>
     <span class="nx">request</span><span class="p">.</span><span class="nx">setRequestHeader</span> <span class="s">&#39;X-Requested-With&#39;</span><span class="p">,</span> <span class="s">&#39;XMLHttpRequest&#39;</span>
     <span class="nx">request</span><span class="p">.</span><span class="nx">setRequestHeader</span> <span class="s">&#39;X-Che&#39;</span><span class="p">,</span> <span class="s">&#39;true&#39;</span>
     <span class="k">if</span> <span class="nx">headers</span><span class="o">?</span>
@@ -21,9 +18,10 @@
 
     <span class="k">if</span> <span class="nx">data</span><span class="o">?</span>
       <span class="nv">data = </span><span class="nx">params</span> <span class="nx">data</span>
-      <span class="nx">request</span><span class="p">.</span><span class="nx">setRequestHeader</span> <span class="s">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s">&#39;application/x-www-form-urlencoded&#39;</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>слушаем изменение состояния запроса
-и отправляем различные события</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">request.onreadystatechange = </span><span class="o">-&gt;</span>
-      <span class="k">return</span> <span class="k">if</span> <span class="nx">request</span><span class="p">.</span><span class="nx">readyState</span> <span class="o">isnt</span> <span class="mi">4</span>
+      <span class="nx">request</span><span class="p">.</span><span class="nx">setRequestHeader</span> <span class="s">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s">&#39;application/x-www-form-urlencoded&#39;</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>слушаем изменение состояния запроса
+и отправляем различные события
+— не должен выполняться, если был отменен</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">request.onreadystatechange = </span><span class="o">-&gt;</span>
+      <span class="k">return</span> <span class="k">if</span> <span class="nx">request</span><span class="p">.</span><span class="nx">readyState</span> <span class="o">isnt</span> <span class="mi">4</span> <span class="o">or</span> <span class="nx">request</span><span class="p">.</span><span class="nx">status</span> <span class="o">is</span> <span class="mi">0</span>
 
       <span class="k">if</span> <span class="nx">request</span><span class="p">.</span><span class="nx">status</span> <span class="o">isnt</span> <span class="mi">200</span> <span class="o">and</span> <span class="nx">request</span><span class="p">.</span><span class="nx">status</span> <span class="o">isnt</span> <span class="mi">304</span>
         <span class="nx">eventsSprout</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;error&quot;</span><span class="p">,</span> <span class="p">[</span><span class="nx">request</span><span class="p">,</span> <span class="kc">null</span><span class="p">]</span>
@@ -42,14 +40,14 @@
 
     <span class="nx">eventsSprout</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;start&quot;</span><span class="p">,</span> <span class="p">[</span><span class="nx">request</span><span class="p">]</span>
     <span class="nx">request</span><span class="p">.</span><span class="nx">send</span> <span class="nx">data</span>
-    <span class="nx">request</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <h3>XMLHttpFactories</h3>
+    <span class="nx">request</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <h3>XMLHttpFactories</h3>
 
 <p>массив фабрик XMLHttpRequest объекта</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">XMLHttpFactories = </span><span class="p">[</span>
     <span class="o">-&gt;</span> <span class="k">return</span> <span class="k">new</span> <span class="nx">XMLHttpRequest</span><span class="p">(),</span>
     <span class="o">-&gt;</span> <span class="k">return</span> <span class="k">new</span> <span class="nx">ActiveXObject</span><span class="p">(</span><span class="s">&quot;Msxml2.XMLHTTP&quot;</span><span class="p">),</span>
     <span class="o">-&gt;</span> <span class="k">return</span> <span class="k">new</span> <span class="nx">ActiveXObject</span><span class="p">(</span><span class="s">&quot;Msxml3.XMLHTTP&quot;</span><span class="p">),</span>
     <span class="o">-&gt;</span> <span class="k">return</span> <span class="k">new</span> <span class="nx">ActiveXObject</span><span class="p">(</span><span class="s">&quot;Microsoft.XMLHTTP&quot;</span><span class="p">)</span>
-  <span class="p">]</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <h3>createXMLHTTPObject()</h3>
+  <span class="p">]</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <h3>createXMLHTTPObject()</h3>
 
 <p>создает объект XMLHttpRequest из подходящей фабрики, запоминает свое состояние</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">createXMLHTTPObject = </span><span class="o">-&gt;</span>
     <span class="nv">xmlhttp = </span><span class="kc">false</span>
@@ -61,7 +59,7 @@
       <span class="k">catch</span> <span class="nx">e</span>
        <span class="k">continue</span>
       <span class="k">break</span>
-    <span class="nx">xmlhttp</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <h3>parser</h3>
+    <span class="nx">xmlhttp</span></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <h3>parser</h3>
 
 <p>Набор функций для парсинга responseText</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">parser = </span>
     <span class="nv">json: </span><span class="nf">(text) -&gt;</span>
@@ -75,14 +73,14 @@
 
   <span class="nv">defaultOptions =</span>
     <span class="nv">type: </span><span class="s">&#39;json&#39;</span><span class="p">,</span>
-    <span class="nv">method: </span><span class="s">&quot;GET&quot;</span></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <h3>Ajax</h3>
+    <span class="nv">method: </span><span class="s">&quot;GET&quot;</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <h3>Ajax</h3>
 
 <p>конструктор для ajax-объекта, создает объект, при возможности отправляет запрос и навешивает обработчиков событий</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">Ajax = </span><span class="nf">(options) -&gt;</span>
     <span class="k">if</span> <span class="nx">options</span><span class="o">?</span>
       <span class="nx">@get</span> <span class="nx">options</span>
     <span class="nx">@</span>
 
-  <span class="nv">Ajax:: =</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <h3>Ajax::get(options)</h3>
+  <span class="nv">Ajax:: =</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <h3>Ajax::get(options)</h3>
 
 <p>отправляет запрос и навешивает обработчиков событий для конкретного запроса</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">get: </span><span class="nf">(options) -&gt;</span>
       <span class="k">if</span> <span class="nx">@_events</span>
@@ -103,20 +101,20 @@
           <span class="nx">options</span><span class="p">.</span><span class="nx">method</span> <span class="o">or</span> <span class="nx">defaultOptions</span><span class="p">.</span><span class="nx">method</span><span class="p">,</span>
           <span class="nx">@_events</span><span class="p">,</span>
           <span class="nx">options</span><span class="p">.</span><span class="nx">headers</span>
-      <span class="nx">@</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <h3>Ajax::abort(options)</h3>
+      <span class="nx">@</span></pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <h3>Ajax::abort(options)</h3>
 
 <p>отменяет запрос</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">abort: </span><span class="o">-&gt;</span>
       <span class="nx">@_request</span><span class="p">.</span><span class="nx">abort</span><span class="p">()</span>
-      <span class="nx">@</span></pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <h3>Генерирование функций для Ajax::</h3>
+      <span class="nx">@</span></pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <h3>Генерирование функций для Ajax::</h3>
 
 <p>Ajax::success(handler), Ajax::error(handler), Ajax::complete(handler)
 необходимы для подписки на события запроса</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="k">for</span> <span class="nx">eventName</span> <span class="k">in</span> <span class="p">[</span><span class="s">&quot;start&quot;</span><span class="p">,</span> <span class="s">&quot;success&quot;</span><span class="p">,</span> <span class="s">&quot;error&quot;</span><span class="p">,</span> <span class="s">&quot;complete&quot;</span><span class="p">]</span>
     <span class="nx">Ajax</span><span class="o">::</span><span class="p">[</span><span class="nx">eventName</span><span class="p">]</span> <span class="o">=</span> <span class="nf">(handler) -&gt;</span>
       <span class="nx">@_events</span><span class="p">.</span><span class="nx">bind</span> <span class="nx">eventName</span><span class="p">,</span> <span class="nx">handler</span><span class="p">,</span>
-        <span class="nv">recall: </span><span class="kc">true</span></pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <h3>ajax(options)</h3>
+        <span class="nv">recall: </span><span class="kc">true</span></pre></div>             </td>           </tr>                               <tr id="section-12">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-12">&#182;</a>               </div>               <h3>ajax(options)</h3>
 
 <p>Интерфейс модуля</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">ajax = </span><span class="nf">(options) -&gt;</span>
-    <span class="k">new</span> <span class="nx">Ajax</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-12">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-12">&#182;</a>               </div>               <h3>ajax.get(options)</h3>
+    <span class="k">new</span> <span class="nx">Ajax</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-13">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-13">&#182;</a>               </div>               <h3>ajax.get(options)</h3>
 
 <p>Отправка GET-запросов</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">ajax.get = </span><span class="nf">(options) -&gt;</span>
     <span class="nv">options.method = </span><span class="s">&quot;GET&quot;</span>

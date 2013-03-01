@@ -1,4 +1,12 @@
-define ['events', 'dom'], (events, dom) ->
+#### *module* history
+#
+# Надстройка над historyAPI, необходима для создания событий истории, это хорошо понижает связность модулей.
+# Кроме событий, модуль возвращает false, если historyAPI недоступно, это используется другими модулями, которые зависят от этого,
+# в дальнейшем такое поведение нужно бы реализовать с помощью requirejs loaderAPI (например так сделано с модулем dom)
+#
+
+
+define ['events'], (events) ->
   return false if not window.history
 
   originOnpopstate = window.onpopstate

@@ -1,9 +1,9 @@
 #### *module* dom
 #
-# Содержит вспомогательные функции для обхода DOM-дерева, и навешивания обработчиков событий, чтобы не грузить большой jquery ради пары мелких задач
+# Содержит вспомогательные функции для обхода DOM-дерева, и навешивания обработчиков событий, позволяет обходится без большого jquery.
+# Интерфейс стремится быть похожим на интефейс jquery, конечно реализация сильно отличается
 #
 
-# Требует модуль 'utils/guid', для генерации уникальных id обработчиков событий
 
 define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
 
@@ -23,7 +23,7 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
   
   #### callEventHandlers(handlers, eventObj)
   #
-  # Асинхронно вызывает обработчиков событий
+  # Вызывает обработчики событий
   
   callEventHandlers = (handlers, eventObj, context) ->
     for handler in handlers
@@ -50,7 +50,7 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
         result = []
         _.each root, (root) ->
           if root.querySelectorAll?
-            result = result.concat(Array.prototype.slice.call root.querySelectorAll(selector))
+            result = result.concat(Array::slice.call root.querySelectorAll(selector))
         return result
       else 
         return selector
@@ -60,7 +60,7 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
   
   #### unbindEvent(node, eventName, handler)
   #
-  # Отвязывает обработчика события для указанного DOM-элемента
+  # Отвязывает обработчика от события для указанного DOM-элемента
   #
   unbindEvent =  (node, eventName, handler) ->
     if node.removeEventListener
@@ -77,7 +77,7 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
   
   #### bindEvent(node, eventName, handler)
   #
-  # Привязывает обработчик события для указанного DOM-элемента
+  # Привязывает обработчик к событию для указанного DOM-элемента
   #
   bindEvent = (node, eventName, handler) ->
     if node.addEventListener
@@ -143,6 +143,12 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
       handlers.splice index, 1
       node.domQueryHandlers[eventName][selector] = handlers
 
+
+  #### domToHtml(plainHtml)
+  #
+  # Сериализует DOM-объекты в html-текст
+  #
+
   domToHtml = (domObject) ->
     div = document.createElement('DIV')
     div.appendChild domObject
@@ -150,12 +156,12 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
 
   #### parseHtml(plainHtml)
   #
-  # Превращает html-текст в DOM-объекты
+  # Парсит html-текст в DOM-объекты
   #
   parseHtml = (plainHtml) ->
     div = document.createElement('DIV')
     div.innerHTML = plainHtml
-    for node in Array.prototype.slice.call div.childNodes
+    for node in Array::slice.call div.childNodes
       if node.nodeType is 3 and not ///\S///.test node.nodeValue
         div.removeChild node
     return div.childNodes
@@ -163,8 +169,15 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
 
   #### domQuery([selector])
   #
-  # Конструктор domQuery для работы с DOM-элементами
-  #
+  # Конструктор domQuery для работы с DOM-элементами. Если переданный параметр уже является объектом domQuery, 
+  # то просто возвращается этот экземпляр, также проверяется вызван ли конструктор с ключевым словом new, если нет,
+  # то рекурсивно вызывается конструктор вместе с new.
+  # Если параметр selector является строкой, то проверятеся, не является ли он html-строкой, если да, то парсится, если нет, то
+  # подразумевается, что это dom-селектор и происходит поиск элементов, удовлетворяющих селектору.
+  # Если selector не строка, то подразумевается, что это ссылка на dom-элемент, либо на nodeList (пока проверок точных еще нет)
+  # Если selector не задан, то вместо него берется ссылка на document
+
+
   domQuery = (selector) ->
     if this instanceof domQuery
       return selector if selector instanceof domQuery
@@ -190,30 +203,30 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
   domQuery:: =
 
     
-    #### domQuery.prototype.on([selector], eventName, handler)
+    #### domQuery::on([selector], eventName, handler)
     #
     # Привязывает обработчика событий на элемент, либо для делегирования событий с элемента по селектору
     #
     on: (selector, eventName, handler) ->
       binder = if arguments.length is 3 then delegateEvent else bindEvent
-      args = Array.prototype.slice.call(arguments)
+      args = Array::slice.call(arguments)
       _.each @get() , (node, index) ->
         binder.apply @, [node].concat(args)
       @
 
     
-    #### domQuery.prototype.off([selector], eventName, handler)
+    #### domQuery::off([selector], eventName, handler)
     #
     # Отключает обработчика событий элемента, либо от делегирования событий с элемента по селектору
     #
     off: (selector, eventName, handler) ->
       unbinder = if arguments.length is 3 then undelegateEvent else unbindEvent
-      args = Array.prototype.slice.call(arguments)
+      args = Array::slice.call(arguments)
       _.each @get(), (node, index) ->
         unbinder.apply @, [node].concat args
       @
     
-    #### domQuery.prototype.find(selector)
+    #### domQuery::find(selector)
     #
     # Возвращает элемент по селектору в контексте экземпляра domQuery
     #
@@ -221,7 +234,7 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
       return domQuery query selector, @get()
 
 
-    #### domQuery.prototype.get([index])
+    #### domQuery::get([index])
     #
     # Возвращает элемент по идексу, либо массив элементов экземпляра domQuery
     #
@@ -230,7 +243,13 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
         index = Math.max 0, Math.min index, @length - 1
         @[index]
       else
-        return Array.prototype.slice.call @
+        return Array::slice.call @
+
+
+    #### domQuery::toString([index])
+    #
+    # Сериализует элементы в строку
+    #
 
     toString: () ->
       _.map @get(), (node) ->
@@ -238,8 +257,7 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
       .join ""
 
 
-
-    #### domQuery.prototype.replaceWith(element)
+    #### domQuery::replaceWith(element)
     #
     # заменяет первый элемент на указанный
     #

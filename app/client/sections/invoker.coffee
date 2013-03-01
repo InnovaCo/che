@@ -1,3 +1,13 @@
+#### *module* sections/invoker
+#
+# 
+# Модуль для непосредственного выполнения переходов. 
+# Получая данные о секциях, создает набор объектов, необходимых для замены DOM-элементов.
+# Создаются массивы элеметов, которые необходимо изъять из DOM, а также те, которые должны быть вставлены вместо.
+# Операция смены секции полностью обратима и так же кроме вставки/удаления элементов
+# подразумевает включение (инициализацию)/отключение виджетов.
+#
+
 define [
   "sections/asyncQueue",
   "dom",
@@ -11,7 +21,7 @@ define [
 
   #### Invoker(@reloadSections)
   #
-  # Конструктор объекта действий при переходе, содежит в себе данные для переходов в обе стороны, используется в transitions
+  # Конструктор объекта действий при переходе, содежит в себе данные для переходов в обе стороны ()
   # 
   Invoker = (@reloadSections) ->
 
@@ -22,10 +32,18 @@ define [
 
   Invoker:: =
 
+    #### Invoker.initializeSections()
+    #
+    # Инициализация объектов перехода. 
+    # Создается массив с ссылками на элементы, которые нужно изъять и создаются DOM-элементы для вставки
+    # Выполняется асинхнонно, то есть инструкция для инициализации 
+    # помещается в очередь asycQueue.
+    # 
     initializeSections: () ->
       if not @_is_sections_updated or not @_forward or not @_back
         asyncQueue.next =>
           @_isCompressed = no
+
           reloadSectionsHtml = dom @reloadSections
 
           if not dom('title')[0]
@@ -45,7 +63,7 @@ define [
               continue
 
             if dom(selector)[0]?
-
+              # NodeList превращается в массив, потому что нам нужны только ссылки на элементы, а не живые коллекции
               @_back[selector] = Array.prototype.slice.call dom(selector)[0].childNodes
               @_forward[selector] = Array.prototype.slice.call element.childNodes
 
@@ -56,15 +74,16 @@ define [
 
     #### Invoker::update()
     #
-    # Обновление данных о секциях
+    # Обновление данных о секциях. Помечается, что секции не проинициализированны, что вызовет повторную иницализацию при вызове метода run
     #
     update: (sections) ->
       @reloadSections = sections
       @_is_sections_updated = no
 
+
     #### Invoker::run()
     #
-    # Применение действий перехода, а также генерация данных для обратного перехода
+    # Замена элементов подлежащих изъятию на новые элементы, инициализация перед этим, если необходимо
     #
     run: ->
 
@@ -83,7 +102,7 @@ define [
 
     #### Invoker::undo()
     #
-    # Отмена действий перехода
+    # Обратное по отношению к run действие, разве что не отменяется инициализация
     #
     undo: ->
       return false if @_is_applied isnt true
@@ -97,7 +116,7 @@ define [
 
     #### Invoker::_insertSections(forward, back)
     #
-    # Вставка секций forward вместо секций back
+    # Вставка секций forward вместо секций back, выполняется асинхронно, добавляя инструкции в очеред asynQuque
     #
     _insertSections: (forward, back, selectors) ->
 
@@ -111,6 +130,7 @@ define [
         insertionData
 
       .each (section, selector, context) ->
+        # приостановка выполнения очереди, так как дальше опять идеи асинхронная инструкция
         context.pause()
 
         loader.search section.forward, (widgetsList) =>
@@ -130,10 +150,11 @@ define [
               widgets.get(data.name, data.element)?.turnOff()
 
           
-          
+          # возобновление выполнения очереди
           context.resume()
 
       .next ->
+        # Сообщаем об окончании вставки секций
         events.trigger "sections:inserted"
 
   return Invoker

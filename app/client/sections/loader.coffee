@@ -1,10 +1,18 @@
-#### sections/loader
+#### *module* sections/loader
 #
-# Загрузка секций с сервера, обрабатывается только самый последний запрос
+# Загрузчик секций с сервера, данные о небходимых секциях отправляются в хидере "X-Che-Sections", 
+# это необходимо, чтобы точно отличать остальные запросы от запросов за секциями, так как согласно основной идее
+# эти запросы отправляются всегда на разные url
 #
 
 define ["ajax", "events"], (ajax, events) ->
   sectionsRequest = null
+
+  #### Интерфейс модуля: (url, method, sectionsHeader, index) ->
+  #
+  # Кроме данных об пути, методе и необходимых секциях, принимает параметр index, который добавляется к загруженным данным,
+  # необходим для точного встраивания секций в цепь переходов, так как могут быть запрошены данные для переходов в середине цепи
+  #
   (url, method, sectionsHeader, index) ->
     sectionsRequest?.abort()
     sectionsRequest = ajax.get
@@ -16,6 +24,8 @@ define ["ajax", "events"], (ajax, events) ->
 
     sectionsRequest.success (request, sections) ->
       state =
+        # Подразумевается, что url мог смениться (например при редиректе), и поэтому он всегда берется из пришедших данных,
+        # конкретно из заголовка  "X-Che-Url"
         url: request.getResponseHeader "X-Che-Url"
         header: sectionsHeader
         index: index

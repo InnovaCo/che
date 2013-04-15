@@ -9,8 +9,8 @@ define ["clicks/forms", "clicks/anchors", "history", "events"], (forms, anchors,
 
   #### handler(url, data, method)
   # Обработчик, вызывает событие "pageTransition:init"
-  handler = (url, data, method) ->
-    events.trigger "pageTransition:init", [url, data, method]
+  handler = (url, data, method, formData) ->
+    events.trigger "pageTransition:init", [url, data, method, formData]
 
   events.bind "pageTransition:success", (data) ->
     events.trigger "pageTransition:stop", data

@@ -181,6 +181,6 @@ define ['events', 'utils/params', "utils/destroyer", "underscore"], (events, par
     if options.url?
       options.url = createGETurl options.url, options.data
     new Ajax(options)
-
+    
   ajax
 

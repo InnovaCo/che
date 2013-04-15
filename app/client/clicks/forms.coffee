@@ -4,7 +4,7 @@
 # достает данные о необходимых секциях, url и вызывает обработчика, после чего отменяет дефолтное поведение.
 # Обрабатывает именно клики по кнопке, так как необходима делегация событий, а событие submit не поднимается вверх к корню.
 
-define ['dom!', 'config', 'events'], (dom, config, events) ->
+define ['dom!', 'config', 'events', 'lib/serialize'], (dom, config, events, serialize) ->
   # Внутренний диспетчер событий, для вызова обработчиков клика
   clicks = null
 
@@ -25,13 +25,14 @@ define ['dom!', 'config', 'events'], (dom, config, events) ->
 
       data = formNode.getAttribute config.reloadSectionsDataAttributeName
       url = formNode.getAttribute('action') or ""
+      formData = serialize formNode
 
       # Достаем метод по которому должна быть отправлена форма, по умолчанию это "GET".
       # Следует отметить, что "POST"-запросы за секциями не кешируются
 
       method = formNode.getAttribute('method') or "GET"
       
-      clicks.trigger "form:click", [url, data, method]
+      clicks.trigger "form:click", [url, data, method, formData]
       e.preventDefault()
       return false
 

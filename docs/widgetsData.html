@@ -1,39 +1,269 @@
-<!DOCTYPE html>  <html> <head>   <title>widgetsData.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="ajax.html">                 ajax.coffee               </a>                                           <a class="source" href="app-require-config.html">                 app-require-config.coffee               </a>                                           <a class="source" href="app.html">                 app.coffee               </a>                                           <a class="source" href="clicks.html">                 clicks.coffee               </a>                                           <a class="source" href="anchors.html">                 anchors.coffee               </a>                                           <a class="source" href="forms.html">                 forms.coffee               </a>                                           <a class="source" href="config.html">                 config.coffee               </a>                                           <a class="source" href="dom.html">                 dom.coffee               </a>                                           <a class="source" href="events.html">                 events.coffee               </a>                                           <a class="source" href="history.html">                 history.coffee               </a>                                           <a class="source" href="async.html">                 async.coffee               </a>                                           <a class="source" href="loader.html">                 loader.coffee               </a>                                           <a class="source" href="sections.html">                 sections.coffee               </a>                                           <a class="source" href="asyncQueue.html">                 asyncQueue.coffee               </a>                                           <a class="source" href="cache.html">                 cache.coffee               </a>                                           <a class="source" href="invoker.html">                 invoker.coffee               </a>                                           <a class="source" href="loader.html">                 loader.coffee               </a>                                           <a class="source" href="transition.html">                 transition.coffee               </a>                                           <a class="source" href="destroyer.html">                 destroyer.coffee               </a>                                           <a class="source" href="guid.html">                 guid.coffee               </a>                                           <a class="source" href="log.html">                 log.coffee               </a>                                           <a class="source" href="logWriter.html">                 logWriter.coffee               </a>                                           <a class="source" href="params.html">                 params.coffee               </a>                                           <a class="source" href="storage.html">                 storage.coffee               </a>                                           <a class="source" href="ticker.html">                 ticker.coffee               </a>                                           <a class="source" href="widgetsData.html">                 widgetsData.coffee               </a>                                           <a class="source" href="widgets.html">                 widgets.coffee               </a>                                           <a class="source" href="gradient.html">                 gradient.coffee               </a>                                           <a class="source" href="opacity.html">                 opacity.coffee               </a>                                           <a class="source" href="perspective.html">                 perspective.coffee               </a>                                           <a class="source" href="rotation.html">                 rotation.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               widgetsData.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <h3><em>module</em> utils/widgetsData</h3>
+<!DOCTYPE html>
 
+<html>
+<head>
+  <title>widgetsData.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="ajax.html">
+                ajax.coffee
+              </a>
+            
+              
+              <a class="source" href="app-require-config.html">
+                app-require-config.coffee
+              </a>
+            
+              
+              <a class="source" href="app.html">
+                app.coffee
+              </a>
+            
+              
+              <a class="source" href="clicks.html">
+                clicks.coffee
+              </a>
+            
+              
+              <a class="source" href="anchors.html">
+                anchors.coffee
+              </a>
+            
+              
+              <a class="source" href="forms.html">
+                forms.coffee
+              </a>
+            
+              
+              <a class="source" href="config.html">
+                config.coffee
+              </a>
+            
+              
+              <a class="source" href="dom.html">
+                dom.coffee
+              </a>
+            
+              
+              <a class="source" href="events.html">
+                events.coffee
+              </a>
+            
+              
+              <a class="source" href="history.html">
+                history.coffee
+              </a>
+            
+              
+              <a class="source" href="async.html">
+                async.coffee
+              </a>
+            
+              
+              <a class="source" href="loader.html">
+                loader.coffee
+              </a>
+            
+              
+              <a class="source" href="sections.html">
+                sections.coffee
+              </a>
+            
+              
+              <a class="source" href="asyncQueue.html">
+                asyncQueue.coffee
+              </a>
+            
+              
+              <a class="source" href="cache.html">
+                cache.coffee
+              </a>
+            
+              
+              <a class="source" href="invoker.html">
+                invoker.coffee
+              </a>
+            
+              
+              <a class="source" href="loader.html">
+                loader.coffee
+              </a>
+            
+              
+              <a class="source" href="transition.html">
+                transition.coffee
+              </a>
+            
+              
+              <a class="source" href="destroyer.html">
+                destroyer.coffee
+              </a>
+            
+              
+              <a class="source" href="guid.html">
+                guid.coffee
+              </a>
+            
+              
+              <a class="source" href="log.html">
+                log.coffee
+              </a>
+            
+              
+              <a class="source" href="logWriter.html">
+                logWriter.coffee
+              </a>
+            
+              
+              <a class="source" href="params.html">
+                params.coffee
+              </a>
+            
+              
+              <a class="source" href="storage.html">
+                storage.coffee
+              </a>
+            
+              
+              <a class="source" href="ticker.html">
+                ticker.coffee
+              </a>
+            
+              
+              <a class="source" href="widgetsData.html">
+                widgetsData.coffee
+              </a>
+            
+              
+              <a class="source" href="widgets.html">
+                widgets.coffee
+              </a>
+            
+              
+              <a class="source" href="gradient.html">
+                gradient.coffee
+              </a>
+            
+              
+              <a class="source" href="opacity.html">
+                opacity.coffee
+              </a>
+            
+              
+              <a class="source" href="perspective.html">
+                perspective.coffee
+              </a>
+            
+              
+              <a class="source" href="rotation.html">
+                rotation.coffee
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>widgetsData.coffee</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h3">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h3><em>module</em> utils/widgetsData</h3>
 <p>Вытаскивает данные о необходимых виджетах для данного куска html, либо DOM-элемента.
 Возвращает массив объектов с полями element, в котором содержится DOM-элемент и name, где находится имя модуля.
-Далее эти данные могут быть переданы в модуль widgets, чтобы проинициализировать все модули.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nx">define</span> <span class="p">[</span><span class="s">&#39;dom&#39;</span><span class="p">,</span> <span class="s">&#39;config&#39;</span><span class="p">],</span> <span class="nf">(dom, config) -&gt;</span>
-  </pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <h3>saveTo(arrayOfPairs, element)</h3>
+Далее эти данные могут быть переданы в модуль widgets, чтобы проинициализировать все модули.</p>
 
-<p>сохраняет в массив данные о виджете для переданного элемента</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">saveTo = </span><span class="nf">(arrayOfPairs, element) -&gt;</span>
-    <span class="nv">names = </span><span class="kc">null</span>
-    <span class="k">if</span> <span class="nx">element</span> <span class="o">and</span> <span class="nx">element</span><span class="p">.</span><span class="nx">getAttribute</span><span class="o">?</span>
-      <span class="nv">names = </span><span class="p">(</span><span class="nx">element</span><span class="p">.</span><span class="nx">getAttribute</span> <span class="nx">config</span><span class="p">.</span><span class="nx">widgetDataAttributeName</span><span class="p">)</span><span class="o">?</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">///^\s|\s$///</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">).</span><span class="nx">split</span><span class="p">(</span><span class="sr">///\s*,\s*///</span><span class="p">)</span>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>define [<span class="string">'dom'</span>, <span class="string">'config'</span>], (dom, config) -&gt;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h3">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <h3>saveTo(arrayOfPairs, element)</h3>
+<p>сохраняет в массив данные о виджете для переданного элемента</p>
 
-    <span class="k">return</span> <span class="kc">false</span> <span class="k">if</span> <span class="o">not</span> <span class="nx">names</span>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="function"><span class="title">saveTo</span></span> = (arrayOfPairs, element) -&gt;
+    names = <span class="literal">null</span>
+    <span class="keyword">if</span> element <span class="keyword">and</span> element.getAttribute?
+      names = (element.getAttribute config.widgetDataAttributeName)?.replace(<span class="regexp">///^\s|\s$///</span>, <span class="string">''</span>).split(<span class="regexp">///\s*,\s*///</span>)
 
-    <span class="k">for</span> <span class="nx">moduleName</span> <span class="k">in</span> <span class="nx">names</span>
-      <span class="nx">arrayOfPairs</span><span class="p">.</span><span class="nx">push</span>
-        <span class="nv">name: </span><span class="nx">moduleName</span>
-        <span class="nv">element: </span><span class="nx">element</span>
+    <span class="keyword">return</span> <span class="literal">false</span> <span class="keyword">if</span> <span class="keyword">not</span> names
 
-    <span class="nx">arrayOfPairs</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <h3>getWidgets(node)</h3>
+    <span class="keyword">for</span> moduleName <span class="keyword">in</span> names
+      arrayOfPairs.push
+        name: moduleName
+        element: element
 
-<p>Возвращает набор пар с именем виджета и ссылкой на DOM-элемент</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">getWidgets = </span><span class="nf">(node) -&gt;</span>
-    <span class="nv">pairs = </span><span class="p">[]</span>
+    arrayOfPairs</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h3">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <h3>getWidgets(node)</h3>
+<p>Возвращает набор пар с именем виджета и ссылкой на DOM-элемент</p>
 
-    <span class="k">if</span> <span class="nx">node</span> <span class="o">and</span> <span class="nx">node</span> <span class="o">isnt</span> <span class="nb">document</span>
-      <span class="nv">root = </span><span class="nx">dom</span> <span class="nx">node</span>
-      <span class="k">for</span> <span class="nx">rootElement</span> <span class="k">in</span> <span class="nx">root</span>
-        <span class="nx">saveTo</span> <span class="nx">pairs</span><span class="p">,</span> <span class="nx">rootElement</span>
-    <span class="k">else</span>
-      <span class="nv">root = </span><span class="nx">dom</span> <span class="nb">document</span>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="function"><span class="title">getWidgets</span></span> = (node) -&gt;
+    pairs = []
 
-    <span class="nv">widgetElements = </span><span class="nx">root</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;.&quot;</span> <span class="o">+</span> <span class="nx">config</span><span class="p">.</span><span class="nx">widgetClassName</span><span class="p">).</span><span class="nx">get</span><span class="p">()</span>
-    <span class="k">for</span> <span class="nx">element</span> <span class="k">in</span> <span class="nx">widgetElements</span>
-      <span class="nx">saveTo</span> <span class="nx">pairs</span><span class="p">,</span> <span class="nx">element</span>
-    <span class="nx">pairs</span>
+    <span class="keyword">if</span> node <span class="keyword">and</span> node <span class="keyword">isnt</span> document
+      root = dom node
+      <span class="keyword">for</span> rootElement <span class="keyword">in</span> root
+        saveTo pairs, rootElement
+    <span class="keyword">else</span>
+      root = dom document
 
-  <span class="nx">getWidgets</span>
+    widgetElements = root.find(<span class="string">"."</span> + config.widgetClassName).get()
+    <span class="keyword">for</span> element <span class="keyword">in</span> widgetElements
+      saveTo pairs, element
+    pairs
 
-</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
+  getWidgets</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

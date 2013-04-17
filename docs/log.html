@@ -1,89 +1,498 @@
-<!DOCTYPE html>  <html> <head>   <title>log.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="ajax.html">                 ajax.coffee               </a>                                           <a class="source" href="app-require-config.html">                 app-require-config.coffee               </a>                                           <a class="source" href="app.html">                 app.coffee               </a>                                           <a class="source" href="clicks.html">                 clicks.coffee               </a>                                           <a class="source" href="anchors.html">                 anchors.coffee               </a>                                           <a class="source" href="forms.html">                 forms.coffee               </a>                                           <a class="source" href="config.html">                 config.coffee               </a>                                           <a class="source" href="dom.html">                 dom.coffee               </a>                                           <a class="source" href="events.html">                 events.coffee               </a>                                           <a class="source" href="history.html">                 history.coffee               </a>                                           <a class="source" href="async.html">                 async.coffee               </a>                                           <a class="source" href="loader.html">                 loader.coffee               </a>                                           <a class="source" href="sections.html">                 sections.coffee               </a>                                           <a class="source" href="asyncQueue.html">                 asyncQueue.coffee               </a>                                           <a class="source" href="cache.html">                 cache.coffee               </a>                                           <a class="source" href="invoker.html">                 invoker.coffee               </a>                                           <a class="source" href="loader.html">                 loader.coffee               </a>                                           <a class="source" href="transition.html">                 transition.coffee               </a>                                           <a class="source" href="destroyer.html">                 destroyer.coffee               </a>                                           <a class="source" href="guid.html">                 guid.coffee               </a>                                           <a class="source" href="log.html">                 log.coffee               </a>                                           <a class="source" href="logWriter.html">                 logWriter.coffee               </a>                                           <a class="source" href="params.html">                 params.coffee               </a>                                           <a class="source" href="storage.html">                 storage.coffee               </a>                                           <a class="source" href="ticker.html">                 ticker.coffee               </a>                                           <a class="source" href="widgetsData.html">                 widgetsData.coffee               </a>                                           <a class="source" href="widgets.html">                 widgets.coffee               </a>                                           <a class="source" href="gradient.html">                 gradient.coffee               </a>                                           <a class="source" href="opacity.html">                 opacity.coffee               </a>                                           <a class="source" href="perspective.html">                 perspective.coffee               </a>                                           <a class="source" href="rotation.html">                 rotation.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               log.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <h3>Logger</h3>             </td>             <td class="code">               <div class="highlight"><pre><span class="nx">define</span> <span class="p">[</span><span class="s">&#39;module&#39;</span><span class="p">],</span> <span class="nf">(module) -&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <hr />
+<!DOCTYPE html>
 
-<h2>Options</h2>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">options = </span><span class="nx">_</span><span class="p">.</span><span class="nx">extend</span> <span class="p">{</span>
-      <span class="nv">maxEntries: </span><span class="mi">500</span>
-      <span class="nv">logLevel: </span><span class="mi">10</span>
-    <span class="p">},</span> <span class="nx">module</span><span class="p">.</span><span class="nx">config</span><span class="p">()</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <hr />
+<html>
+<head>
+  <title>log.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="ajax.html">
+                ajax.coffee
+              </a>
+            
+              
+              <a class="source" href="app-require-config.html">
+                app-require-config.coffee
+              </a>
+            
+              
+              <a class="source" href="app.html">
+                app.coffee
+              </a>
+            
+              
+              <a class="source" href="clicks.html">
+                clicks.coffee
+              </a>
+            
+              
+              <a class="source" href="anchors.html">
+                anchors.coffee
+              </a>
+            
+              
+              <a class="source" href="forms.html">
+                forms.coffee
+              </a>
+            
+              
+              <a class="source" href="config.html">
+                config.coffee
+              </a>
+            
+              
+              <a class="source" href="dom.html">
+                dom.coffee
+              </a>
+            
+              
+              <a class="source" href="events.html">
+                events.coffee
+              </a>
+            
+              
+              <a class="source" href="history.html">
+                history.coffee
+              </a>
+            
+              
+              <a class="source" href="async.html">
+                async.coffee
+              </a>
+            
+              
+              <a class="source" href="loader.html">
+                loader.coffee
+              </a>
+            
+              
+              <a class="source" href="sections.html">
+                sections.coffee
+              </a>
+            
+              
+              <a class="source" href="asyncQueue.html">
+                asyncQueue.coffee
+              </a>
+            
+              
+              <a class="source" href="cache.html">
+                cache.coffee
+              </a>
+            
+              
+              <a class="source" href="invoker.html">
+                invoker.coffee
+              </a>
+            
+              
+              <a class="source" href="loader.html">
+                loader.coffee
+              </a>
+            
+              
+              <a class="source" href="transition.html">
+                transition.coffee
+              </a>
+            
+              
+              <a class="source" href="destroyer.html">
+                destroyer.coffee
+              </a>
+            
+              
+              <a class="source" href="guid.html">
+                guid.coffee
+              </a>
+            
+              
+              <a class="source" href="log.html">
+                log.coffee
+              </a>
+            
+              
+              <a class="source" href="logWriter.html">
+                logWriter.coffee
+              </a>
+            
+              
+              <a class="source" href="params.html">
+                params.coffee
+              </a>
+            
+              
+              <a class="source" href="storage.html">
+                storage.coffee
+              </a>
+            
+              
+              <a class="source" href="ticker.html">
+                ticker.coffee
+              </a>
+            
+              
+              <a class="source" href="widgetsData.html">
+                widgetsData.coffee
+              </a>
+            
+              
+              <a class="source" href="widgets.html">
+                widgets.coffee
+              </a>
+            
+              
+              <a class="source" href="gradient.html">
+                gradient.coffee
+              </a>
+            
+              
+              <a class="source" href="opacity.html">
+                opacity.coffee
+              </a>
+            
+              
+              <a class="source" href="perspective.html">
+                perspective.coffee
+              </a>
+            
+              
+              <a class="source" href="rotation.html">
+                rotation.coffee
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>log.coffee</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h3">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h3>Logger</h3>
 
-<h2>Small class for one log entry</h2>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="k">class</span> <span class="nx">LogEntry</span>
-    <span class="nv">constructor: </span><span class="nf">(@message, @namespace = &quot;global&quot;, @type, @objectsArray) -&gt;</span>
-      <span class="vi">@time = </span><span class="k">new</span> <span class="nb">Date</span><span class="p">().</span><span class="nx">getTime</span><span class="p">()</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <hr />
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>define [<span class="string">'module'</span>], (module) -&gt;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <hr>
 
-<h2>Entries list manager</h2>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">entriesList =</span>
-    <span class="nv">entries: </span><span class="p">[]</span>
-    <span class="nv">maxEntries: </span><span class="nx">options</span><span class="p">.</span><span class="nx">maxEntries</span>
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <h2>Options</h2>
 
-    <span class="nv">append: </span><span class="nf">(message, namespace, objectsArray, type) -&gt;</span>
-      <span class="nx">@entries</span><span class="p">.</span><span class="nx">push</span> <span class="k">new</span> <span class="nx">LogEntry</span><span class="p">(</span><span class="nx">message</span><span class="p">,</span> <span class="nx">namespace</span><span class="p">,</span> <span class="nx">type</span><span class="p">,</span> <span class="nx">objectsArray</span><span class="p">)</span>
-      <span class="nx">@checkMaxLogStack</span><span class="p">()</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>sortByTime: (a, b) ->
-  return (a.time - b.time)</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">getEntries: </span><span class="nf">(type) -&gt;</span>
-      <span class="k">return</span> <span class="nx">@entries</span> <span class="k">if</span> <span class="o">not</span> <span class="nx">type</span><span class="o">?</span>
-      <span class="nv">resultArray = </span><span class="p">[]</span>
-      <span class="nx">resultArray</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">entry</span><span class="p">)</span> <span class="k">for</span> <span class="nx">entry</span> <span class="k">in</span> <span class="nx">@entries</span> <span class="k">when</span> <span class="nx">entry</span><span class="p">.</span><span class="nx">type</span> <span class="o">is</span> <span class="nx">type</span>
-      <span class="nx">resultArray</span>
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  options = _.extend {
+      maxEntries: <span class="number">500</span>
+      logLevel: <span class="number">10</span>
+    }, module.config()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <hr>
 
-    <span class="nv">checkMaxLogStack: </span><span class="nf">() -&gt;</span>
-      <span class="k">return</span> <span class="kc">true</span> <span class="k">if</span> <span class="nx">@entries</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;=</span> <span class="nx">@maxEntries</span>
-      <span class="k">return</span> <span class="nx">@entries</span><span class="p">.</span><span class="nx">shift</span><span class="p">()</span>
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <h2>Small class for one log entry</h2>
 
-    <span class="nv">empty: </span><span class="nf">() -&gt;</span>
-      <span class="vi">@entries.length = </span><span class="mi">0</span>  
-      <span class="kc">true</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <hr />
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="class"><span class="keyword">class</span> <span class="title">LogEntry</span></span>
+    constructor: (<span class="property">@message</span>, <span class="property">@namespace</span> = <span class="string">"global"</span>, <span class="property">@type</span>, <span class="property">@objectsArray</span>) -&gt;
+      <span class="property">@time</span> = <span class="keyword">new</span> Date().getTime()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <hr>
 
-<h2>Proxy functions</h2>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">_log = </span><span class="nf">(message, namespace, objectsArray, type = &quot;log&quot;) -&gt;</span>
-    <span class="nx">entriesList</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">message</span><span class="p">,</span> <span class="nx">namespace</span><span class="p">,</span> <span class="nx">objectsArray</span><span class="p">,</span> <span class="nx">type</span><span class="p">)</span>
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <h2>Entries list manager</h2>
 
-  <span class="nv">_info = </span><span class="nf">() -&gt;</span>
-    <span class="nx">_log</span> <span class="nx">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="nx">arguments</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="nx">arguments</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s">&quot;info&quot;</span>
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  entriesList =
+    entries: []
+    maxEntries: options.maxEntries
 
-  <span class="nv">_notice = </span><span class="nf">() -&gt;</span>
-    <span class="nx">_log</span> <span class="nx">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="nx">arguments</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="nx">arguments</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s">&quot;notice&quot;</span>
+    append: (message, namespace, objectsArray, type) -&gt;
+      <span class="property">@entries</span>.push <span class="keyword">new</span> LogEntry(message, namespace, type, objectsArray)
+      <span class="property">@checkMaxLogStack</span>()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>sortByTime: (a, b) -&gt;
+  return (a.time - b.time)</p>
 
-  <span class="nv">_warn = </span><span class="nf">() -&gt;</span>
-    <span class="nx">_log</span> <span class="nx">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="nx">arguments</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="nx">arguments</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s">&quot;warn&quot;</span>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    getEntries: (type) -&gt;
+      <span class="keyword">return</span> <span class="property">@entries</span> <span class="keyword">if</span> <span class="keyword">not</span> type?
+      resultArray = []
+      resultArray.push(entry) <span class="keyword">for</span> entry <span class="keyword">in</span> <span class="property">@entries</span> <span class="keyword">when</span> entry.type <span class="keyword">is</span> type
+      resultArray
 
-  <span class="nv">_error = </span><span class="nf">() -&gt;</span>
-    <span class="nx">_log</span> <span class="nx">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="nx">arguments</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="nx">arguments</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s">&quot;error&quot;</span>
+    checkMaxLogStack: () -&gt;
+      <span class="keyword">return</span> <span class="literal">true</span> <span class="keyword">if</span> <span class="property">@entries</span>.length &lt;= <span class="property">@maxEntries</span>
+      <span class="keyword">return</span> <span class="property">@entries</span>.shift()
 
-  <span class="nv">_empty = </span><span class="nf">() -&gt;</span>
-    <span class="nx">entriesList</span><span class="p">.</span><span class="nx">empty</span><span class="p">()</span>
+    empty: () -&gt;
+      <span class="property">@entries</span>.length = <span class="number">0</span>  
+      <span class="literal">true</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <hr>
 
-  <span class="nv">_getEntries = </span><span class="nf">(type) -&gt;</span>
-    <span class="nx">entriesList</span><span class="p">.</span><span class="nx">getEntries</span><span class="p">(</span><span class="nx">type</span><span class="p">)</span>
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <h2>Proxy functions</h2>
 
-  <span class="nv">_printEntries = </span><span class="nf">(type) -&gt;</span>
-    <span class="k">return</span> <span class="k">if</span> <span class="o">not</span> <span class="nx">console</span><span class="o">?</span>
-    <span class="nv">entries = </span><span class="nx">entriesList</span><span class="p">.</span><span class="nx">getEntries</span><span class="p">(</span><span class="nx">type</span><span class="p">)</span>
-    <span class="k">for</span> <span class="nx">entry</span> <span class="k">in</span> <span class="nx">entries</span>
-      <span class="nv">printType = </span><span class="k">if</span> <span class="nx">console</span><span class="p">[</span><span class="nx">entry</span><span class="p">.</span><span class="nx">type</span><span class="p">]</span><span class="o">?</span> <span class="k">then</span> <span class="nx">entry</span><span class="p">.</span><span class="nx">type</span> <span class="k">else</span> <span class="s">&quot;log&quot;</span>
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="function"><span class="title">_log</span></span> = (message, namespace, objectsArray, type = <span class="string">"log"</span>) -&gt;
+    entriesList.append(message, namespace, objectsArray, type)
 
-      <span class="k">if</span> <span class="nx">entry</span><span class="p">.</span><span class="nx">objectsArray</span>
-        <span class="nx">console</span><span class="p">[</span><span class="nx">printType</span><span class="p">]</span> <span class="s">&quot;L: [</span><span class="si">#{</span><span class="nx">entry</span><span class="p">.</span><span class="nx">namespace</span><span class="si">}</span><span class="s">][</span><span class="si">#{</span><span class="nx">entry</span><span class="p">.</span><span class="nx">type</span><span class="si">}</span><span class="s">]:&quot;</span><span class="p">,</span> <span class="nx">entry</span><span class="p">.</span><span class="nx">message</span><span class="p">,</span> <span class="nx">entry</span><span class="p">.</span><span class="nx">objectsArray</span>
-      <span class="k">else</span>
-        <span class="nx">console</span><span class="p">[</span><span class="nx">printType</span><span class="p">]</span> <span class="s">&quot;L: [</span><span class="si">#{</span><span class="nx">entry</span><span class="p">.</span><span class="nx">namespace</span><span class="si">}</span><span class="s">][</span><span class="si">#{</span><span class="nx">entry</span><span class="p">.</span><span class="nx">type</span><span class="si">}</span><span class="s">]:&quot;</span><span class="p">,</span> <span class="nx">entry</span><span class="p">.</span><span class="nx">message</span>
-    <span class="nx">entries</span>
+  _info = () -&gt;
+    _log arguments[<span class="number">0</span>],arguments[<span class="number">1</span>],arguments[<span class="number">2</span>], <span class="string">"info"</span>
 
-  <span class="nv">_saveToServer = </span><span class="nf">() -&gt;</span>
-    <span class="kc">true</span>
+  _notice = () -&gt;
+    _log arguments[<span class="number">0</span>],arguments[<span class="number">1</span>],arguments[<span class="number">2</span>], <span class="string">"notice"</span>
 
-  <span class="nv">_sendStat = </span><span class="nf">() -&gt;</span>
-    <span class="kc">true</span>
+  _warn = () -&gt;
+    _log arguments[<span class="number">0</span>],arguments[<span class="number">1</span>],arguments[<span class="number">2</span>], <span class="string">"warn"</span>
 
-  <span class="nv">_getMaxEntries = </span><span class="nf">() -&gt;</span>
-    <span class="k">return</span> <span class="mi">0</span> <span class="o">+</span> <span class="nx">entriesList</span><span class="p">.</span><span class="nx">maxEntries</span> </pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <hr />
+  _error = () -&gt;
+    _log arguments[<span class="number">0</span>],arguments[<span class="number">1</span>],arguments[<span class="number">2</span>], <span class="string">"error"</span>
 
-<h2>Module API</h2>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="k">return</span> <span class="p">{</span>
-    <span class="nv">log: </span><span class="nx">_log</span>
-    <span class="nv">info: </span><span class="nx">_info</span>
-    <span class="nv">notice: </span><span class="nx">_notice</span>
-    <span class="nv">warn: </span><span class="nx">_warn</span>
-    <span class="nv">error: </span><span class="nx">_error</span>
-    <span class="nv">empty: </span><span class="nx">_empty</span>
-    <span class="nv">getEntries: </span><span class="nx">_getEntries</span>
-    <span class="nv">printEntries: </span><span class="nx">_printEntries</span>
-    <span class="nv">saveToServer: </span><span class="nx">_saveToServer</span>
-    <span class="nv">sendStat: </span><span class="nx">_sendStat</span>
-    <span class="nv">getMaxEntries: </span><span class="nx">_getMaxEntries</span>
-  <span class="p">}</span>
+  _empty = () -&gt;
+    entriesList.empty()
 
-</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
+  <span class="function"><span class="title">_getEntries</span></span> = (type) -&gt;
+    entriesList.getEntries(type)
+
+  <span class="function"><span class="title">_printEntries</span></span> = (type) -&gt;
+    <span class="keyword">return</span> <span class="keyword">if</span> <span class="keyword">not</span> console?
+    entries = entriesList.getEntries(type)
+    <span class="keyword">for</span> entry <span class="keyword">in</span> entries
+      printType = <span class="keyword">if</span> console[entry.type]? <span class="keyword">then</span> entry.type <span class="keyword">else</span> <span class="string">"log"</span>
+
+      <span class="keyword">if</span> entry.objectsArray
+        console[printType] <span class="string">"L: [<span class="subst">#{entry.namespace}</span>][<span class="subst">#{entry.type}</span>]:"</span>, entry.message, entry.objectsArray
+      <span class="keyword">else</span>
+        console[printType] <span class="string">"L: [<span class="subst">#{entry.namespace}</span>][<span class="subst">#{entry.type}</span>]:"</span>, entry.message
+    entries
+
+  _saveToServer = () -&gt;
+    <span class="literal">true</span>
+
+  _sendStat = () -&gt;
+    <span class="literal">true</span>
+
+  _getMaxEntries = () -&gt;
+    <span class="keyword">return</span> <span class="number">0</span> + entriesList.maxEntries</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <hr>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <h2>Module API</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="keyword">return</span> {
+    log: _log
+    info: _info
+    notice: _notice
+    warn: _warn
+    error: _error
+    empty: _empty
+    getEntries: _getEntries
+    printEntries: _printEntries
+    saveToServer: _saveToServer
+    sendStat: _sendStat
+    getMaxEntries: _getMaxEntries
+  }</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

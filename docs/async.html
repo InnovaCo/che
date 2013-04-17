@@ -1,157 +1,360 @@
-<!DOCTYPE html>  <html> <head>   <title>async.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="ajax.html">                 ajax.coffee               </a>                                           <a class="source" href="app-require-config.html">                 app-require-config.coffee               </a>                                           <a class="source" href="app.html">                 app.coffee               </a>                                           <a class="source" href="clicks.html">                 clicks.coffee               </a>                                           <a class="source" href="anchors.html">                 anchors.coffee               </a>                                           <a class="source" href="forms.html">                 forms.coffee               </a>                                           <a class="source" href="config.html">                 config.coffee               </a>                                           <a class="source" href="dom.html">                 dom.coffee               </a>                                           <a class="source" href="events.html">                 events.coffee               </a>                                           <a class="source" href="history.html">                 history.coffee               </a>                                           <a class="source" href="async.html">                 async.coffee               </a>                                           <a class="source" href="loader.html">                 loader.coffee               </a>                                           <a class="source" href="sections.html">                 sections.coffee               </a>                                           <a class="source" href="asyncQueue.html">                 asyncQueue.coffee               </a>                                           <a class="source" href="cache.html">                 cache.coffee               </a>                                           <a class="source" href="invoker.html">                 invoker.coffee               </a>                                           <a class="source" href="loader.html">                 loader.coffee               </a>                                           <a class="source" href="transition.html">                 transition.coffee               </a>                                           <a class="source" href="destroyer.html">                 destroyer.coffee               </a>                                           <a class="source" href="guid.html">                 guid.coffee               </a>                                           <a class="source" href="log.html">                 log.coffee               </a>                                           <a class="source" href="logWriter.html">                 logWriter.coffee               </a>                                           <a class="source" href="params.html">                 params.coffee               </a>                                           <a class="source" href="storage.html">                 storage.coffee               </a>                                           <a class="source" href="ticker.html">                 ticker.coffee               </a>                                           <a class="source" href="widgetsData.html">                 widgetsData.coffee               </a>                                           <a class="source" href="widgets.html">                 widgets.coffee               </a>                                           <a class="source" href="gradient.html">                 gradient.coffee               </a>                                           <a class="source" href="opacity.html">                 opacity.coffee               </a>                                           <a class="source" href="perspective.html">                 perspective.coffee               </a>                                           <a class="source" href="rotation.html">                 rotation.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               async.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <p>requirejs-async v 0.0.1
-(c) 2012 Dmitriy Kharchenko
-https://github.com/aki-russia/requirejs-async
-Freely distributable under the MIT license.</p>
+<!DOCTYPE html>
 
-<p>Easy async working with huge amount of data</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nx">define</span> <span class="p">[</span><span class="s">&quot;underscore&quot;</span><span class="p">],</span> <span class="nf">(_) -&gt;</span>
-  <span class="nv">BatchBalancer = </span><span class="nf">(limit) -&gt;</span>
-    <span class="vi">@_start_time = </span><span class="o">+</span><span class="k">new</span> <span class="nb">Date</span><span class="p">()</span>
-    <span class="vi">@_limit = </span><span class="nx">limit</span> <span class="o">or</span> <span class="mi">50</span>
-
-  <span class="nv">BatchBalancer:: =</span>
-    <span class="nv">start: </span><span class="nf">(callback) -&gt;</span>
-      <span class="nv">call_date = </span><span class="o">+</span><span class="k">new</span> <span class="nb">Date</span><span class="p">()</span>
-      <span class="k">if</span> <span class="nx">@_limit</span> <span class="o">&lt;</span> <span class="p">(</span><span class="nx">call_date</span> <span class="o">-</span> <span class="nx">@_start_time</span><span class="p">)</span>
-        <span class="vi">@_start_time = </span><span class="nx">call_date</span>
-        <span class="nx">_</span><span class="p">.</span><span class="nx">delay</span> <span class="nx">callback</span>
-      <span class="k">else</span>
-        <span class="nx">callback</span><span class="p">()</span>
-
-  <span class="nv">helpers = </span>
-    <span class="nv">call_complete_handlers: </span><span class="nf">(handlers, state, balancer) -&gt;</span>
-      <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="nx">handlers</span><span class="p">.</span><span class="nx">length</span>
-        <span class="nv">handler = </span><span class="nx">handlers</span><span class="p">.</span><span class="nx">shift</span><span class="p">()</span>
-        <span class="nx">handler</span> <span class="nx">state</span>
-        <span class="nx">balancer</span><span class="p">.</span><span class="nx">start</span> <span class="o">-&gt;</span>
-          <span class="nx">helpers</span><span class="p">.</span><span class="nx">call_complete_handlers</span> <span class="nx">handlers</span><span class="p">,</span> <span class="nx">state</span><span class="p">,</span> <span class="nx">balancer</span>
-
-
-  <span class="nv">async_iterate = </span><span class="nf">(iterator, batch_balancer, complete) -&gt;</span>
-    <span class="nv">keys = </span><span class="kc">undefined</span>
-    <span class="nv">iteration_initializer = </span><span class="kc">null</span>
-    <span class="nv">balancer = </span><span class="nx">batch_balancer</span> <span class="o">or</span> <span class="k">new</span> <span class="nx">BatchBalancer</span><span class="p">()</span>
-    <span class="nv">state = is_complete: </span><span class="kc">false</span>
-    <span class="nv">complete_handlers = </span><span class="p">[]</span>
-    <span class="nx">complete_handlers</span><span class="p">.</span><span class="nx">push</span> <span class="nx">complete</span>  <span class="k">if</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isFunction</span><span class="p">(</span><span class="nx">complete</span><span class="p">)</span>
-
-    <span class="nv">iteration_complete = </span><span class="o">-&gt;</span>
-      <span class="nv">state.is_complete = </span><span class="kc">true</span>
-      <span class="nv">state.result = </span><span class="nx">state</span><span class="p">.</span><span class="nx">data</span> <span class="nx">unless</span> <span class="nx">state</span><span class="p">.</span><span class="nx">result</span>
-      <span class="nx">helpers</span><span class="p">.</span><span class="nx">call_complete_handlers</span> <span class="nx">complete_handlers</span><span class="p">,</span> <span class="nx">state</span><span class="p">,</span> <span class="nx">balancer</span>
-
-    <span class="nv">iteration = </span><span class="k">if</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isFunction</span> <span class="nx">iterator</span> <span class="k">then</span> <span class="o">-&gt;</span>
-      <span class="k">return</span> <span class="kc">false</span> <span class="k">if</span> <span class="nx">state</span><span class="p">.</span><span class="nx">is_wait</span>
-      <span class="k">return</span> <span class="nx">iteration_complete</span><span class="p">()</span> <span class="k">if</span> <span class="nx">state</span><span class="p">.</span><span class="nx">is_complete</span> <span class="o">or</span> <span class="nx">keys</span><span class="p">.</span><span class="nx">length</span> <span class="o">is</span> <span class="mi">0</span>
-
-      <span class="nv">next_index = </span><span class="nx">keys</span><span class="p">.</span><span class="nx">shift</span><span class="p">()</span>
-      <span class="nv">result = </span><span class="nx">iterator</span> <span class="nx">state</span><span class="p">.</span><span class="nx">data</span><span class="p">[</span><span class="nx">next_index</span><span class="p">],</span> <span class="nx">next_index</span><span class="p">,</span> <span class="nx">iteration_initializer</span>
-      <span class="k">if</span> <span class="nx">result</span> <span class="o">isnt</span> <span class="kc">undefined</span>
-        <span class="nv">state.result = </span><span class="p">(</span><span class="k">if</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isArray</span> <span class="nx">state</span><span class="p">.</span><span class="nx">data</span> <span class="k">then</span> <span class="p">[]</span> <span class="k">else</span> <span class="p">{})</span> <span class="nx">unless</span> <span class="nx">state</span><span class="p">.</span><span class="nx">result</span>
-        <span class="nx">state</span><span class="p">.</span><span class="nx">result</span><span class="p">[</span><span class="nx">next_index</span><span class="p">]</span> <span class="o">=</span> <span class="nx">result</span>
-
-      <span class="nx">balancer</span><span class="p">.</span><span class="nx">start</span> <span class="nx">iteration</span>
-
-
-    <span class="k">else</span> <span class="o">-&gt;</span>
-      <span class="nv">state.is_complete = </span><span class="kc">true</span>
-      <span class="nv">state.result = </span><span class="nx">state</span><span class="p">.</span><span class="nx">data</span>
-      <span class="nx">iteration_complete</span><span class="p">()</span>
-      <span class="nx">state</span>
-
-    <span class="nv">iteration_initializer = </span><span class="nf">(data) -&gt;</span>
-      <span class="nv">state.data = </span><span class="nx">data</span>
-      <span class="nv">keys = </span><span class="p">(</span><span class="k">if</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="o">or</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isObject</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="k">then</span> <span class="nx">_</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">state</span><span class="p">.</span><span class="nx">data</span><span class="p">)</span> <span class="k">else</span> <span class="p">[])</span>
-      <span class="nx">balancer</span><span class="p">.</span><span class="nx">start</span> <span class="nx">iteration</span>
-
-    <span class="nv">iteration_initializer.iterator = </span><span class="nx">iterator</span>
-
-    <span class="nv">iteration_initializer.complete = </span><span class="nf">(handler) -&gt;</span>
-      <span class="nx">complete_handlers</span><span class="p">.</span><span class="nx">push</span> <span class="nx">handler</span>
-      <span class="nx">iteration_complete</span><span class="p">()</span> <span class="k">if</span> <span class="nx">state</span><span class="p">.</span><span class="nx">is_complete</span>
-
-    <span class="nv">iteration_initializer.stop = </span><span class="o">-&gt;</span>
-      <span class="nv">keys = </span><span class="p">[]</span>
-      <span class="nv">state.is_complete = </span><span class="kc">true</span>
-
-    <span class="nv">iteration_initializer.pause = </span><span class="nf">() -&gt;</span>
-      <span class="nv">state.is_wait = </span><span class="kc">true</span>
-
-    <span class="nv">iteration_initializer.resume = </span><span class="nf">() -&gt;</span>
-      <span class="nv">state.is_wait = </span><span class="kc">false</span>
-      <span class="nx">balancer</span><span class="o">?</span><span class="p">.</span><span class="nx">start</span> <span class="nx">iteration</span>
-
-    <span class="nv">iteration_initializer.state = </span><span class="nx">state</span>
-    <span class="nx">iteration_initializer</span>
-
-  <span class="nv">Worker = </span><span class="nf">(data) -&gt;</span>
-    <span class="vi">@_last_iteration = </span><span class="nx">async_iterate</span><span class="p">()</span>
-    <span class="nx">@_last_iteration</span> <span class="nx">data</span> <span class="o">or</span> <span class="p">[]</span>
-    <span class="vi">@_balancer = </span><span class="k">new</span> <span class="nx">BatchBalancer</span>
-    <span class="vi">@_id = </span><span class="nx">_</span><span class="p">.</span><span class="nx">uniqueId</span><span class="p">()</span>
-    <span class="vi">@_current_iteration = </span><span class="nx">@_last_iteration</span>
-    <span class="nx">@</span>
-
-  <span class="nv">Worker:: =</span>
-    <span class="nv">_push: </span><span class="nf">(data) -&gt;</span>
-      <span class="nv">new_iteration = </span><span class="nx">async_iterate</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">iterator</span><span class="p">,</span> <span class="nx">@_balancer</span><span class="p">,</span> <span class="nx">data</span><span class="p">.</span><span class="nx">complete</span><span class="p">)</span>
-      <span class="nv">prev_iteration = </span><span class="nx">@_last_iteration</span>
-      <span class="vi">@_last_iteration = </span><span class="nx">new_iteration</span>
-      <span class="nx">prev_iteration</span><span class="p">.</span><span class="nx">complete</span> <span class="p">(</span><span class="nx">state</span><span class="p">)</span> <span class="o">=&gt;</span> 
-        <span class="vi">@_current_iteration = </span><span class="nx">new_iteration</span>
-        <span class="nx">new_iteration</span> <span class="nx">state</span><span class="p">.</span><span class="nx">result</span>
-
-      <span class="nx">@</span>
-
-
-    <span class="nv">stop: </span><span class="o">-&gt;</span>
-      <span class="nx">@_current_iteration</span><span class="p">.</span><span class="nx">stop</span><span class="p">()</span>
+<html>
+<head>
+  <title>async.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="ajax.html">
+                ajax.coffee
+              </a>
+            
+              
+              <a class="source" href="app-require-config.html">
+                app-require-config.coffee
+              </a>
+            
+              
+              <a class="source" href="app.html">
+                app.coffee
+              </a>
+            
+              
+              <a class="source" href="clicks.html">
+                clicks.coffee
+              </a>
+            
+              
+              <a class="source" href="anchors.html">
+                anchors.coffee
+              </a>
+            
+              
+              <a class="source" href="forms.html">
+                forms.coffee
+              </a>
+            
+              
+              <a class="source" href="config.html">
+                config.coffee
+              </a>
+            
+              
+              <a class="source" href="dom.html">
+                dom.coffee
+              </a>
+            
+              
+              <a class="source" href="events.html">
+                events.coffee
+              </a>
+            
+              
+              <a class="source" href="history.html">
+                history.coffee
+              </a>
+            
+              
+              <a class="source" href="async.html">
+                async.coffee
+              </a>
+            
+              
+              <a class="source" href="loader.html">
+                loader.coffee
+              </a>
+            
+              
+              <a class="source" href="sections.html">
+                sections.coffee
+              </a>
+            
+              
+              <a class="source" href="asyncQueue.html">
+                asyncQueue.coffee
+              </a>
+            
+              
+              <a class="source" href="cache.html">
+                cache.coffee
+              </a>
+            
+              
+              <a class="source" href="invoker.html">
+                invoker.coffee
+              </a>
+            
+              
+              <a class="source" href="loader.html">
+                loader.coffee
+              </a>
+            
+              
+              <a class="source" href="transition.html">
+                transition.coffee
+              </a>
+            
+              
+              <a class="source" href="destroyer.html">
+                destroyer.coffee
+              </a>
+            
+              
+              <a class="source" href="guid.html">
+                guid.coffee
+              </a>
+            
+              
+              <a class="source" href="log.html">
+                log.coffee
+              </a>
+            
+              
+              <a class="source" href="logWriter.html">
+                logWriter.coffee
+              </a>
+            
+              
+              <a class="source" href="params.html">
+                params.coffee
+              </a>
+            
+              
+              <a class="source" href="storage.html">
+                storage.coffee
+              </a>
+            
+              
+              <a class="source" href="ticker.html">
+                ticker.coffee
+              </a>
+            
+              
+              <a class="source" href="widgetsData.html">
+                widgetsData.coffee
+              </a>
+            
+              
+              <a class="source" href="widgets.html">
+                widgets.coffee
+              </a>
+            
+              
+              <a class="source" href="gradient.html">
+                gradient.coffee
+              </a>
+            
+              
+              <a class="source" href="opacity.html">
+                opacity.coffee
+              </a>
+            
+              
+              <a class="source" href="perspective.html">
+                perspective.coffee
+              </a>
+            
+              
+              <a class="source" href="rotation.html">
+                rotation.coffee
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
         
-      <span class="nx">@</span>
+          <li id="title">
+              <div class="annotation">
+                  <h1>async.coffee</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p>requirejs-async v 0.0.1
+(c) 2012 Dmitriy Kharchenko
+<a href="https://github.com/aki-russia/requirejs-async">https://github.com/aki-russia/requirejs-async</a>
+Freely distributable under the MIT license.</p>
+<p>Easy async working with huge amount of data</p>
 
-    <span class="nv">use: </span><span class="nf">(data) -&gt;</span>
-      <span class="nx">@_push</span> <span class="nv">complete: </span><span class="nf">(state) -&gt;</span>
-        <span class="nv">state.result = </span><span class="nx">data</span>
-      <span class="nx">@</span>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>define [<span class="string">"underscore"</span>], (_) -&gt;
+  <span class="function"><span class="title">BatchBalancer</span></span> = (limit) -&gt;
+    <span class="property">@_start_time</span> = +<span class="keyword">new</span> Date()
+    <span class="property">@_limit</span> = limit <span class="keyword">or</span> <span class="number">50</span>
 
-    <span class="nv">each: </span><span class="nf">(iterator) -&gt;</span>
-      <span class="nx">@_push</span> <span class="nv">iterator: </span><span class="nf">(value, index, flow) -&gt;</span>
-        <span class="nx">@stop</span><span class="p">()</span> <span class="k">if</span> <span class="nx">iterator</span><span class="p">(</span><span class="nx">value</span><span class="p">,</span> <span class="nx">index</span><span class="p">,</span> <span class="nx">flow</span><span class="p">)</span> <span class="o">is</span> <span class="kc">false</span>
-      <span class="nx">@</span>
+  BatchBalancer:: =
+    start: (callback) -&gt;
+      call_date = +<span class="keyword">new</span> Date()
+      <span class="keyword">if</span> <span class="property">@_limit</span> &lt; (call_date - <span class="property">@_start_time</span>)
+        <span class="property">@_start_time</span> = call_date
+        _.delay callback
+      <span class="keyword">else</span>
+        callback()
 
-
-    <span class="nv">map: </span><span class="nf">(iterator) -&gt;</span>
-      <span class="nx">@_push</span> <span class="nv">iterator: </span><span class="nx">iterator</span>
-
-    <span class="nv">reduce: </span><span class="nf">(iterator) -&gt;</span>
-      <span class="nv">summary = </span><span class="kc">undefined</span>
-      <span class="nx">@_push</span>
-        <span class="nv">iterator: </span><span class="nf">(value, index, flow) -&gt;</span>
-          <span class="nv">summary = </span><span class="nx">iterator</span><span class="p">(</span><span class="nx">value</span><span class="p">,</span> <span class="nx">index</span><span class="p">,</span> <span class="nx">summary</span><span class="p">,</span> <span class="nx">flow</span><span class="p">)</span>
-
-        <span class="nv">complete: </span><span class="nf">(state) -&gt;</span>
-          <span class="nv">state.result = </span><span class="nx">summary</span>
-      <span class="nx">@</span>
-
-
-    <span class="nv">find: </span><span class="nf">(iterator) -&gt;</span>
-      <span class="nv">found = </span><span class="kc">undefined</span>
-      <span class="nx">@_push</span>
-        <span class="nv">iterator: </span><span class="nf">(value, index, flow) -&gt;</span>
-          <span class="nv">found = </span><span class="nx">value</span>  <span class="k">if</span> <span class="nx">iterator</span><span class="p">(</span><span class="nx">value</span><span class="p">,</span> <span class="nx">index</span><span class="p">,</span> <span class="nx">flow</span><span class="p">)</span>
-
-        <span class="nv">complete: </span><span class="nf">(state) -&gt;</span>
-          <span class="nv">state.result = </span><span class="nx">found</span>
-      <span class="nx">@</span>
+  helpers = 
+    call_complete_handlers: (handlers, state, balancer) -&gt;
+      <span class="keyword">if</span> <span class="number">0</span> &lt; handlers.length
+        handler = handlers.shift()
+        handler state
+        balancer.start -&gt;
+          helpers.call_complete_handlers handlers, state, balancer
 
 
-    <span class="nv">next: </span><span class="nf">(handler) -&gt;</span>
-      <span class="nx">@_push</span> <span class="nv">complete: </span><span class="nf">(state) -&gt;</span>
-        <span class="nv">data = </span><span class="nx">handler</span><span class="p">(</span><span class="nx">state</span><span class="p">.</span><span class="nx">result</span><span class="p">)</span>
-        <span class="nv">state.result = </span><span class="p">(</span><span class="k">if</span> <span class="o">not</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isUndefined</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="k">then</span> <span class="nx">data</span> <span class="k">else</span> <span class="nx">state</span><span class="p">.</span><span class="nx">data</span><span class="p">)</span>
-      <span class="nx">@</span>
+  <span class="function"><span class="title">async_iterate</span></span> = (iterator, batch_balancer, complete) -&gt;
+    keys = <span class="literal">undefined</span>
+    iteration_initializer = <span class="literal">null</span>
+    balancer = batch_balancer <span class="keyword">or</span> <span class="keyword">new</span> BatchBalancer()
+    state = is_complete: <span class="literal">false</span>
+    complete_handlers = []
+    complete_handlers.push complete  <span class="keyword">if</span> _.isFunction(complete)
+
+    <span class="function"><span class="title">iteration_complete</span></span> = -&gt;
+      state.is_complete = <span class="literal">true</span>
+      state.result = state.data <span class="keyword">unless</span> state.result
+      helpers.call_complete_handlers complete_handlers, state, balancer
+
+    iteration = <span class="keyword">if</span> _.isFunction iterator <span class="keyword">then</span> -&gt;
+      <span class="keyword">return</span> <span class="literal">false</span> <span class="keyword">if</span> state.is_wait
+      <span class="keyword">return</span> iteration_complete() <span class="keyword">if</span> state.is_complete <span class="keyword">or</span> keys.length <span class="keyword">is</span> <span class="number">0</span>
+
+      next_index = keys.shift()
+      result = iterator state.data[next_index], next_index, iteration_initializer
+      <span class="keyword">if</span> result <span class="keyword">isnt</span> <span class="literal">undefined</span>
+        state.result = (<span class="keyword">if</span> _.isArray state.data <span class="keyword">then</span> [] <span class="keyword">else</span> {}) <span class="keyword">unless</span> state.result
+        state.result[next_index] = result
+
+      balancer.start iteration
 
 
-  <span class="nf">(data) -&gt;</span>
-    <span class="k">new</span> <span class="nx">Worker</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+    <span class="keyword">else</span> -&gt;
+      state.is_complete = <span class="literal">true</span>
+      state.result = state.data
+      iteration_complete()
+      state
 
-</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
+    <span class="function"><span class="title">iteration_initializer</span></span> = (data) -&gt;
+      state.data = data
+      keys = (<span class="keyword">if</span> _.isArray(data) <span class="keyword">or</span> _.isObject(data) <span class="keyword">then</span> _.keys(state.data) <span class="keyword">else</span> [])
+      balancer.start iteration
+
+    iteration_initializer.iterator = iterator
+
+    iteration_initializer.<span class="function"><span class="title">complete</span></span> = (handler) -&gt;
+      complete_handlers.push handler
+      iteration_complete() <span class="keyword">if</span> state.is_complete
+
+    iteration_initializer.<span class="function"><span class="title">stop</span></span> = -&gt;
+      keys = []
+      state.is_complete = <span class="literal">true</span>
+
+    iteration_initializer.pause = () -&gt;
+      state.is_wait = <span class="literal">true</span>
+
+    iteration_initializer.resume = () -&gt;
+      state.is_wait = <span class="literal">false</span>
+      balancer?.start iteration
+
+    iteration_initializer.state = state
+    iteration_initializer
+
+  <span class="function"><span class="title">Worker</span></span> = (data) -&gt;
+    <span class="property">@_last_iteration</span> = async_iterate()
+    <span class="property">@_last_iteration</span> data <span class="keyword">or</span> []
+    <span class="property">@_balancer</span> = <span class="keyword">new</span> BatchBalancer
+    <span class="property">@_id</span> = _.uniqueId()
+    <span class="property">@_current_iteration</span> = <span class="property">@_last_iteration</span>
+    @
+
+  Worker:: =
+    _push: (data) -&gt;
+      new_iteration = async_iterate(data.iterator, <span class="property">@_balancer</span>, data.complete)
+      prev_iteration = <span class="property">@_last_iteration</span>
+      <span class="property">@_last_iteration</span> = new_iteration
+      prev_iteration.complete (state) =&gt; 
+        <span class="property">@_current_iteration</span> = new_iteration
+        new_iteration state.result
+
+      @
+
+
+    stop: -&gt;
+      <span class="property">@_current_iteration</span>.stop()
+        
+      @
+
+    use: (data) -&gt;
+      <span class="property">@_push</span> complete: (state) -&gt;
+        state.result = data
+      @
+
+    each: (iterator) -&gt;
+      <span class="property">@_push</span> iterator: (value, index, flow) -&gt;
+        <span class="property">@stop</span>() <span class="keyword">if</span> iterator(value, index, flow) <span class="keyword">is</span> <span class="literal">false</span>
+      @
+
+
+    map: (iterator) -&gt;
+      <span class="property">@_push</span> iterator: iterator
+
+    reduce: (iterator) -&gt;
+      summary = <span class="literal">undefined</span>
+      <span class="property">@_push</span>
+        iterator: (value, index, flow) -&gt;
+          summary = iterator(value, index, summary, flow)
+
+        complete: (state) -&gt;
+          state.result = summary
+      @
+
+
+    find: (iterator) -&gt;
+      found = <span class="literal">undefined</span>
+      <span class="property">@_push</span>
+        iterator: (value, index, flow) -&gt;
+          found = value  <span class="keyword">if</span> iterator(value, index, flow)
+
+        complete: (state) -&gt;
+          state.result = found
+      @
+
+
+    next: (handler) -&gt;
+      <span class="property">@_push</span> complete: (state) -&gt;
+        data = handler(state.result)
+        state.result = (<span class="keyword">if</span> <span class="keyword">not</span> _.isUndefined(data) <span class="keyword">then</span> data <span class="keyword">else</span> state.data)
+      @
+
+
+  (data) -&gt;
+    <span class="keyword">new</span> Worker(data)</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

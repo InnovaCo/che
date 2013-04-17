@@ -1,19 +1,232 @@
-<!DOCTYPE html>  <html> <head>   <title>guid.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="ajax.html">                 ajax.coffee               </a>                                           <a class="source" href="app-require-config.html">                 app-require-config.coffee               </a>                                           <a class="source" href="app.html">                 app.coffee               </a>                                           <a class="source" href="clicks.html">                 clicks.coffee               </a>                                           <a class="source" href="anchors.html">                 anchors.coffee               </a>                                           <a class="source" href="forms.html">                 forms.coffee               </a>                                           <a class="source" href="config.html">                 config.coffee               </a>                                           <a class="source" href="dom.html">                 dom.coffee               </a>                                           <a class="source" href="events.html">                 events.coffee               </a>                                           <a class="source" href="history.html">                 history.coffee               </a>                                           <a class="source" href="async.html">                 async.coffee               </a>                                           <a class="source" href="loader.html">                 loader.coffee               </a>                                           <a class="source" href="sections.html">                 sections.coffee               </a>                                           <a class="source" href="asyncQueue.html">                 asyncQueue.coffee               </a>                                           <a class="source" href="cache.html">                 cache.coffee               </a>                                           <a class="source" href="invoker.html">                 invoker.coffee               </a>                                           <a class="source" href="loader.html">                 loader.coffee               </a>                                           <a class="source" href="transition.html">                 transition.coffee               </a>                                           <a class="source" href="destroyer.html">                 destroyer.coffee               </a>                                           <a class="source" href="guid.html">                 guid.coffee               </a>                                           <a class="source" href="log.html">                 log.coffee               </a>                                           <a class="source" href="logWriter.html">                 logWriter.coffee               </a>                                           <a class="source" href="params.html">                 params.coffee               </a>                                           <a class="source" href="storage.html">                 storage.coffee               </a>                                           <a class="source" href="ticker.html">                 ticker.coffee               </a>                                           <a class="source" href="widgetsData.html">                 widgetsData.coffee               </a>                                           <a class="source" href="widgets.html">                 widgets.coffee               </a>                                           <a class="source" href="gradient.html">                 gradient.coffee               </a>                                           <a class="source" href="opacity.html">                 opacity.coffee               </a>                                           <a class="source" href="perspective.html">                 perspective.coffee               </a>                                           <a class="source" href="rotation.html">                 rotation.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               guid.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <h3><em>module</em> utils/guid</h3>
+<!DOCTYPE html>
 
-<hr />
+<html>
+<head>
+  <title>guid.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page">
+            
+              
+              <a class="source" href="ajax.html">
+                ajax.coffee
+              </a>
+            
+              
+              <a class="source" href="app-require-config.html">
+                app-require-config.coffee
+              </a>
+            
+              
+              <a class="source" href="app.html">
+                app.coffee
+              </a>
+            
+              
+              <a class="source" href="clicks.html">
+                clicks.coffee
+              </a>
+            
+              
+              <a class="source" href="anchors.html">
+                anchors.coffee
+              </a>
+            
+              
+              <a class="source" href="forms.html">
+                forms.coffee
+              </a>
+            
+              
+              <a class="source" href="config.html">
+                config.coffee
+              </a>
+            
+              
+              <a class="source" href="dom.html">
+                dom.coffee
+              </a>
+            
+              
+              <a class="source" href="events.html">
+                events.coffee
+              </a>
+            
+              
+              <a class="source" href="history.html">
+                history.coffee
+              </a>
+            
+              
+              <a class="source" href="async.html">
+                async.coffee
+              </a>
+            
+              
+              <a class="source" href="loader.html">
+                loader.coffee
+              </a>
+            
+              
+              <a class="source" href="sections.html">
+                sections.coffee
+              </a>
+            
+              
+              <a class="source" href="asyncQueue.html">
+                asyncQueue.coffee
+              </a>
+            
+              
+              <a class="source" href="cache.html">
+                cache.coffee
+              </a>
+            
+              
+              <a class="source" href="invoker.html">
+                invoker.coffee
+              </a>
+            
+              
+              <a class="source" href="loader.html">
+                loader.coffee
+              </a>
+            
+              
+              <a class="source" href="transition.html">
+                transition.coffee
+              </a>
+            
+              
+              <a class="source" href="destroyer.html">
+                destroyer.coffee
+              </a>
+            
+              
+              <a class="source" href="guid.html">
+                guid.coffee
+              </a>
+            
+              
+              <a class="source" href="log.html">
+                log.coffee
+              </a>
+            
+              
+              <a class="source" href="logWriter.html">
+                logWriter.coffee
+              </a>
+            
+              
+              <a class="source" href="params.html">
+                params.coffee
+              </a>
+            
+              
+              <a class="source" href="storage.html">
+                storage.coffee
+              </a>
+            
+              
+              <a class="source" href="ticker.html">
+                ticker.coffee
+              </a>
+            
+              
+              <a class="source" href="widgetsData.html">
+                widgetsData.coffee
+              </a>
+            
+              
+              <a class="source" href="widgets.html">
+                widgets.coffee
+              </a>
+            
+              
+              <a class="source" href="gradient.html">
+                gradient.coffee
+              </a>
+            
+              
+              <a class="source" href="opacity.html">
+                opacity.coffee
+              </a>
+            
+              
+              <a class="source" href="perspective.html">
+                perspective.coffee
+              </a>
+            
+              
+              <a class="source" href="rotation.html">
+                rotation.coffee
+              </a>
+            
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>guid.coffee</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h3">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h3><em>module</em> utils/guid</h3>
+<hr>
 
-<p>Модуль для генерации уникального id в формате UUID.</p>
-
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Модуль для генерации уникального id в формате UUID.</p>
 <p>(по-настоящему глобальным он не является,
- на разных машинах может повторятся)</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nx">define</span> <span class="p">[],</span> <span class="o">-&gt;</span>
-  <span class="nv">S4 = </span><span class="o">-&gt;</span>
-    <span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span> <span class="o">*</span> <span class="mh">0x10000</span><span class="p">).</span><span class="nx">toString</span> <span class="mi">16</span>
+ на разных машинах может повторятся)</p>
 
-  <span class="o">-&gt;</span>
-    <span class="nx">S4</span><span class="p">()</span> <span class="o">+</span> <span class="nx">S4</span><span class="p">()</span> <span class="o">+</span> <span class="s">&quot;-&quot;</span> <span class="o">+</span>
-    <span class="nx">S4</span><span class="p">()</span> <span class="o">+</span> <span class="s">&quot;-&quot;</span> <span class="o">+</span>
-    <span class="nx">S4</span><span class="p">()</span> <span class="o">+</span> <span class="s">&quot;-&quot;</span> <span class="o">+</span>
-    <span class="nx">S4</span><span class="p">()</span> <span class="o">+</span> <span class="s">&quot;-&quot;</span> <span class="o">+</span>
-    <span class="nx">S4</span><span class="p">()</span> <span class="o">+</span> <span class="nx">S4</span><span class="p">()</span> <span class="o">+</span> <span class="nx">S4</span><span class="p">()</span>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>define [], -&gt;
+  <span class="function"><span class="title">S4</span></span> = -&gt;
+    Math.floor(Math.random() * <span class="number">0x10000</span>).toString <span class="number">16</span>
 
-</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
+  -&gt;
+    S4() + S4() + <span class="string">"-"</span> +
+    S4() + <span class="string">"-"</span> +
+    S4() + <span class="string">"-"</span> +
+    S4() + <span class="string">"-"</span> +
+    S4() + S4() + S4()</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

@@ -22,7 +22,7 @@ describe "clicks module", ->
 
     beforeEach ->
       eventsList = events.list
-      jasmine.Clock.useMock();
+      jasmine.Clock.useMock()
 
       events.list = {}
       affix "a[data-reload-sections='testData']"

@@ -16,7 +16,7 @@ describe "clicks/anchors module", ->
     triggerMouseEvent = domEvents.triggerMouseEvent
 
     beforeEach ->
-      jasmine.Clock.useMock();
+      jasmine.Clock.useMock()
 
       anchors.reset()
       affix "a[data-reload-sections='testData']"

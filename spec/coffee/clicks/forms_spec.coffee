@@ -16,7 +16,7 @@ describe "clicks/forms module", ->
     triggerMouseEvent = domEvents.triggerMouseEvent
 
     beforeEach ->
-      jasmine.Clock.useMock();
+      jasmine.Clock.useMock()
       forms.reset()
 
     it "should call handler, when have attr with reload sections params", ->
@@ -44,7 +44,7 @@ describe "clicks/forms module", ->
       formNode = affix 'form[data-reload-sections="testData"][method="POST"] input[type="hidden"][value="123"][name="testInput"] input[type=submit]'
       triggerMouseEvent "click", $(formNode[0]).find("input[type=submit]")[0]
 
-      jasmine.Clock.tick(1000);
+      jasmine.Clock.tick(1000)
 
       expect(handler).toHaveBeenCalled()
       expect(handler.mostRecentCall.args[0][0]).toBe("")

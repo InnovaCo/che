@@ -47,9 +47,10 @@ define ['underscore'],  (_) ->
         if handler.options.isSync
           @_handlerCaller handler, args
         else
-          _.delay => 
-
+          _.delay(
             @_handlerCaller handler, args
+            1
+          ) 
         @_nextHandlerCall(args)
 
     

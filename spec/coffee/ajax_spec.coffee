@@ -6,7 +6,7 @@ describe "ajax module", ->
     realXMLHttpRequest = window.XMLHttpRequest
     XMLHttpRequestsList = []
     window.XMLHttpRequest = ->
-      request = 
+      request =
         send: jasmine.createSpy "send"
         onreadystatechange: null
         open: jasmine.createSpy "open"
@@ -16,7 +16,7 @@ describe "ajax module", ->
       XMLHttpRequestsList.push request
 
       request
-      
+
     require ["ajax"], (ajaxModule) ->
       ajax = ajaxModule
 
@@ -46,9 +46,9 @@ describe "ajax module", ->
         url: "foo/bar",
         method: "POST",
         type: "json",
-        data: 
+        data:
           foo: "bar",
-          bar: 
+          bar:
             zoo: "cat"
         start: start
 
@@ -161,7 +161,7 @@ describe "ajax module", ->
         url: "foo/bar",
         data:
           foo: "bar",
-          bar: 
+          bar:
             zoo: "cat"
 
       request = instance._request
@@ -173,7 +173,7 @@ describe "ajax module", ->
         url: "foo/bar",
         data:
           foo: "bar",
-          bar: 
+          bar:
             zoo: "cat"
 
       request = instance._request

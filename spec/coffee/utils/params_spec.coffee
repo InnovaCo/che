@@ -4,12 +4,12 @@ describe "utils/params module", ->
     require ["utils/params"], (paramsModule) ->
       params = paramsModule
 
-     waitsFor ->
-        params?
+    waitsFor ->
+      params?
 
   describe "encoding objects", ->
     it "should encode object to params string", ->
-      testObject = 
+      testObject =
         foo: "bar"
         fooBar: "foo bar"
         bar:
@@ -22,7 +22,7 @@ describe "utils/params module", ->
       expect(params testObject).toBe expectParams
 
     it "should encode object to params string, invoke all functions inside it and place returned value", ->
-      testObject = 
+      testObject =
         foo: ->
           "bar"
         fooBar: "foo bar"
@@ -41,8 +41,8 @@ describe "utils/params module", ->
 
       expect(params expectParams).toBe expectParams
 
-    it "should invoke function if it was received as parameter", -> 
-      testFunc = -> 
+    it "should invoke function if it was received as parameter", ->
+      testFunc = ->
         foo: ->
           "bar"
         fooBar: "foo bar"

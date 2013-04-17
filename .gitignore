@@ -18,7 +18,9 @@ _SpecRunner.html
 *.sublime*
 /.junit-output
 /.idea*
+/.grunt*
 /node_modules
 /public/js
 /spec/js
 /spec/helpers/js
+/reports*

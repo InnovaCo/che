@@ -9,7 +9,7 @@ describe 'guid module', ->
       waitsFor ->
         guid isnt null
 
-    it 'should not generate two or more same ids', ->  
+    it 'should not generate two or more same ids', ->
       id = guid
       isSame = false
       isFinished = false

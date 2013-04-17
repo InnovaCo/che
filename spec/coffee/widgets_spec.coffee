@@ -15,12 +15,12 @@ describe "widgets module", ->
       if document.createEvent
         event = document.createEvent "MouseEvents"
         event.initEvent eventName, true, true
-      else 
+      else
         event = document.createEventObject()
-        event.eventType = eventName;
+        event.eventType = eventName
 
-      event.eventName = eventName;
-      event.memo = {};
+      event.eventName = eventName
+      event.memo = {}
 
       if document.createEvent
         element.dispatchEvent event
@@ -34,7 +34,7 @@ describe "widgets module", ->
 
     affix("div.widget ul li div.mouser div.action")
 
-    sampleWidget = 
+    sampleWidget =
       domEvents:
         "click div.action": clickSpy
         "click div.mouser": "clickHandler"
@@ -48,7 +48,7 @@ describe "widgets module", ->
       init: (element) ->
         dom(element).find("div")[0].setAttribute('data-check-check', 'check')
 
-    
+
 
     widgets = null
     require ['widgets', 'dom', 'events'], (widgetsModule, domModule, eventsModule) ->
@@ -89,14 +89,14 @@ describe "widgets module", ->
       element = dom("div.widget").get(0)
       widgetInstance1 = widgets._manager.add 'sampleWidget', element, sampleWidget
       widgetInstance2 = widgets._manager.add  'sampleWidget', element, sampleWidget
-      
+
       expect(widgetInstance1.id).toBe(widgetInstance2.id)
 
   describe "widget destroying", ->
     it 'should destroy widget completly', ->
       element = dom("div.widget").get(0)
       widgetInstance = new widgets._constructor 'sampleWidget', element, sampleWidget
-      
+
       widgetInstance.destroy()
       expect(widgetInstance).toBeEmpty()
 
@@ -107,7 +107,7 @@ describe "widgets module", ->
       widgetInstance = widgets._manager.add 'sampleWidget', element, sampleWidget
 
       widgetInstance.turnOff()
-      
+
       triggerMouseEvent("click", dom("div.action")[0])
       triggerMouseEvent("click", dom("div.mouser")[0])
 
@@ -132,7 +132,7 @@ describe "widgets module", ->
 
       widgetInstance.turnOff()
       widgetInstance.turnOn()
-      
+
       triggerMouseEvent("click", dom("div.action")[0])
       triggerMouseEvent("click", dom("div.mouser")[0])
 

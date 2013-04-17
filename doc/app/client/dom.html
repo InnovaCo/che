@@ -1,0 +1,238 @@
+<!DOCTYPE html><html lang="en"><head><title>app/client/dom</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="app/client/dom"><meta name="groc-project-path" content="app/client/dom.coffee"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">app/client/dom.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="cm">#### *module* dom</span>
+<span class="cm">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Содержит вспомогательные функции для обхода DOM-дерева, и навешивания обработчиков событий, позволяет обходится без большого jquery.
+Интерфейс стремится быть похожим на интефейс jquery, конечно реализация сильно отличается</p></div></div><div class="code"><div class="wrapper"><span class="cm">#</span>
+
+
+<span class="cm">define [&quot;utils/guid&quot;, &quot;lib/domReady&quot;, &quot;underscore&quot;], (guid, domReady, _) -&gt;</span>
+
+<span class="cm">  </span>
+<span class="cm">  ###</span><span class="c1"># checkIsElementMatchSelector(selector, element, [root])</span>
+  <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Проверяет, подходит ли указанный селектор для элемента</p></div></div><div class="code"><div class="wrapper">  
+  <span class="nv">checkIsElementMatchSelector = </span><span class="nf">(selectorOrNodeList, element, root) -&gt;</span>
+    <span class="k">return</span> <span class="kc">false</span> <span class="k">if</span> <span class="nx">element</span> <span class="o">is</span> <span class="nx">root</span> <span class="o">or</span> <span class="o">not</span> <span class="nx">element</span>
+    <span class="nv">root = </span><span class="nx">root</span> <span class="o">or</span> <span class="nb">document</span>
+    <span class="nv">list = </span><span class="k">if</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isString</span><span class="p">(</span><span class="nx">selectorOrNodeList</span><span class="p">)</span> <span class="k">then</span> <span class="nx">domQuery</span><span class="p">(</span><span class="nx">root</span><span class="p">).</span><span class="nx">find</span><span class="p">(</span><span class="nx">selectorOrNodeList</span><span class="p">).</span><span class="nx">get</span><span class="p">()</span> <span class="k">else</span> <span class="nx">selectorOrNodeList</span>
+    <span class="k">for</span> <span class="nx">listElement</span> <span class="k">in</span> <span class="nx">list</span>
+      <span class="k">return</span> <span class="nx">listElement</span> <span class="k">if</span> <span class="nx">listElement</span> <span class="o">is</span> <span class="nx">element</span>
+
+    <span class="k">return</span> <span class="nx">checkIsElementMatchSelector</span> <span class="nx">list</span><span class="p">,</span> <span class="nx">element</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">,</span> <span class="nx">root</span>
+  
+  <span class="cm">#### callEventHandlers(handlers, eventObj)</span>
+<span class="cm">  #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Вызывает обработчики событий</p></div></div><div class="code"><div class="wrapper"><span class="cm">  </span>
+<span class="cm">  callEventHandlers = (handlers, eventObj, context) -&gt;</span>
+<span class="cm">    for handler in handlers</span>
+<span class="cm">      result = handler.call context, eventObj</span>
+<span class="cm">      if result is false</span>
+<span class="cm">        return false</span>
+<span class="cm">  </span>
+<span class="cm">  ###</span><span class="c1"># query(selector, [root])</span>
+  <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Возвращает элементы для указанного селектора</p></div></div><div class="code"><div class="wrapper">  <span class="c1">#</span>
+  <span class="nv">query = </span><span class="nf">(selector, root) -&gt;</span>
+    <span class="k">if</span> <span class="nb">window</span><span class="p">.</span><span class="nx">jQuery</span>
+      <span class="nv">query = </span><span class="nf">(selector, root) -&gt;</span>
+        <span class="k">return</span> <span class="nb">window</span><span class="p">.</span><span class="nx">jQuery</span><span class="p">(</span><span class="nx">root</span> <span class="o">or</span> <span class="nb">document</span><span class="p">).</span><span class="nx">find</span><span class="p">(</span><span class="nx">selector</span><span class="p">).</span><span class="nx">get</span><span class="p">()</span>
+
+      <span class="k">return</span> <span class="nx">query</span><span class="p">.</span><span class="nx">apply</span> <span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span>
+
+    <span class="k">if</span> <span class="nb">document</span><span class="p">.</span><span class="nx">querySelectorAll</span><span class="o">?</span>
+      <span class="k">if</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isString</span> <span class="nx">selector</span>
+        <span class="nv">root = </span><span class="k">if</span> <span class="o">not</span> <span class="nx">root</span> <span class="o">or</span> <span class="nx">root</span><span class="p">.</span><span class="nx">length</span> <span class="o">is</span> <span class="mi">0</span> <span class="k">then</span> <span class="nb">document</span> <span class="k">else</span> <span class="nx">root</span>
+        <span class="k">if</span> <span class="o">not</span> <span class="nx">root</span><span class="p">.</span><span class="nx">length</span>
+          <span class="nv">root = </span><span class="p">[</span><span class="nx">root</span><span class="p">]</span>
+        <span class="nv">result = </span><span class="p">[]</span>
+        <span class="nx">_</span><span class="p">.</span><span class="nx">each</span> <span class="nx">root</span><span class="p">,</span> <span class="nf">(root) -&gt;</span>
+          <span class="k">if</span> <span class="nx">root</span><span class="p">.</span><span class="nx">querySelectorAll</span><span class="o">?</span>
+            <span class="nv">result = </span><span class="nx">result</span><span class="p">.</span><span class="nx">concat</span><span class="p">(</span><span class="nb">Array</span><span class="o">::</span><span class="nx">slice</span><span class="p">.</span><span class="nx">call</span> <span class="nx">root</span><span class="p">.</span><span class="nx">querySelectorAll</span><span class="p">(</span><span class="nx">selector</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nx">result</span>
+      <span class="k">else</span>
+        <span class="k">return</span> <span class="nx">selector</span>
+    <span class="k">else</span>
+      <span class="nx">console</span><span class="o">?</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;haven&#39;t tools for selecting node (module helpers/dom)&quot;</span>
+
+  
+  <span class="cm">#### unbindEvent(node, eventName, handler)</span>
+<span class="cm">  #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Отвязывает обработчика от события для указанного DOM-элемента</p></div></div><div class="code"><div class="wrapper"><span class="cm">  #</span>
+<span class="cm">  unbindEvent =  (node, eventName, handler) -&gt;</span>
+<span class="cm">    if node.removeEventListener</span>
+<span class="cm">      unbindEvent = (node, eventName, handler) -&gt;</span>
+<span class="cm">        node.removeEventListener eventName, handler, false</span>
+<span class="cm">    else if node.detachEvent</span>
+<span class="cm">      unbindEvent = (node, eventName, handler) -&gt;</span>
+<span class="cm">        node.detachEvent &quot;on&quot; + eventName, handler</span>
+<span class="cm">    else</span>
+<span class="cm">      return console?.log &quot;cannot unbind event (module helpers/dom)&quot;</span>
+
+<span class="cm">    unbindEvent.apply this, arguments</span>
+
+<span class="cm">  </span>
+<span class="cm">  ###</span><span class="c1"># bindEvent(node, eventName, handler)</span>
+  <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Привязывает обработчик к событию для указанного DOM-элемента</p></div></div><div class="code"><div class="wrapper">  <span class="c1">#</span>
+  <span class="nv">bindEvent = </span><span class="nf">(node, eventName, handler) -&gt;</span>
+    <span class="k">if</span> <span class="nx">node</span><span class="p">.</span><span class="nx">addEventListener</span>
+      <span class="nv">bindEvent = </span><span class="nf">(node, eventName, handler) -&gt;</span>
+        <span class="nx">node</span><span class="p">.</span><span class="nx">addEventListener</span> <span class="nx">eventName</span><span class="p">,</span> <span class="nx">handler</span><span class="p">,</span> <span class="kc">false</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="nx">node</span><span class="p">.</span><span class="nx">attachEvent</span>
+      <span class="nv">bindEvent = </span><span class="nf">(node, eventName, handler) -&gt;</span>
+        <span class="nx">node</span><span class="p">.</span><span class="nx">attachEvent</span> <span class="s">&quot;on&quot;</span> <span class="o">+</span> <span class="nx">eventName</span><span class="p">,</span> <span class="nx">handler</span>
+    <span class="k">else</span>
+      <span class="k">return</span> <span class="nx">console</span><span class="o">?</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;cannot bind event (module helpers/dom)&quot;</span>
+
+    <span class="nx">bindEvent</span><span class="p">.</span><span class="nx">apply</span> <span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span>
+
+
+  <span class="cm">#### delegateEvent(node, selector, eventName, handler)</span>
+<span class="cm">  #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Привязывает обработчика события на DOM-элемент, делегирует ему события с элементов по селектору</p></div></div><div class="code"><div class="wrapper"><span class="cm">  #</span>
+<span class="cm">  delegateEvent = (node, selector, eventName, handler) -&gt;</span>
+<span class="cm">    if not node.domQueryDelegateHandler</span>
+<span class="cm">      delegateHandler = (e) -&gt;</span>
+<span class="cm">        eventObject = e or window.event</span>
+<span class="cm">        target = eventObject.target or eventObject.srcElement</span>
+<span class="cm">        if target.nodeType is 3 # defeat Safari bug</span>
+<span class="cm">          target = target.parentNode</span>
+<span class="cm">      </span>
+<span class="cm">        if node.domQueryHandlers[eventObject.type]</span>
+<span class="cm">          handlers = node.domQueryHandlers[eventObject.type]</span>
+<span class="cm">          result = true</span>
+<span class="cm">          _.each handlers, (handlers, selector) -&gt;</span>
+<span class="cm">            targetElement = checkIsElementMatchSelector selector, target, node</span>
+<span class="cm">            if targetElement</span>
+<span class="cm">              result = callEventHandlers handlers, eventObject, targetElement</span>
+<span class="cm">          result</span>
+
+<span class="cm">      bindEvent node, eventName, delegateHandler</span>
+<span class="cm">      node.domQueryDelegateHandler = delegateHandler</span>
+
+<span class="cm">    handler.guid = handler.guid or guid()</span>
+<span class="cm">    node.domQueryHandlers = node.domQueryHandlers or {}</span>
+<span class="cm">    node.domQueryHandlers[eventName] = node.domQueryHandlers[eventName] or {}</span>
+<span class="cm">    node.domQueryHandlers[eventName][selector] = node.domQueryHandlers[eventName][selector] or []</span>
+<span class="cm">    node.domQueryHandlers[eventName][selector].push handler</span>
+
+<span class="cm">  </span>
+<span class="cm">  ###</span><span class="c1"># undelegateEvent(node, selector, eventName, handler)</span>
+  <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Отвязывает обработчика от делегирования событий с элементов по селектору</p></div></div><div class="code"><div class="wrapper">  <span class="c1">#</span>
+  <span class="nv">undelegateEvent = </span><span class="nf">(node, selector, eventName, handler) -&gt;</span>
+    <span class="k">return</span> <span class="kc">false</span> <span class="k">if</span> <span class="o">not</span> <span class="nx">handler</span><span class="p">.</span><span class="nx">guid</span>
+    <span class="k">return</span> <span class="kc">false</span> <span class="k">if</span> <span class="o">not</span> <span class="nx">node</span><span class="p">.</span><span class="nx">domQueryHandlers</span>
+    <span class="k">return</span> <span class="kc">false</span> <span class="k">if</span> <span class="o">not</span> <span class="nx">node</span><span class="p">.</span><span class="nx">domQueryHandlers</span><span class="p">[</span><span class="nx">eventName</span><span class="p">]</span>
+    <span class="k">return</span> <span class="kc">false</span> <span class="k">if</span> <span class="o">not</span> <span class="nx">node</span><span class="p">.</span><span class="nx">domQueryHandlers</span><span class="p">[</span><span class="nx">eventName</span><span class="p">][</span><span class="nx">selector</span><span class="p">]</span>
+    <span class="nv">handlers = </span><span class="nx">node</span><span class="p">.</span><span class="nx">domQueryHandlers</span><span class="p">[</span><span class="nx">eventName</span><span class="p">][</span><span class="nx">selector</span><span class="p">]</span>
+    <span class="nv">index = </span><span class="kc">null</span>
+
+    <span class="nx">_</span><span class="p">.</span><span class="nx">find</span> <span class="nx">handlers</span><span class="p">,</span> <span class="nf">(delegateHandler, handlerIndex) -&gt;</span>
+      <span class="nv">index = </span><span class="nx">handlerIndex</span>
+      <span class="nx">delegateHandler</span><span class="p">.</span><span class="nx">guid</span> <span class="o">is</span> <span class="nx">handler</span><span class="p">.</span><span class="nx">guid</span>
+
+    <span class="k">if</span> <span class="nx">index</span> <span class="o">isnt</span> <span class="kc">null</span>
+      <span class="nx">handlers</span><span class="p">.</span><span class="nx">splice</span> <span class="nx">index</span><span class="p">,</span> <span class="mi">1</span>
+      <span class="nx">node</span><span class="p">.</span><span class="nx">domQueryHandlers</span><span class="p">[</span><span class="nx">eventName</span><span class="p">][</span><span class="nx">selector</span><span class="p">]</span> <span class="o">=</span> <span class="nx">handlers</span>
+
+
+  <span class="cm">#### domToHtml(plainHtml)</span>
+<span class="cm">  #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Сериализует DOM-объекты в html-текст</p></div></div><div class="code"><div class="wrapper"><span class="cm">  #</span>
+
+<span class="cm">  domToHtml = (domObject) -&gt;</span>
+<span class="cm">    div = document.createElement(&#39;DIV&#39;)</span>
+<span class="cm">    div.appendChild domObject</span>
+<span class="cm">    div.innerHTML</span>
+
+<span class="cm">  ###</span><span class="c1"># parseHtml(plainHtml)</span>
+  <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Парсит html-текст в DOM-объекты</p></div></div><div class="code"><div class="wrapper">  <span class="c1">#</span>
+  <span class="nv">parseHtml = </span><span class="nf">(plainHtml) -&gt;</span>
+    <span class="nv">div = </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s">&#39;DIV&#39;</span><span class="p">)</span>
+    <span class="nv">div.innerHTML = </span><span class="nx">plainHtml</span>
+    <span class="k">for</span> <span class="nx">node</span> <span class="k">in</span> <span class="nb">Array</span><span class="o">::</span><span class="nx">slice</span><span class="p">.</span><span class="nx">call</span> <span class="nx">div</span><span class="p">.</span><span class="nx">childNodes</span>
+      <span class="k">if</span> <span class="nx">node</span><span class="p">.</span><span class="nx">nodeType</span> <span class="o">is</span> <span class="mi">3</span> <span class="o">and</span> <span class="o">not</span> <span class="sr">///\S///</span><span class="p">.</span><span class="nx">test</span> <span class="nx">node</span><span class="p">.</span><span class="nx">nodeValue</span>
+        <span class="nx">div</span><span class="p">.</span><span class="nx">removeChild</span> <span class="nx">node</span>
+    <span class="k">return</span> <span class="nx">div</span><span class="p">.</span><span class="nx">childNodes</span>
+
+
+  <span class="cm">#### domQuery([selector])</span>
+<span class="cm">  #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Конструктор domQuery для работы с DOM-элементами. Если переданный параметр уже является объектом domQuery,
+то просто возвращается этот экземпляр, также проверяется вызван ли конструктор с ключевым словом new, если нет,
+то рекурсивно вызывается конструктор вместе с new.
+Если параметр selector является строкой, то проверятеся, не является ли он html-строкой, если да, то парсится, если нет, то
+подразумевается, что это dom-селектор и происходит поиск элементов, удовлетворяющих селектору.
+Если selector не строка, то подразумевается, что это ссылка на dom-элемент, либо на nodeList (пока проверок точных еще нет)
+Если selector не задан, то вместо него берется ссылка на document</p></div></div><div class="code"><div class="wrapper"><span class="cm">  domQuery = (selector) -&gt;</span>
+<span class="cm">    if this instanceof domQuery</span>
+<span class="cm">      return selector if selector instanceof domQuery</span>
+<span class="cm">      if _.isString(selector)</span>
+<span class="cm">        selector = selector.replace /^\s+|\s+$/, &quot;&quot;</span>
+<span class="cm">        if selector.charAt(0) is &quot;&lt;&quot; and selector.charAt(selector.length - 1) is &quot;&gt;&quot; and selector.length &gt;= 3</span>
+<span class="cm">          elements = parseHtml selector</span>
+<span class="cm">        else</span>
+<span class="cm">          elements = query selector</span>
+<span class="cm">      else</span>
+<span class="cm">        elements = selector or [document]</span>
+
+<span class="cm">      if elements.length is undefined or elements.nodeType is 3</span>
+<span class="cm">        elements = [elements]</span>
+
+<span class="cm">      @length = elements.length</span>
+<span class="cm">      @selector = selector</span>
+<span class="cm">      _.each elements, (element, index) =&gt;</span>
+<span class="cm">        @[index] = element</span>
+<span class="cm">    else</span>
+<span class="cm">      new domQuery selector</span>
+
+<span class="cm">  domQuery:: =</span>
+
+<span class="cm">    </span>
+<span class="cm">    ###</span><span class="c1"># domQuery::on([selector], eventName, handler)</span>
+    <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Привязывает обработчика событий на элемент, либо для делегирования событий с элемента по селектору</p></div></div><div class="code"><div class="wrapper">    <span class="c1">#</span>
+    <span class="kc">on</span><span class="o">:</span> <span class="nf">(selector, eventName, handler) -&gt;</span>
+      <span class="nv">binder = </span><span class="k">if</span> <span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span> <span class="o">is</span> <span class="mi">3</span> <span class="k">then</span> <span class="nx">delegateEvent</span> <span class="k">else</span> <span class="nx">bindEvent</span>
+      <span class="nv">args = </span><span class="nb">Array</span><span class="o">::</span><span class="nx">slice</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">arguments</span><span class="p">)</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">each</span> <span class="nx">@get</span><span class="p">()</span> <span class="p">,</span> <span class="nf">(node, index) -&gt;</span>
+        <span class="nx">binder</span><span class="p">.</span><span class="nx">apply</span> <span class="nx">@</span><span class="p">,</span> <span class="p">[</span><span class="nx">node</span><span class="p">].</span><span class="nx">concat</span><span class="p">(</span><span class="nx">args</span><span class="p">)</span>
+      <span class="nx">@</span>
+
+    
+    <span class="cm">#### domQuery::off([selector], eventName, handler)</span>
+<span class="cm">    #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Отключает обработчика событий элемента, либо от делегирования событий с элемента по селектору</p></div></div><div class="code"><div class="wrapper"><span class="cm">    #</span>
+<span class="cm">    off: (selector, eventName, handler) -&gt;</span>
+<span class="cm">      unbinder = if arguments.length is 3 then undelegateEvent else unbindEvent</span>
+<span class="cm">      args = Array::slice.call(arguments)</span>
+<span class="cm">      _.each @get(), (node, index) -&gt;</span>
+<span class="cm">        unbinder.apply @, [node].concat args</span>
+<span class="cm">      @</span>
+<span class="cm">    </span>
+<span class="cm">    ###</span><span class="c1"># domQuery::find(selector)</span>
+    <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Возвращает элемент по селектору в контексте экземпляра domQuery</p></div></div><div class="code"><div class="wrapper">    <span class="c1">#</span>
+    <span class="nv">find: </span><span class="nf">(selector) -&gt;</span>
+      <span class="k">return</span> <span class="nx">domQuery</span> <span class="nx">query</span> <span class="nx">selector</span><span class="p">,</span> <span class="nx">@get</span><span class="p">()</span>
+
+
+    <span class="cm">#### domQuery::get([index])</span>
+<span class="cm">    #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Возвращает элемент по идексу, либо массив элементов экземпляра domQuery</p></div></div><div class="code"><div class="wrapper"><span class="cm">    #</span>
+<span class="cm">    get: (index) -&gt;</span>
+<span class="cm">      if index?</span>
+<span class="cm">        index = Math.max 0, Math.min index, @length - 1</span>
+<span class="cm">        @[index]</span>
+<span class="cm">      else</span>
+<span class="cm">        return Array::slice.call @</span>
+
+
+<span class="cm">    ###</span><span class="c1"># domQuery::toString([index])</span>
+    <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Сериализует элементы в строку</p></div></div><div class="code"><div class="wrapper">    <span class="c1">#</span>
+
+    <span class="nv">toString: </span><span class="nf">() -&gt;</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">map</span> <span class="nx">@get</span><span class="p">(),</span> <span class="nf">(node) -&gt;</span>
+        <span class="nx">domToHtml</span> <span class="nx">node</span>
+      <span class="p">.</span><span class="nx">join</span> <span class="s">&quot;&quot;</span>
+
+
+    <span class="c1">#### domQuery::replaceWith(element)</span>
+    <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>заменяет первый элемент на указанный</p></div></div><div class="code"><div class="wrapper">    <span class="c1">#</span>
+    <span class="nv">replaceWith: </span><span class="nf">(element) -&gt;</span>
+      <span class="nx">@</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nx">@</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">parentNode</span><span class="p">.</span><span class="nx">replaceChild</span> <span class="nx">element</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">or</span> <span class="nx">element</span><span class="p">,</span> <span class="nx">@</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+
+  <span class="nv">domQuery.load = </span><span class="nf">(name, req, onLoad, config) -&gt;</span>
+    <span class="nx">domReady</span><span class="p">.</span><span class="nx">load</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">req</span><span class="p">,</span> <span class="nf">() -&gt;</span>
+      <span class="nx">onLoad</span> <span class="nx">domQuery</span>
+    <span class="p">,</span> <span class="nx">config</span>
+    <span class="nx">domQuery</span>
+        
+  <span class="nx">domQuery</span></div></div></div></div></body></html>

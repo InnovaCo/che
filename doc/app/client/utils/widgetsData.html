@@ -1,0 +1,41 @@
+<!DOCTYPE html><html lang="en"><head><title>app/client/utils/widgetsData</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="app/client/utils/widgetsData"><meta name="groc-project-path" content="app/client/utils/widgetsData.coffee"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">app/client/utils/widgetsData.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="cm">#### *module* utils/widgetsData</span>
+<span class="cm">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Вытаскивает данные о необходимых виджетах для данного куска html, либо DOM-элемента.
+Возвращает массив объектов с полями element, в котором содержится DOM-элемент и name, где находится имя модуля.
+Далее эти данные могут быть переданы в модуль widgets, чтобы проинициализировать все модули.</p></div></div><div class="code"><div class="wrapper"><span class="cm">#</span>
+
+<span class="cm">define [&#39;dom&#39;, &#39;config&#39;], (dom, config) -&gt;</span>
+<span class="cm">  </span>
+<span class="cm">  ###</span><span class="c1"># saveTo(arrayOfPairs, element)</span>
+  <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>сохраняет в массив данные о виджете для переданного элемента</p></div></div><div class="code"><div class="wrapper">  <span class="c1">#</span>
+  <span class="nv">saveTo = </span><span class="nf">(arrayOfPairs, element) -&gt;</span>
+    <span class="nv">names = </span><span class="kc">null</span>
+    <span class="k">if</span> <span class="nx">element</span> <span class="o">and</span> <span class="nx">element</span><span class="p">.</span><span class="nx">getAttribute</span><span class="o">?</span>
+      <span class="nv">names = </span><span class="p">(</span><span class="nx">element</span><span class="p">.</span><span class="nx">getAttribute</span> <span class="nx">config</span><span class="p">.</span><span class="nx">widgetDataAttributeName</span><span class="p">)</span><span class="o">?</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">///^\s|\s$///</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">).</span><span class="nx">split</span><span class="p">(</span><span class="sr">///\s*,\s*///</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="kc">false</span> <span class="k">if</span> <span class="o">not</span> <span class="nx">names</span>
+
+    <span class="k">for</span> <span class="nx">moduleName</span> <span class="k">in</span> <span class="nx">names</span>
+      <span class="nx">arrayOfPairs</span><span class="p">.</span><span class="nx">push</span>
+        <span class="nv">name: </span><span class="nx">moduleName</span>
+        <span class="nv">element: </span><span class="nx">element</span>
+
+    <span class="nx">arrayOfPairs</span>
+
+  <span class="c1">#### getWidgets(node)</span>
+  <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Возвращает набор пар с именем виджета и ссылкой на DOM-элемент</p></div></div><div class="code"><div class="wrapper">  <span class="c1">#</span>
+  <span class="nv">getWidgets = </span><span class="nf">(node) -&gt;</span>
+    <span class="nv">pairs = </span><span class="p">[]</span>
+
+    <span class="k">if</span> <span class="nx">node</span> <span class="o">and</span> <span class="nx">node</span> <span class="o">isnt</span> <span class="nb">document</span>
+      <span class="nv">root = </span><span class="nx">dom</span> <span class="nx">node</span>
+      <span class="k">for</span> <span class="nx">rootElement</span> <span class="k">in</span> <span class="nx">root</span>
+        <span class="nx">saveTo</span> <span class="nx">pairs</span><span class="p">,</span> <span class="nx">rootElement</span>
+    <span class="k">else</span>
+      <span class="nv">root = </span><span class="nx">dom</span> <span class="nb">document</span>
+
+    <span class="nv">widgetElements = </span><span class="nx">root</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;.&quot;</span> <span class="o">+</span> <span class="nx">config</span><span class="p">.</span><span class="nx">widgetClassName</span><span class="p">).</span><span class="nx">get</span><span class="p">()</span>
+    <span class="k">for</span> <span class="nx">element</span> <span class="k">in</span> <span class="nx">widgetElements</span>
+      <span class="nx">saveTo</span> <span class="nx">pairs</span><span class="p">,</span> <span class="nx">element</span>
+    <span class="nx">pairs</span>
+
+  <span class="nx">getWidgets</span></div></div></div></div></body></html>

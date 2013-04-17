@@ -18,21 +18,21 @@ describe "clicks module", ->
   describe "anchor clicking", ->
     triggerMouseEvent = null
     eventsList = null
-    
+
 
     beforeEach ->
       eventsList = events.list
-      jasmine.Clock.useMock();
+      jasmine.Clock.useMock()
       triggerMouseEvent = (eventName, element) ->
         if document.createEvent
           event = document.createEvent "MouseEvents"
           event.initEvent eventName, true, true
-        else 
+        else
           event = document.createEventObject()
-          event.eventType = eventName;
+          event.eventType = eventName
 
-        event.eventName = eventName;
-        event.memo = {};
+        event.eventName = eventName
+        event.memo = {}
 
         if document.createEvent
           element.dispatchEvent event
@@ -46,14 +46,14 @@ describe "clicks module", ->
       events.list = eventsList
 
     it "should trigger pageTransition:init event, when have attr with reload sections params", ->
-      handler = jasmine.createSpy("handler") 
+      handler = jasmine.createSpy("handler")
 
       events.bind "pageTransition:init", ->
         handler arguments
 
       triggerMouseEvent "click", $("a[data-reload-sections]")[0]
 
-      jasmine.Clock.tick(1000000);
+      jasmine.Clock.tick(1000000)
 
       expect(handler).toHaveBeenCalled()
       expect(handler.mostRecentCall.args[0][0]).toBe(null)
@@ -61,14 +61,14 @@ describe "clicks module", ->
       expect(handler.mostRecentCall.args[0][2]).toBe("GET")
 
     it "should not call handler, when have attr with reload sections params", ->
-      handler = jasmine.createSpy("handler")      
+      handler = jasmine.createSpy("handler")
 
       events.bind "pageTransition:init", ->
         handler arguments
 
       triggerMouseEvent "click", $("a[data-something-else]")[0]
 
-      jasmine.Clock.tick(1000);
+      jasmine.Clock.tick(1000)
 
       expect(handler).not.toHaveBeenCalled()
-        
+

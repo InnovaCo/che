@@ -1,0 +1,26 @@
+<!DOCTYPE html><html lang="en"><head><title>app/client/clicks</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="app/client/clicks"><meta name="groc-project-path" content="app/client/clicks.coffee"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">app/client/clicks.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="cm">#### *module* clicks</span>
+<span class="cm">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Используя модули из clicks/, навешивает обработчиков на клики по сабмиту форм и ссылкам, принимает данные и
+запускает механизм перехода между страниц, также проверяет наличие history, при его отсутствии прекращает дальнейшую инициализацию.</p></div></div><div class="code"><div class="wrapper"><span class="cm">#</span>
+
+<span class="cm">define [&quot;clicks/forms&quot;, &quot;clicks/anchors&quot;, &quot;history&quot;, &quot;events&quot;], (forms, anchors, history, events) -&gt;</span>
+<span class="cm">  return false if not history</span>
+
+<span class="cm">  ###</span><span class="c1"># handler(url, data, method)</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Обработчик, вызывает событие "pageTransition:init"</p></div></div><div class="code"><div class="wrapper">  <span class="nv">handler = </span><span class="nf">(url, data, method, formData) -&gt;</span>
+    <span class="nx">events</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;pageTransition:init&quot;</span><span class="p">,</span> <span class="p">[</span><span class="nx">url</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">method</span><span class="p">,</span> <span class="nx">formData</span><span class="p">]</span>
+
+  <span class="nx">events</span><span class="p">.</span><span class="nx">bind</span> <span class="s">&quot;pageTransition:success&quot;</span><span class="p">,</span> <span class="nf">(data) -&gt;</span>
+    <span class="nx">events</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;pageTransition:stop&quot;</span><span class="p">,</span> <span class="nx">data</span>
+
+  <span class="c1">#### init()</span>
+  <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Основная инициализация, добавление обработчика к модулям, работающим со специальными формами и ссылками</p></div></div><div class="code"><div class="wrapper">  <span class="nv">init = </span><span class="nf">() -&gt;</span>
+    <span class="nx">forms</span> <span class="nx">handler</span>
+    <span class="nx">anchors</span> <span class="nx">handler</span>
+
+  <span class="nv">init.reset = </span><span class="o">-&gt;</span>
+    <span class="nx">forms</span><span class="p">.</span><span class="nx">reset</span><span class="p">()</span>
+    <span class="nx">anchors</span><span class="p">.</span><span class="nx">reset</span><span class="p">()</span>
+    <span class="nx">init</span><span class="p">()</span>
+
+  <span class="nx">init</span><span class="p">()</span>
+
+  <span class="nx">init</span></div></div></div></div></body></html>

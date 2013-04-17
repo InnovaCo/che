@@ -1,0 +1,164 @@
+<!DOCTYPE html><html lang="en"><head><title>app/client/events</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="app/client/events"><meta name="groc-project-path" content="app/client/events.coffee"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">app/client/events.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="cm">#### *module* events</span>
+<span class="cm">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Реализация шины событий можно привязывать, отвязывать, либо обрабатывать событие только один раз,
+кроме того есть возможность создавать другие шины событий, что полезно для упрощения логики внутри модулей
+и при этом не сыплется лишнего в глобальную шину событий.</p></div></div><div class="code"><div class="wrapper"><span class="cm">#</span>
+
+<span class="cm">define [&#39;underscore&#39;],  (_) -&gt;</span>
+
+<span class="cm">  </span>
+<span class="cm">  ###</span><span class="c1"># Oops(name)</span>
+  <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Конструктор события, назначает имя, инициализирует спискок обработчиков пустым объектом</p></div></div><div class="code"><div class="wrapper">  <span class="c1">#</span>
+  <span class="nv">Oops = </span><span class="nf">(name) -&gt;</span>
+    <span class="vi">@name = </span><span class="nx">name</span>
+    <span class="vi">@_handlers = </span><span class="p">{}</span>
+    <span class="nx">@</span>
+
+  <span class="nv">Oops:: =</span>
+
+    
+    <span class="cm">####  Oops.prototype._data()</span>
+<span class="cm">    #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Создает данные о событии для передачи обработчику</p></div></div><div class="code"><div class="wrapper"><span class="cm">    _data: -&gt;</span>
+<span class="cm">      name: @name</span>
+
+<span class="cm">    </span>
+<span class="cm">    ###</span><span class="c1">#  Oops.prototype._handlerCaller</span>
+    <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Вызывает очередного обработчика</p></div></div><div class="code"><div class="wrapper">    <span class="c1">#</span>
+    <span class="nv">_handlerCaller: </span><span class="nf">(handler, args) -&gt;</span>
+      <span class="nx">handler</span><span class="p">.</span><span class="nx">apply</span> <span class="nx">handler</span><span class="p">.</span><span class="nx">context</span><span class="p">,</span> <span class="nx">args</span>
+      
+
+    
+    <span class="cm">####  Oops.prototype._nextHandlerCall</span>
+<span class="cm">    #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Достает очередного обработчика события и передает его для вызова</p></div></div><div class="code"><div class="wrapper"><span class="cm">    #</span>
+<span class="cm">    _nextHandlerCall: (args) -&gt;</span>
+<span class="cm">      handlerId = @_handlersCallOrder.shift()</span>
+<span class="cm">      if handlerId</span>
+<span class="cm">        handler = @_handlers[handlerId]</span>
+<span class="cm">        if handler.options.isSync</span>
+<span class="cm">          @_handlerCaller handler, args</span>
+<span class="cm">        else</span>
+<span class="cm">          _.delay =&gt;</span>
+
+<span class="cm">            @_handlerCaller handler, args</span>
+<span class="cm">        @_nextHandlerCall(args)</span>
+
+<span class="cm">    </span>
+<span class="cm">    ###</span><span class="c1">#  Oops.prototype.dispatch(args)</span>
+    <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Запускает исполнение обработчиков события</p></div></div><div class="code"><div class="wrapper">    <span class="c1">#</span>
+    <span class="nv">dispatch: </span><span class="nf">(args) -&gt;</span>
+      <span class="nv">args = </span><span class="k">if</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">args</span><span class="p">)</span> <span class="k">then</span> <span class="nx">args</span> <span class="k">else</span> <span class="p">[</span><span class="nx">args</span><span class="p">]</span>
+      <span class="vi">@_handlersCallOrder = </span><span class="nx">_</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">@_handlers</span><span class="p">).</span><span class="nx">sort</span><span class="p">()</span>
+      <span class="nx">args</span><span class="p">.</span><span class="nx">push</span> <span class="k">this</span><span class="p">.</span><span class="nx">_data</span><span class="p">()</span>
+      <span class="vi">@_lastArgs = </span><span class="nx">args</span>
+
+      <span class="nx">@_nextHandlerCall</span> <span class="nx">args</span>
+      <span class="nx">@</span>
+
+    
+    <span class="cm">####  Oops.prototype.bind(handler, context, [options])</span>
+<span class="cm">    #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Привязывает обработчик к событию</p></div></div><div class="code"><div class="wrapper"><span class="cm">    #</span>
+<span class="cm">    bind: (handler, context, options) -&gt;</span>
+<span class="cm">      handler.id = handler.id or +_.uniqueId()</span>
+<span class="cm">      handler.context = context</span>
+<span class="cm">      handler.options = handler.options or options or {}</span>
+<span class="cm">      @_handlers[handler.id] = handler</span>
+<span class="cm">      if handler.options.recall and @_lastArgs</span>
+<span class="cm">        @_handlerCaller handler</span>
+<span class="cm">      @</span>
+
+<span class="cm">    </span>
+<span class="cm">    ###</span><span class="c1">#  Oops.prototype.once(handler, [context], [options])</span>
+    <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Привязывает обработчика к событию, который исполнится только один раз</p></div></div><div class="code"><div class="wrapper">    <span class="c1">#</span>
+    <span class="nv">once: </span><span class="nf">(handler, context, options) -&gt;</span>
+      <span class="nv">self = </span><span class="nx">@</span>
+      <span class="nv">onceHandler = </span><span class="o">-&gt;</span>
+        <span class="nx">self</span><span class="p">.</span><span class="nx">unbind</span> <span class="nx">onceHandler</span>
+        <span class="nx">handler</span><span class="p">.</span><span class="nx">apply</span> <span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span>
+        
+      <span class="nx">@bind</span> <span class="nx">onceHandler</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">options</span>
+      <span class="nx">@</span>
+
+    
+    <span class="cm">####  Oops.prototype.unbind(handler)</span>
+<span class="cm">    #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Отвязывает обработчика от события</p></div></div><div class="code"><div class="wrapper"><span class="cm">    #</span>
+<span class="cm">    unbind: (handler) -&gt;</span>
+<span class="cm">      id = handler.id</span>
+<span class="cm">      if id and @_handlers[id]</span>
+<span class="cm">        delete  @_handlers[id]</span>
+<span class="cm">      @</span>
+
+<span class="cm">  window.evnts = []</span>
+
+<span class="cm">  ###</span><span class="c1">#  Events</span>
+  <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Конструктор для шин событий, может создавать новые шины, которые могут наследовать родительские события</p></div></div><div class="code"><div class="wrapper">  <span class="c1">#</span>
+  <span class="nv">Events = </span><span class="nf">(@_id) -&gt;</span>
+    <span class="cm">####  events.list</span>
+<span class="cm">    #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Список событий</p></div></div><div class="code"><div class="wrapper"><span class="cm">    #</span>
+<span class="cm">    @list = {}</span>
+<span class="cm">    @</span>
+
+<span class="cm">  Events:: =</span>
+<span class="cm">    </span>
+<span class="cm">    ###</span><span class="c1">#  Events::sprout([name])</span>
+    <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Отпочковывает объект событий, если указано имя [name],
+то сохраняет ссылку на дочений объект в поле родительского по указанному имени.</p></div></div><div class="code"><div class="wrapper">    <span class="c1">#</span>
+    <span class="nv">sprout: </span><span class="nf">(name) -&gt;</span>
+      <span class="nv">instance = </span><span class="k">new</span> <span class="nx">Events</span><span class="p">()</span>
+      <span class="k">if</span> <span class="nx">name</span><span class="o">?</span>
+        <span class="nx">@</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span> <span class="o">=</span> <span class="nx">instance</span>
+
+      <span class="nx">instance</span>
+      
+    <span class="cm">####  Events::create(name)</span>
+<span class="cm">    #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Создает новое событие, либо отдает уже созданное</p></div></div><div class="code"><div class="wrapper"><span class="cm">    #</span>
+<span class="cm">    create: (name) -&gt;</span>
+<span class="cm">      @list[name] = @list[name] or new Oops name</span>
+
+<span class="cm">    </span>
+<span class="cm">    ###</span><span class="c1">#  Events::once(name, handler, [context], [options])</span>
+    <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Создает новое событие, либо отдает уже созданное и привязывает обработчика, который сработает только один раз</p></div></div><div class="code"><div class="wrapper">    <span class="c1">#</span>
+    <span class="nv">once: </span><span class="nf">(name, handler, context, options) -&gt;</span>
+      <span class="nx">@create</span><span class="p">(</span><span class="nx">name</span><span class="p">).</span><span class="nx">once</span><span class="p">(</span><span class="nx">handler</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+    
+    
+    <span class="cm">####  Events::bind(eventsNames, handler, [context], [options])</span>
+<span class="cm">    #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Создает новое событие (может быть и несколько, если в eventsNames указаны имена через запятую), либо отдает уже созданное и привязывает обработчика</p></div></div><div class="code"><div class="wrapper"><span class="cm">    #</span>
+<span class="cm">    bind: (eventsNames, handler, context, options) -&gt;</span>
+<span class="cm">      bindEventsList = _.compact eventsNames.split ///\,+\s*|\s+///</span>
+<span class="cm">      if ///\,+///.test eventsNames</span>
+<span class="cm">        compoundArguments = {}</span>
+<span class="cm">        undispatchedEvents = bindEventsList.concat []</span>
+<span class="cm">        eventHandler = () -&gt;</span>
+<span class="cm">          eventData = _.last arguments</span>
+<span class="cm">          compoundArguments[eventData.name] = arguments</span>
+<span class="cm">          if _.contains undispatchedEvents, eventData.name</span>
+<span class="cm">            undispatchedEvents = _.without undispatchedEvents, eventData.name</span>
+<span class="cm">          if undispatchedEvents.length == 0</span>
+<span class="cm">            undispatchedEvents = bindEventsList.concat []</span>
+<span class="cm">            handler.call this, compoundArguments</span>
+<span class="cm">      else</span>
+<span class="cm">        eventHandler = handler</span>
+
+<span class="cm">      self = @</span>
+<span class="cm">      for eventName in bindEventsList</span>
+<span class="cm">        do (eventName) -&gt;</span>
+<span class="cm">          self.create(eventName).bind eventHandler, context, options</span>
+
+<span class="cm">      @create(bindEventsList[0])</span>
+
+<span class="cm">    </span>
+<span class="cm">    ###</span><span class="c1">#  Events::unbind(name, handler)</span>
+    <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Отвязывает обработчка от события</p></div></div><div class="code"><div class="wrapper">    <span class="c1">#</span>
+    <span class="nv">unbind: </span><span class="nf">(name, handler) -&gt;</span>
+      <span class="k">if</span> <span class="nx">@list</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span>
+        <span class="nx">@list</span><span class="p">[</span><span class="nx">name</span><span class="p">].</span><span class="nx">unbind</span><span class="p">(</span><span class="nx">handler</span><span class="p">)</span>
+
+    
+    <span class="cm">####  Events::trigger(name, [args])</span>
+<span class="cm">    #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Вызывает исполнение обработчиков событий, сохраняет переданные данные, если такого событие не было, то оно создается и в нем сохраняются эти данные</p></div></div><div class="code"><div class="wrapper"><span class="cm">    #</span>
+<span class="cm">    trigger: (name, args) -&gt;</span>
+<span class="cm">      @create(name).dispatch(args)</span>
+
+<span class="cm">  ###</span><span class="c1"># Глобальная шина событий</span>
+  <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>представляет собой интерфейс модуля</p></div></div><div class="code"><div class="wrapper">  <span class="c1">#</span>
+  <span class="k">new</span> <span class="nx">Events</span><span class="p">(</span><span class="s">&quot;root&quot;</span><span class="p">)</span></div></div></div></div></body></html>

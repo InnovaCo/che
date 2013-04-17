@@ -2,8 +2,8 @@
 
 describe "[Storage module]", ->
   # storage tests
-  mockups = 
-    localStorage = 
+  mockups =
+    localStorage =
       store:      {}
       setItem:    (moduleName, key, value) ->
         @store["#{moduleName}/#{key}"] = value
@@ -14,7 +14,7 @@ describe "[Storage module]", ->
         @store["#{moduleName}/#{key}"] = null
       getKeys: () ->
         return @store
-        
+
   storage = null
 
   beforeEach ->

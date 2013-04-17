@@ -20,7 +20,7 @@ define ["underscore"], (_) ->
       else
         callback()
 
-  helpers = 
+  helpers =
     call_complete_handlers: (handlers, state, balancer) ->
       if 0 < handlers.length
         handler = handlers.shift()
@@ -99,7 +99,7 @@ define ["underscore"], (_) ->
       new_iteration = async_iterate(data.iterator, @_balancer, data.complete)
       prev_iteration = @_last_iteration
       @_last_iteration = new_iteration
-      prev_iteration.complete (state) => 
+      prev_iteration.complete (state) =>
         @_current_iteration = new_iteration
         new_iteration state.result
 

@@ -52,7 +52,7 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
           if root.querySelectorAll?
             result = result.concat(Array::slice.call root.querySelectorAll(selector))
         return result
-      else 
+      else
         return selector
     else
       console?.log "haven't tools for selecting node (module helpers/dom)"
@@ -169,7 +169,7 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
 
   #### domQuery([selector])
   #
-  # Конструктор domQuery для работы с DOM-элементами. Если переданный параметр уже является объектом domQuery, 
+  # Конструктор domQuery для работы с DOM-элементами. Если переданный параметр уже является объектом domQuery,
   # то просто возвращается этот экземпляр, также проверяется вызван ли конструктор с ключевым словом new, если нет,
   # то рекурсивно вызывается конструктор вместе с new.
   # Если параметр selector является строкой, то проверятеся, не является ли он html-строкой, если да, то парсится, если нет, то
@@ -267,8 +267,8 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
 
   domQuery.load = (name, req, onLoad, config) ->
     domReady.load name, req, () ->
-        onLoad domQuery
-      , config
+      onLoad domQuery
+    , config
     domQuery
         
   domQuery

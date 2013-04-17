@@ -1,0 +1,17 @@
+<!DOCTYPE html><html lang="en"><head><title>app/helpers/assets</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="app/helpers/assets"><meta name="groc-project-path" content="app/helpers/assets.coffee"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">app/helpers/assets.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="nv">fs = </span><span class="nx">require</span> <span class="s">&#39;fs&#39;</span>
+<span class="nv">path = </span><span class="nx">require</span> <span class="s">&#39;path&#39;</span>
+<span class="nv">coffee = </span><span class="nx">require</span> <span class="s">&quot;coffee-script&quot;</span>
+
+<span class="nv">getJavascriptFile = </span><span class="nf">(filePath, handler) -&gt;</span>
+  <span class="nx">fs</span><span class="p">.</span><span class="nx">exists</span> <span class="nx">filePath</span> <span class="o">+</span> <span class="s">&quot;.coffee&quot;</span><span class="p">,</span> <span class="nf">(exists) -&gt;</span>
+    <span class="k">if</span> <span class="nx">exists</span>
+      <span class="nx">handler</span> <span class="nx">coffee</span><span class="p">.</span><span class="nx">compile</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span> <span class="nx">filePath</span> <span class="o">+</span> <span class="s">&quot;.coffee&quot;</span><span class="p">,</span> <span class="s">&quot;utf8&quot;</span>
+    <span class="k">else</span>
+      <span class="nx">fs</span><span class="p">.</span><span class="nx">exists</span> <span class="nx">filePath</span> <span class="o">+</span> <span class="s">&quot;.js&quot;</span><span class="p">,</span> <span class="nf">(exists) -&gt;</span>
+        <span class="k">if</span> <span class="nx">exists</span>
+          <span class="nx">handler</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span> <span class="nx">filePath</span> <span class="o">+</span> <span class="s">&quot;.js&quot;</span><span class="p">,</span> <span class="s">&quot;utf8&quot;</span>
+        <span class="k">else</span>
+          <span class="nx">handler</span> <span class="kc">null</span><span class="p">,</span> <span class="mi">404</span>
+
+<span class="nv">exports.coffee = </span><span class="nf">(path, handler) -&gt;</span>
+  <span class="k">return</span> <span class="nx">getJavascriptFile</span><span class="p">(</span><span class="nx">path</span><span class="p">,</span> <span class="nx">handler</span><span class="p">)</span></div></div></div></div></body></html>

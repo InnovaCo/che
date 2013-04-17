@@ -233,7 +233,7 @@ describe "events module", ->
 
       bind handler for handler in handlers
 
-      events.trigger "testEvent", 
+      events.trigger "testEvent",
         testData: "testData"
 
       expect(handlers[0]).toHaveBeenCalled()
@@ -245,7 +245,7 @@ describe "events module", ->
     it "should save last event data", ->
       expect(events.list['testEvent']).not.toBeDefined()
 
-      events.trigger "testEvent", 
+      events.trigger "testEvent",
         testData: "testData"
 
       expect(events.list['testEvent']).toBeDefined()

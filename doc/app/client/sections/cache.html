@@ -1,0 +1,22 @@
+<!DOCTYPE html><html lang="en"><head><title>app/client/sections/cache</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="app/client/sections/cache"><meta name="groc-project-path" content="app/client/sections/cache.coffee"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">app/client/sections/cache.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="cm">#### *module* sections/cache</span>
+<span class="cm">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Кэш для загруженных секций, сохраняет в localStorage, используя
+в качестве ключа url и поле header, в котором сейчас передаются данные
+о секциях, при этом состояние не сохраняется, если в качестве значения
+поля method указано "post"</p></div></div><div class="code"><div class="wrapper"><span class="cm">#</span>
+<span class="cm">define [&quot;utils/storage&quot;], (storage) -&gt;</span>
+
+<span class="cm">  helpers =</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Генерирование ключа не основе url и header</p></div></div><div class="code"><div class="wrapper"><span class="cm">    stateId: (url, header) -&gt;</span>
+<span class="cm">      return &quot;#{url}|header:#{header}&quot;</span>
+
+
+<span class="cm">  ###</span><span class="c1"># save(state)</span>
+  <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Сохранение состояния</p></div></div><div class="code"><div class="wrapper">  <span class="c1">#</span>
+  <span class="nv">save: </span><span class="nf">(state) -&gt;</span>
+    <span class="k">return</span> <span class="kc">false</span> <span class="k">if</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isString</span><span class="p">(</span><span class="nx">state</span><span class="p">.</span><span class="nx">method</span><span class="p">)</span> <span class="o">and</span> <span class="nx">state</span><span class="p">.</span><span class="nx">method</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">()</span> <span class="o">is</span> <span class="s">&quot;post&quot;</span>
+    <span class="nx">storage</span><span class="p">.</span><span class="nx">save</span> <span class="s">&quot;sectionsHistory&quot;</span><span class="p">,</span> <span class="nx">helpers</span><span class="p">.</span><span class="nx">stateId</span><span class="p">(</span><span class="nx">state</span><span class="p">.</span><span class="nx">url</span><span class="p">,</span> <span class="nx">state</span><span class="p">.</span><span class="nx">header</span><span class="p">),</span> <span class="nx">state</span>
+
+
+  <span class="c1">#### get(url, header)</span>
+  <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Получение состояния по параметрам url и header</p></div></div><div class="code"><div class="wrapper">  <span class="c1">#</span>
+  <span class="nv">get: </span><span class="nf">(url, header) -&gt;</span>
+    <span class="nx">storage</span><span class="p">.</span><span class="nx">get</span> <span class="s">&quot;sectionsHistory&quot;</span><span class="p">,</span> <span class="nx">helpers</span><span class="p">.</span><span class="nx">stateId</span><span class="p">(</span><span class="nx">url</span><span class="p">,</span> <span class="nx">header</span><span class="p">)</span></div></div></div></div></body></html>

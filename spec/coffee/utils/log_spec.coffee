@@ -110,7 +110,7 @@ describe "[Log module]", ->
             it "should save entry to localStorage", ->
             it "should clean localStorage if there is more then one "
       ###
-      
+
     describe 'Clean up the memory', ->
       ## +Title: Clean up the memory
       # In order to keep low memory usage

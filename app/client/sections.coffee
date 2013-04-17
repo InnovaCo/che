@@ -13,7 +13,7 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
   #### transitions
   #
   # Менеджер переходов, создает, либо достает уже ранее созданные переходы
-  # 
+  #
 
   transitions =
     ###### transitions.last
@@ -28,8 +28,8 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
 
     ###### transitions.create(state)
     # Создает новый объект перехода, устанавливает в нем ссылки на предыдущий, а сам новый теперь записывается в last,
-    # кроме того, обновляются, либо записываются данные в historyState. Если же такой переход уже был создан (state имеет параметр index), то 
-    # совершается ищем по индексу нужный переход, применяем его (функция transitions.go) и обновляем его данные
+    # кроме того, обновляются, либо записываются данные в historyState. Если же такой переход уже был создан (state имеет параметр index),
+    # то совершается ищем по индексу нужный переход, применяем его (функция transitions.go) и обновляем его данные
     #
     create: (state) ->
       state = state or {index: 0, url: window.location.href}

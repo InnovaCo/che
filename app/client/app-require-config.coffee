@@ -5,7 +5,7 @@ require.config
   baseUrl: "public/js"
 
   paths:
-    "underscore": "lib/underscore"
+    "underscore": "lib/underscore-min"
 
   shim:
     "underscore":

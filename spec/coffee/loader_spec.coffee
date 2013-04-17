@@ -1,4 +1,4 @@
-describe "loader  module", -> 
+describe "loader  module", ->
   loader = null
   loadSpy = null
   requireSpy = null
@@ -19,8 +19,8 @@ describe "loader  module", ->
         affix 'div.widget[data-js-modules="module_' + index + '"]'
 
       requireSpy = spyOn(window, "require").andCallThrough()
-      
-      
+
+
     it "should find all widgets on page", ->
       loader.search()
       expect(loadSpy.calls.length).toEqual(1)
@@ -62,7 +62,7 @@ describe "loader  module", ->
       expect(modulesNames).toContain "module_thrird_0"
       expect(modulesNames).toContain "module_thrird_2"
 
-    it 'should return array of pairs: {name: moduleName, element: domElementRef}, for each found module name in plain HTML text', ->  
+    it 'should return array of pairs: {name: moduleName, element: domElementRef}, for each found module name in plain HTML text', ->
       loader.search $('body').html()
 
       modulesNames = _.pluck loadSpy.mostRecentCall.args[0], "name"
@@ -76,4 +76,3 @@ describe "loader  module", ->
       expect(modulesNames).toContain "module_second_2"
       expect(modulesNames).toContain "module_thrird_0"
       expect(modulesNames).toContain "module_thrird_2"
-      

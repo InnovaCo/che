@@ -47,7 +47,7 @@ define ['underscore'],  (_) ->
         if handler.options.isSync
           @_handlerCaller handler, args
         else
-          _.delay => 
+          _.delay =>
 
             @_handlerCaller handler, args
         @_nextHandlerCall(args)
@@ -57,13 +57,13 @@ define ['underscore'],  (_) ->
     #
     # Запускает исполнение обработчиков события
     #
-    dispatch: (args) -> 
+    dispatch: (args) ->
       args = if _.isArray(args) then args else [args]
       @_handlersCallOrder = _.keys(@_handlers).sort()
       args.push this._data()
       @_lastArgs = args
 
-      @_nextHandlerCall args 
+      @_nextHandlerCall args
       @
 
     
@@ -123,7 +123,7 @@ define ['underscore'],  (_) ->
     
     ####  Events::sprout([name])
     #
-    # Отпочковывает объект событий, если указано имя [name], 
+    # Отпочковывает объект событий, если указано имя [name],
     # то сохраняет ссылку на дочений объект в поле родительского по указанному имени.
     #
     sprout: (name) ->
@@ -195,6 +195,6 @@ define ['underscore'],  (_) ->
 
   #### Глобальная шина событий
   #
-  # представляет собой интерфейс модуля 
+  # представляет собой интерфейс модуля
   #
   new Events("root")

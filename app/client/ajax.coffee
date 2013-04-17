@@ -17,7 +17,7 @@ define ['events', 'utils/params', "utils/destroyer", "underscore"], (events, par
   #
   sendRequest = (url, data, type, method, eventsSprout, headers) ->
     request = createXMLHTTPObject()
-    return false if not request 
+    return false if not request
 
     # request.responseType = type
     request.open method, url, true
@@ -83,7 +83,7 @@ define ['events', 'utils/params', "utils/destroyer", "underscore"], (events, par
         createXMLHTTPObject = ->
           xmlhttpConstructor()
       catch e
-       continue
+        continue
       break
     xmlhttp
 
@@ -92,7 +92,7 @@ define ['events', 'utils/params', "utils/destroyer", "underscore"], (events, par
   # Набор функций для парсинга responseText
   #
 
-  parser = 
+  parser =
     json: (text) ->
       console.log text
       JSON.parse text

@@ -12,7 +12,7 @@ describe 'sections module', ->
   sectionsLoader = null
   require [
     'sections',
-    'sections/asyncQueue', 
+    'sections/asyncQueue',
     'sections/invoker',
     'sections/loader',
     'events',
@@ -39,10 +39,10 @@ describe 'sections module', ->
     sections._transitions.last = null
     sections._transitions.current = sections._transitions.create()
 
-    
+
   beforeEach ->
     spyOn(browserHistory, "pushState")
-    
+
     waitsFor ->
       sections?
 
@@ -59,11 +59,11 @@ describe 'sections module', ->
       resetModules()
 
     it 'should create transition and set firstTransition and currentTransition', ->
-      jasmine.Clock.useMock();
+      jasmine.Clock.useMock()
       transition = sections._transitions.create({index: 1})
       nextTransition = sections._transitions.create({sections: ""})
 
-      jasmine.Clock.tick(1000);
+      jasmine.Clock.tick(1000)
 
       expect(sections._transitions.last).toBe(nextTransition)
       expect(sections._transitions.current).toBe(nextTransition)
@@ -77,7 +77,7 @@ describe 'sections module', ->
 
 
   describe 'invoking transitions', ->
-    reload_sections = 
+    reload_sections =
       sections: "<section data-selector='#one'><span>hello</span></section>\
       <section data-selector='#two'><span>world</span></section>"
 
@@ -87,23 +87,23 @@ describe 'sections module', ->
       resetModules()
 
     it 'should replace sections', ->
-        sectionsReplaced = false
+      sectionsReplaced = false
 
-        events.bind "pageTransition:success", ->
-          sectionsReplaced = true
+      events.bind "pageTransition:success", ->
+        sectionsReplaced = true
 
-        transition = sections._transitions.create reload_sections
+      transition = sections._transitions.create reload_sections
 
-        waitsFor ->
-          sectionsReplaced
+      waitsFor ->
+        sectionsReplaced
 
-        runs ->
-          expect($("#one").length).toBe 1
-          expect($("#two").length).toBe 1
-          expect($("#one span.section").length).toBe 0
-          expect($("#two span.section").length).toBe 0
-          expect($("#one span").text()).toBe "hello"
-          expect($("#two span").text()).toBe "world"
+      runs ->
+        expect($("#one").length).toBe 1
+        expect($("#two").length).toBe 1
+        expect($("#one span.section").length).toBe 0
+        expect($("#two span.section").length).toBe 0
+        expect($("#one span").text()).toBe "hello"
+        expect($("#two span").text()).toBe "world"
 
     it 'should replace sections and undo', ->
       allDoneForward = no
@@ -140,12 +140,12 @@ describe 'sections module', ->
 
 
   describe 'updating transitions', ->
-    reload_sections = 
+    reload_sections =
       url: "test.com"
       sections: "<section data-selector='#one'><span>hello</span></section>\
       <section data-selector='#two'><span>world</span></section>"
 
-    update_sections = 
+    update_sections =
       url: "test.com"
       sections: "<section data-selector='#one'><span>Hello</span></section>\
       <section data-selector='#two'><span>Universe</span></section>"
@@ -157,70 +157,70 @@ describe 'sections module', ->
 
 
     it "should update sections", ->
-        isCreated = no
+      isCreated = no
 
-        events.bind "pageTransition:success", ->
-          isCreated = yes
+      events.bind "pageTransition:success", ->
+        isCreated = yes
 
-        transition = sections._transitions.create reload_sections
+      transition = sections._transitions.create reload_sections
+
+      waitsFor ->
+        isCreated
+
+      runs ->
+
+        expect($("#one").length).toBe 1
+        expect($("#two").length).toBe 1
+        expect($("#one span").text()).toBe "hello"
+        expect($("#two span").text()).toBe "world"
+
+        isUPdated = no
+
+        events.bind "pageTransition:updated", ->
+          isUPdated = yes
+
+        transition.update _.extend({}, update_sections)
 
         waitsFor ->
-          isCreated
+          isUPdated
 
         runs ->
-
           expect($("#one").length).toBe 1
           expect($("#two").length).toBe 1
-          expect($("#one span").text()).toBe "hello"
-          expect($("#two span").text()).toBe "world"
-
-          isUPdated = no
-
-          events.bind "pageTransition:updated", ->
-            isUPdated = yes
-
-          transition.update _.extend({}, update_sections)
-
-          waitsFor ->
-            isUPdated
-
-          runs ->
-            expect($("#one").length).toBe 1
-            expect($("#two").length).toBe 1
-            expect($("#one span").text()).toBe "Hello"
-            expect($("#two span").text()).toBe "Universe"
+          expect($("#one span").text()).toBe "Hello"
+          expect($("#two span").text()).toBe "Universe"
 
     it "shouldn't update sections", ->
-        isCreated = no
+      isCreated = no
 
-        events.bind "pageTransition:success", ->
-          isCreated = yes
+      events.bind "pageTransition:success", ->
+        isCreated = yes
 
-        transition = sections._transitions.create reload_sections
+      transition = sections._transitions.create reload_sections
 
-        waitsFor ->
-          isCreated
+      waitsFor ->
+        isCreated
+
+      runs ->
+
+        expect($("#one").length).toBe 1
+        expect($("#two").length).toBe 1
+        expect($("#one span").text()).toBe "hello"
+        expect($("#two span").text()).toBe "world"
+
+        transition.update _.extend({}, reload_sections, {url: "url"})
+
+        waits 500
 
         runs ->
-
           expect($("#one").length).toBe 1
           expect($("#two").length).toBe 1
           expect($("#one span").text()).toBe "hello"
           expect($("#two span").text()).toBe "world"
-
-          transition.update _.extend({}, reload_sections, {url: "url"})
-
-          waits 500
-
-          runs ->
-            expect($("#one").length).toBe 1
-            expect($("#two").length).toBe 1
-            expect($("#one span").text()).toBe "hello"
-            expect($("#two span").text()).toBe "world"
 
 
   describe 'creating invoke objects', ->
-    reload_sections = 
+    reload_sections =
       sections: "<title>megatitle!</title><section data-selector='#one'><span>hello</span></section>\
       <section data-selector='#two'><span>world</span></section>"
 
@@ -278,7 +278,7 @@ describe 'sections module', ->
       # expect(invoker._back["#two"].widgetsInitData[0].name).toBe('gradient')
 
     it "invoker should change sections", ->
-      allDone = no;
+      allDone = no
       events.bind "sections:inserted", ->
         allDone = yes
 
@@ -297,7 +297,7 @@ describe 'sections module', ->
 
 
   describe 'initilize widgets', ->
-    reload_sections = 
+    reload_sections =
       sections: "<section data-selector='#one'><span class='widgets' data-js-modules='widgets/rotation, widgets/gradient'>hello</span></section>\
       <section data-selector='#two'><span class='widgets' data-js-modules='widgets/opacity'>world</span></section>"
 
@@ -310,7 +310,7 @@ describe 'sections module', ->
       spyOn(widgets, "create").andCallThrough()
 
     it "should init all widgets from new sections", ->
-      allDone = no;
+      allDone = no
       events.bind "sections:inserted", ->
         allDone = yes
 
@@ -336,7 +336,7 @@ describe 'sections module', ->
         expect(widgets.create.calls[2].args[2]).toBeFunction()
 
     it "should turn off all widgets from old sections", ->
-      
+
 
       allwidgetsReady = no
 
@@ -353,11 +353,11 @@ describe 'sections module', ->
         gradient_widget = widgets.get "widgets/gradient", $("#one span")[0]
         opacity_widget = widgets.get "widgets/opacity", $("#two span")[0]
 
-        allDone = no;
+        allDone = no
         events.bind "sections:inserted", ->
           allDone = yes
 
-        invoker = new Invoker reload_sections.sections 
+        invoker = new Invoker reload_sections.sections
         invoker.run()
 
         waitsFor ->
@@ -368,7 +368,7 @@ describe 'sections module', ->
           expect(opacity_widget._isOn).toBeFalsy()
 
   describe 'saving transition sections to localStorage', ->
-    reload_sections = 
+    reload_sections =
       url: window.location.origin
       title: "test Title"
       header: "header"
@@ -379,7 +379,7 @@ describe 'sections module', ->
       affix "div#one span.section"
 
       resetModules()
-      
+
 
 
     it "should save sections data to localstorage", ->
@@ -415,7 +415,7 @@ describe 'sections module', ->
         allDone is yes
 
       runs ->
-        savedState = storage.get("sectionsHistory", window.location.origin + "|header:123");
+        savedState = storage.get("sectionsHistory", window.location.origin + "|header:123")
         expect(savedState.sections).toBeDefined()
         expect(savedState.sections).toBe("<section data-selector='#one'><div></div></section>")
 
@@ -423,23 +423,28 @@ describe 'sections module', ->
     reload_sections = null
     beforeEach ->
       resetModules()
-      reload_sections = 
+      reload_sections =
         url: window.location.origin
-        sections: "<title>TITLE!</title><section data-selector='#one'>sdkjhfksjd<span class='widgets' data-js-modules='widgets/rotation, widgets/gradient'>hello</span></section>"
+        sections: "<title>TITLE!</title>
+          <section data-selector='#one'>sdkjhfksjd
+          <span class='widgets' data-js-modules='widgets/rotation, widgets/gradient'>hello</span>
+          </section>"
       affix "div#one span.section"
       spyOn(ajax, "get").andCallThrough()
 
     it "should load sections and correctly convert in to state object", ->
-      loadedSections = "<title>TITLE!</title><section data-selector='#one'>sdkjhfksjd<span class='widgets' data-js-modules='widgets/rotation, widgets/gradient'>hello</span></section>"
-      
+      loadedSections = "<title>TITLE!</title>
+        <section data-selector='#one'>sdkjhfksjd
+        <span class='widgets' data-js-modules='widgets/rotation, widgets/gradient'>hello</span>
+        </section>"
 
-      request = 
+      request =
         responseText: loadedSections
         getResponseHeader: (header) ->
           return "http://test.com/one/two" if header is "X-Che-Url"
 
 
-      requestStub = 
+      requestStub =
         abort: jasmine.createSpy("abort")
         success: (handler) ->
           handler request, loadedSections
@@ -457,7 +462,10 @@ describe 'sections module', ->
       state = events.trigger.mostRecentCall.args[1]
 
       expect(state.url).toBe("http://test.com/one/two")
-      expect(state.sections).toBe("<title>TITLE!</title><section data-selector='#one'>sdkjhfksjd<span class='widgets' data-js-modules='widgets/rotation, widgets/gradient'>hello</span></section>")
+      expect(state.sections).toBe("<title>TITLE!</title>
+        <section data-selector='#one'>sdkjhfksjd
+        <span class='widgets' data-js-modules='widgets/rotation, widgets/gradient'>hello</span>
+        </section>")
       expect(state.method).toBe('GET')
       expect(state.header).toBe("sections header")
       expect(state.index).toBe(1)
@@ -466,7 +474,7 @@ describe 'sections module', ->
 
 
     it "should update sections from server, when traversing sections", ->
-      
+
       allDone = no
       events.bind "transition:invoked", ->
         allDone = yes
@@ -491,7 +499,7 @@ describe 'sections module', ->
 
 
     it "should load sections from server, when going forward", ->
-      
+
       allDone = no
       events.bind "transition:invoked", ->
         allDone = yes
@@ -510,7 +518,7 @@ describe 'sections module', ->
 
 
     it "should load sections from localstorage, when going forward, and then update from server", ->
-      
+
       allDone = no
       events.bind "transition:invoked", ->
         allDone = yes
@@ -539,27 +547,38 @@ describe 'sections module', ->
     beforeEach ->
       resetModules()
       affix "div.backHistory#one span.first"
-      
+
       reloadSectionsArr = [
         index: 1
         url: "http://sections.com/one"
-        sections: "<title>TITLE! number 1</title><section data-selector='#one'>sdkjhfksjd<span class='widgets' data-js-modules='widgets/rotation, widgets/gradient'>hello</span></section>"
-      , 
+        sections: "<title>TITLE! number 1</title>
+          <section data-selector='#one'>sdkjhfksjd
+          <span class='widgets' data-js-modules='widgets/rotation, widgets/gradient'>hello</span>
+          </section>"
+      ,
         index: 2
         url: "http://sections.com/two"
-        sections: "<title>TITLE! number 2</title><section data-selector='#one'><span>Yo!</span>Man!</section>"
+        sections: "<title>TITLE! number 2</title>
+          <section data-selector='#one'><span>Yo!</span>Man!
+          </section>"
       ,
         index: 3
         url: "http://sections.com/three"
-        sections: "<title>TITLE! number 3</title><section data-selector='#one'>Gangham<span class='yo'>style!</span></section>"
+        sections: "<title>TITLE! number 3
+          </title><section data-selector='#one'>Gangham<span class='yo'>style!</span>
+          </section>"
       ,
         index: 4
         url: "http://sections.com/four"
-        sections: "<title>TITLE! number 4</title><section data-selector='#one'>Snop doggy<span class='yo'>dog!</span></section>"
+        sections: "<title>TITLE! number 4</title>
+          <section data-selector='#one'>Snop doggy<span class='yo'>dog!</span>
+          </section>"
       ,
         index: 5
         url: "http://sections.com/five"
-        sections: "<title>TITLE! number 5</title><section data-selector='#one'><span class='end'>circus end!</span></section>"
+        sections: "<title>TITLE! number 5</title>
+          <section data-selector='#one'><span class='end'>circus end!</span>
+          </section>"
       ]
 
     afterEach ->
@@ -578,7 +597,7 @@ describe 'sections module', ->
               allDone = yes
           sections._transitions.go 1
 
-      
+
 
       waitsFor ->
         allDone

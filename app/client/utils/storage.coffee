@@ -66,7 +66,7 @@ define [], ->
 
   # Вспомогательные методы
   isLocalStorageAvailable = () ->
-    return typeof _localStorage isnt "undefined";
+    return typeof _localStorage isnt "undefined"
 
   createVarName = (moduleName, varName) ->
     "#{moduleName}/#{varName}"
@@ -82,7 +82,7 @@ define [], ->
     objToReturn
 
   # Делаем открытый API, чтобы было удобно отлаживать и тестировать
-  returnObj = 
+  returnObj =
     save: (moduleName, varName, value, isSessionOnly, isStorageOnly) ->
       value = JSON.stringify value
       key = createVarName moduleName, varName

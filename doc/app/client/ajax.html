@@ -1,0 +1,156 @@
+<!DOCTYPE html><html lang="en"><head><title>app/client/ajax</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="app/client/ajax"><meta name="groc-project-path" content="app/client/ajax.coffee"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">app/client/ajax.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="cm">#### *module* ajax</span>
+<span class="cm">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Позволяет отправлять ajax-запросы на сервер</p></div></div><div class="code"><div class="wrapper"><span class="cm">#</span>
+
+
+<span class="cm">define [&#39;events&#39;, &#39;utils/params&#39;, &quot;utils/destroyer&quot;, &quot;underscore&quot;], (events, params, destroyer, _) -&gt;</span>
+
+<span class="cm">  createGETurl = (url, data) -&gt;</span>
+<span class="cm">    splittedUrl = url.split &quot;?&quot;</span>
+<span class="cm">    getParams = if data? then &quot;?#{params data}&quot;  else if splittedUrl[1] then &quot;?#{splittedUrl[1]}&quot; else &quot;&quot;</span>
+<span class="cm">    &quot;#{splittedUrl[0]}#{getParams}&quot;</span>
+
+<span class="cm">  ###</span><span class="c1"># sendRequest(url, data, type, eventsSprout, headers)</span>
+  <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>функция для отправки запроса на сервер</p></div></div><div class="code"><div class="wrapper">  <span class="c1">#</span>
+  <span class="nv">sendRequest = </span><span class="nf">(url, data, type, method, eventsSprout, headers) -&gt;</span>
+    <span class="nv">request = </span><span class="nx">createXMLHTTPObject</span><span class="p">()</span>
+    <span class="k">return</span> <span class="kc">false</span> <span class="k">if</span> <span class="o">not</span> <span class="nx">request</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>request.responseType = type</p></div></div><div class="code"><div class="wrapper">    <span class="nx">request</span><span class="p">.</span><span class="nx">open</span> <span class="nx">method</span><span class="p">,</span> <span class="nx">url</span><span class="p">,</span> <span class="kc">true</span>
+    <span class="nx">request</span><span class="p">.</span><span class="nx">setRequestHeader</span> <span class="s">&#39;X-Requested-With&#39;</span><span class="p">,</span> <span class="s">&#39;XMLHttpRequest&#39;</span>
+    <span class="nx">request</span><span class="p">.</span><span class="nx">setRequestHeader</span> <span class="s">&#39;X-Che&#39;</span><span class="p">,</span> <span class="s">&#39;true&#39;</span>
+    <span class="k">if</span> <span class="nx">headers</span><span class="o">?</span>
+      <span class="k">for</span> <span class="nx">headerName</span><span class="p">,</span> <span class="nx">headerValue</span> <span class="k">of</span> <span class="nx">headers</span>
+        <span class="nx">request</span><span class="p">.</span><span class="nx">setRequestHeader</span> <span class="nx">headerName</span><span class="p">,</span> <span class="nx">headerValue</span>
+
+    <span class="k">if</span> <span class="nx">data</span><span class="o">?</span>
+      <span class="nv">data = </span><span class="nx">params</span> <span class="nx">data</span>
+      <span class="nx">request</span><span class="p">.</span><span class="nx">setRequestHeader</span> <span class="s">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s">&#39;application/x-www-form-urlencoded&#39;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>слушаем изменение состояния запроса
+и отправляем различные события
+— не должен выполняться, если был отменен</p></div></div><div class="code"><div class="wrapper">    <span class="nv">request.onreadystatechange = </span><span class="o">-&gt;</span>
+      <span class="k">return</span> <span class="k">if</span> <span class="nx">request</span><span class="p">.</span><span class="nx">readyState</span> <span class="o">isnt</span> <span class="mi">4</span> <span class="o">or</span> <span class="nx">request</span><span class="p">.</span><span class="nx">status</span> <span class="o">is</span> <span class="mi">0</span>
+
+      <span class="k">if</span> <span class="nx">request</span><span class="p">.</span><span class="nx">status</span> <span class="o">isnt</span> <span class="mi">200</span> <span class="o">and</span> <span class="nx">request</span><span class="p">.</span><span class="nx">status</span> <span class="o">isnt</span> <span class="mi">304</span>
+        <span class="nx">eventsSprout</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;error&quot;</span><span class="p">,</span> <span class="p">[</span><span class="nx">request</span><span class="p">,</span> <span class="kc">null</span><span class="p">]</span>
+        <span class="nx">eventsSprout</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;complete&quot;</span><span class="p">,</span> <span class="p">[</span><span class="nx">request</span><span class="p">,</span> <span class="kc">null</span><span class="p">]</span>
+        <span class="k">return</span>
+
+      <span class="nv">data = </span><span class="k">if</span> <span class="nx">request</span><span class="p">.</span><span class="nx">responseText</span><span class="o">?</span> <span class="k">then</span> <span class="p">(</span><span class="nx">parser</span><span class="p">[</span><span class="nx">type</span><span class="p">]</span> <span class="o">or</span> <span class="nx">parser</span><span class="p">.</span><span class="nx">json</span><span class="p">)</span> <span class="nx">request</span><span class="p">.</span><span class="nx">responseText</span> <span class="k">else</span> <span class="s">&quot;&quot;</span>
+      
+      <span class="nx">eventsSprout</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;success&quot;</span><span class="p">,</span> <span class="p">[</span><span class="nx">request</span><span class="p">,</span> <span class="nx">data</span><span class="p">]</span>
+      <span class="nx">eventsSprout</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;complete&quot;</span><span class="p">,</span> <span class="p">[</span><span class="nx">request</span><span class="p">,</span> <span class="nx">data</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nx">request</span><span class="p">.</span><span class="nx">readyState</span> <span class="o">is</span> <span class="mi">4</span>
+      <span class="nv">data = </span><span class="k">if</span> <span class="nx">request</span><span class="p">.</span><span class="nx">responseText</span><span class="o">?</span> <span class="k">then</span> <span class="p">(</span><span class="nx">parser</span><span class="p">[</span><span class="nx">type</span><span class="p">]</span> <span class="o">or</span> <span class="nx">parser</span><span class="p">.</span><span class="nx">json</span><span class="p">)</span> <span class="nx">request</span><span class="p">.</span><span class="nx">responseText</span> <span class="k">else</span> <span class="s">&quot;&quot;</span>
+      <span class="nx">eventsSprout</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;complete&quot;</span><span class="p">,</span> <span class="p">[</span><span class="nx">request</span><span class="p">,</span> <span class="nx">data</span><span class="p">]</span>
+      <span class="k">return</span> <span class="nx">request</span>
+
+    <span class="nx">eventsSprout</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;start&quot;</span><span class="p">,</span> <span class="p">[</span><span class="nx">request</span><span class="p">]</span>
+    <span class="nx">request</span><span class="p">.</span><span class="nx">send</span> <span class="nx">data</span>
+    <span class="nx">request</span>
+
+
+  <span class="cm">#### XMLHttpFactories</span>
+<span class="cm">  #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>массив фабрик XMLHttpRequest объекта</p></div></div><div class="code"><div class="wrapper"><span class="cm">  #</span>
+
+<span class="cm">  XMLHttpFactories = [</span>
+<span class="cm">    -&gt; return new XMLHttpRequest(),</span>
+<span class="cm">    -&gt; return new ActiveXObject(&quot;Msxml2.XMLHTTP&quot;),</span>
+<span class="cm">    -&gt; return new ActiveXObject(&quot;Msxml3.XMLHTTP&quot;),</span>
+<span class="cm">    -&gt; return new ActiveXObject(&quot;Microsoft.XMLHTTP&quot;)</span>
+<span class="cm">  ]</span>
+
+<span class="cm">  ###</span><span class="c1"># createXMLHTTPObject()</span>
+  <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>создает объект XMLHttpRequest из подходящей фабрики, запоминает свое состояние</p></div></div><div class="code"><div class="wrapper">  <span class="c1">#</span>
+
+  <span class="nv">createXMLHTTPObject = </span><span class="o">-&gt;</span>
+    <span class="nv">xmlhttp = </span><span class="kc">false</span>
+    <span class="k">for</span> <span class="nx">xmlhttpConstructor</span> <span class="k">in</span> <span class="nx">XMLHttpFactories</span>
+      <span class="k">try</span>
+        <span class="nv">xmlhttp = </span><span class="nx">xmlhttpConstructor</span><span class="p">()</span>
+        <span class="nv">createXMLHTTPObject = </span><span class="o">-&gt;</span>
+          <span class="nx">xmlhttpConstructor</span><span class="p">()</span>
+      <span class="k">catch</span> <span class="nx">e</span>
+        <span class="k">continue</span>
+      <span class="k">break</span>
+    <span class="nx">xmlhttp</span>
+
+  <span class="cm">#### parser</span>
+<span class="cm">  #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Набор функций для парсинга responseText</p></div></div><div class="code"><div class="wrapper"><span class="cm">  #</span>
+
+<span class="cm">  parser =</span>
+<span class="cm">    json: (text) -&gt;</span>
+<span class="cm">      console.log text</span>
+<span class="cm">      JSON.parse text</span>
+<span class="cm">    text: (text) -&gt;</span>
+<span class="cm">      text</span>
+<span class="cm">    default: (text) -&gt;</span>
+<span class="cm">      text</span>
+
+
+<span class="cm">  defaultOptions =</span>
+<span class="cm">    type: &#39;json&#39;,</span>
+<span class="cm">    method: &quot;GET&quot;</span>
+
+
+<span class="cm">  ###</span><span class="c1"># Ajax</span>
+  <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>конструктор для ajax-объекта, создает объект, при возможности отправляет запрос и навешивает обработчиков событий</p></div></div><div class="code"><div class="wrapper">  <span class="c1">#</span>
+
+  <span class="nv">Ajax = </span><span class="nf">(options) -&gt;</span>
+    <span class="k">if</span> <span class="nx">options</span><span class="o">?</span>
+      <span class="nx">@get</span> <span class="nx">options</span>
+    <span class="nx">@</span>
+
+  <span class="nv">Ajax:: =</span>
+
+    <span class="cm">#### Ajax::get(options)</span>
+<span class="cm">    #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>отправляет запрос и навешивает обработчиков событий для конкретного запроса</p></div></div><div class="code"><div class="wrapper"><span class="cm">    #</span>
+<span class="cm">    get: (options) -&gt;</span>
+<span class="cm">      if @_events</span>
+<span class="cm">        destroyer @_events</span>
+
+<span class="cm">      if options.url?</span>
+
+<span class="cm">        @_events = events.sprout()</span>
+
+<span class="cm">        for eventName in [&quot;start&quot;, &quot;success&quot;, &quot;error&quot;, &quot;complete&quot;]</span>
+<span class="cm">          if _.isFunction options[eventName] then @_events.bind eventName, options[eventName], {},</span>
+<span class="cm">            recall: true</span>
+<span class="cm">            isSync: true</span>
+
+<span class="cm">        @_request = sendRequest options.url,</span>
+<span class="cm">          options.data or {},</span>
+<span class="cm">          options.type or &quot;&quot;,</span>
+<span class="cm">          options.method or defaultOptions.method,</span>
+<span class="cm">          @_events,</span>
+<span class="cm">          options.headers</span>
+<span class="cm">      @</span>
+
+<span class="cm">    ###</span><span class="c1"># Ajax::abort(options)</span>
+    <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>отменяет запрос</p></div></div><div class="code"><div class="wrapper">    <span class="c1">#</span>
+    <span class="nv">abort: </span><span class="o">-&gt;</span>
+      <span class="nx">@_request</span><span class="p">.</span><span class="nx">abort</span><span class="p">()</span>
+      <span class="nx">@</span>
+
+  <span class="cm">#### Генерирование функций для Ajax::</span>
+<span class="cm">  #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Ajax::success(handler), Ajax::error(handler), Ajax::complete(handler)
+необходимы для подписки на события запроса</p></div></div><div class="code"><div class="wrapper"><span class="cm">  #</span>
+
+<span class="cm">  for eventName in [&quot;start&quot;, &quot;success&quot;, &quot;error&quot;, &quot;complete&quot;]</span>
+<span class="cm">    Ajax::[eventName] = (handler) -&gt;</span>
+<span class="cm">      @_events.bind eventName, handler,</span>
+<span class="cm">        recall: true</span>
+
+<span class="cm">  ###</span><span class="c1"># ajax(options)</span>
+  <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Интерфейс модуля</p></div></div><div class="code"><div class="wrapper">  <span class="c1">#</span>
+
+  <span class="nv">ajax = </span><span class="nf">(options) -&gt;</span>
+    <span class="k">new</span> <span class="nx">Ajax</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+
+  <span class="c1">#### ajax.get(options)</span>
+  <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Отправка GET-запросов</p></div></div><div class="code"><div class="wrapper">  <span class="c1">#</span>
+
+  <span class="nv">ajax.get = </span><span class="nf">(options) -&gt;</span>
+    <span class="nv">options.method = </span><span class="s">&quot;GET&quot;</span>
+    <span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">url</span><span class="o">?</span>
+      <span class="nv">options.url = </span><span class="nx">createGETurl</span> <span class="nx">options</span><span class="p">.</span><span class="nx">url</span><span class="p">,</span> <span class="nx">options</span><span class="p">.</span><span class="nx">data</span>
+    <span class="k">new</span> <span class="nx">Ajax</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+    
+  <span class="nx">ajax</span></div></div></div></div></body></html>

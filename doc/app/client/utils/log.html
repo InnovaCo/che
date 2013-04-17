@@ -1,0 +1,90 @@
+<!DOCTYPE html><html lang="en"><head><title>app/client/utils/log</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="app/client/utils/log"><meta name="groc-project-path" content="app/client/utils/log.coffee"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">app/client/utils/log.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="c1">#### Logger</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="nx">define</span> <span class="p">[</span><span class="s">&#39;module&#39;</span><span class="p">],</span> <span class="nf">(module) -&gt;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><hr />
+
+<h2 id="options">Options</h2></div></div><div class="code"><div class="wrapper">  <span class="nv">options = </span><span class="nx">_</span><span class="p">.</span><span class="nx">extend</span>
+    <span class="nv">maxEntries: </span><span class="mi">500</span>
+    <span class="nv">logLevel: </span><span class="mi">10</span>
+  <span class="p">,</span> <span class="nx">module</span><span class="p">.</span><span class="nx">config</span><span class="p">()</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><hr />
+
+<h2 id="small-class-for-one-log-entry">Small class for one log entry</h2></div></div><div class="code"><div class="wrapper">  <span class="k">class</span> <span class="nx">LogEntry</span>
+    <span class="nv">constructor: </span><span class="nf">(@message, @namespace = &quot;global&quot;, @type, @objectsArray) -&gt;</span>
+      <span class="vi">@time = </span><span class="k">new</span> <span class="nb">Date</span><span class="p">().</span><span class="nx">getTime</span><span class="p">()</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><hr />
+
+<h2 id="entries-list-manager">Entries list manager</h2></div></div><div class="code"><div class="wrapper">  <span class="nv">entriesList =</span>
+    <span class="nv">entries: </span><span class="p">[]</span>
+    <span class="nv">maxEntries: </span><span class="nx">options</span><span class="p">.</span><span class="nx">maxEntries</span>
+
+    <span class="nv">append: </span><span class="nf">(message, namespace, objectsArray, type) -&gt;</span>
+      <span class="nx">@entries</span><span class="p">.</span><span class="nx">push</span> <span class="k">new</span> <span class="nx">LogEntry</span><span class="p">(</span><span class="nx">message</span><span class="p">,</span> <span class="nx">namespace</span><span class="p">,</span> <span class="nx">type</span><span class="p">,</span> <span class="nx">objectsArray</span><span class="p">)</span>
+      <span class="nx">@checkMaxLogStack</span><span class="p">()</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>sortByTime: (a, b) ->
+  return (a.time - b.time)</p></div></div><div class="code"><div class="wrapper">    <span class="nv">getEntries: </span><span class="nf">(type) -&gt;</span>
+      <span class="k">return</span> <span class="nx">@entries</span> <span class="k">if</span> <span class="o">not</span> <span class="nx">type</span><span class="o">?</span>
+      <span class="nv">resultArray = </span><span class="p">[]</span>
+      <span class="nx">resultArray</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">entry</span><span class="p">)</span> <span class="k">for</span> <span class="nx">entry</span> <span class="k">in</span> <span class="nx">@entries</span> <span class="k">when</span> <span class="nx">entry</span><span class="p">.</span><span class="nx">type</span> <span class="o">is</span> <span class="nx">type</span>
+      <span class="nx">resultArray</span>
+
+    <span class="nv">checkMaxLogStack: </span><span class="nf">() -&gt;</span>
+      <span class="k">return</span> <span class="kc">true</span> <span class="k">if</span> <span class="nx">@entries</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;=</span> <span class="nx">@maxEntries</span>
+      <span class="k">return</span> <span class="nx">@entries</span><span class="p">.</span><span class="nx">shift</span><span class="p">()</span>
+
+    <span class="nv">empty: </span><span class="nf">() -&gt;</span>
+      <span class="vi">@entries.length = </span><span class="mi">0</span>
+      <span class="kc">true</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><hr />
+
+<h2 id="proxy-functions">Proxy functions</h2></div></div><div class="code"><div class="wrapper">  <span class="nv">_log = </span><span class="nf">(message, namespace, objectsArray, type = &quot;log&quot;) -&gt;</span>
+    <span class="nx">entriesList</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">message</span><span class="p">,</span> <span class="nx">namespace</span><span class="p">,</span> <span class="nx">objectsArray</span><span class="p">,</span> <span class="nx">type</span><span class="p">)</span>
+
+  <span class="nv">_info = </span><span class="nf">() -&gt;</span>
+    <span class="nx">_log</span> <span class="nx">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="nx">arguments</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="nx">arguments</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s">&quot;info&quot;</span>
+
+  <span class="nv">_notice = </span><span class="nf">() -&gt;</span>
+    <span class="nx">_log</span> <span class="nx">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="nx">arguments</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="nx">arguments</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s">&quot;notice&quot;</span>
+
+  <span class="nv">_warn = </span><span class="nf">() -&gt;</span>
+    <span class="nx">_log</span> <span class="nx">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="nx">arguments</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="nx">arguments</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s">&quot;warn&quot;</span>
+
+  <span class="nv">_error = </span><span class="nf">() -&gt;</span>
+    <span class="nx">_log</span> <span class="nx">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="nx">arguments</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="nx">arguments</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s">&quot;error&quot;</span>
+
+  <span class="nv">_empty = </span><span class="nf">() -&gt;</span>
+    <span class="nx">entriesList</span><span class="p">.</span><span class="nx">empty</span><span class="p">()</span>
+
+  <span class="nv">_getEntries = </span><span class="nf">(type) -&gt;</span>
+    <span class="nx">entriesList</span><span class="p">.</span><span class="nx">getEntries</span><span class="p">(</span><span class="nx">type</span><span class="p">)</span>
+
+  <span class="nv">_printEntries = </span><span class="nf">(type) -&gt;</span>
+    <span class="k">return</span> <span class="k">if</span> <span class="o">not</span> <span class="nx">console</span><span class="o">?</span>
+    <span class="nv">entries = </span><span class="nx">entriesList</span><span class="p">.</span><span class="nx">getEntries</span><span class="p">(</span><span class="nx">type</span><span class="p">)</span>
+    <span class="k">for</span> <span class="nx">entry</span> <span class="k">in</span> <span class="nx">entries</span>
+      <span class="nv">printType = </span><span class="k">if</span> <span class="nx">console</span><span class="p">[</span><span class="nx">entry</span><span class="p">.</span><span class="nx">type</span><span class="p">]</span><span class="o">?</span> <span class="k">then</span> <span class="nx">entry</span><span class="p">.</span><span class="nx">type</span> <span class="k">else</span> <span class="s">&quot;log&quot;</span>
+
+      <span class="k">if</span> <span class="nx">entry</span><span class="p">.</span><span class="nx">objectsArray</span>
+        <span class="nx">console</span><span class="p">[</span><span class="nx">printType</span><span class="p">]</span> <span class="s">&quot;L: [</span><span class="si">#{</span><span class="nx">entry</span><span class="p">.</span><span class="nx">namespace</span><span class="si">}</span><span class="s">][</span><span class="si">#{</span><span class="nx">entry</span><span class="p">.</span><span class="nx">type</span><span class="si">}</span><span class="s">]:&quot;</span><span class="p">,</span> <span class="nx">entry</span><span class="p">.</span><span class="nx">message</span><span class="p">,</span> <span class="nx">entry</span><span class="p">.</span><span class="nx">objectsArray</span>
+      <span class="k">else</span>
+        <span class="nx">console</span><span class="p">[</span><span class="nx">printType</span><span class="p">]</span> <span class="s">&quot;L: [</span><span class="si">#{</span><span class="nx">entry</span><span class="p">.</span><span class="nx">namespace</span><span class="si">}</span><span class="s">][</span><span class="si">#{</span><span class="nx">entry</span><span class="p">.</span><span class="nx">type</span><span class="si">}</span><span class="s">]:&quot;</span><span class="p">,</span> <span class="nx">entry</span><span class="p">.</span><span class="nx">message</span>
+    <span class="nx">entries</span>
+
+  <span class="nv">_saveToServer = </span><span class="nf">() -&gt;</span>
+    <span class="kc">true</span>
+
+  <span class="nv">_sendStat = </span><span class="nf">() -&gt;</span>
+    <span class="kc">true</span>
+
+  <span class="nv">_getMaxEntries = </span><span class="nf">() -&gt;</span>
+    <span class="k">return</span> <span class="mi">0</span> <span class="o">+</span> <span class="nx">entriesList</span><span class="p">.</span><span class="nx">maxEntries</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><hr />
+
+<h2 id="module-api">Module API</h2></div></div><div class="code"><div class="wrapper">  <span class="k">return</span> <span class="p">{</span>
+    <span class="nv">log: </span><span class="nx">_log</span>
+    <span class="nv">info: </span><span class="nx">_info</span>
+    <span class="nv">notice: </span><span class="nx">_notice</span>
+    <span class="nv">warn: </span><span class="nx">_warn</span>
+    <span class="nv">error: </span><span class="nx">_error</span>
+    <span class="nv">empty: </span><span class="nx">_empty</span>
+    <span class="nv">getEntries: </span><span class="nx">_getEntries</span>
+    <span class="nv">printEntries: </span><span class="nx">_printEntries</span>
+    <span class="nv">saveToServer: </span><span class="nx">_saveToServer</span>
+    <span class="nv">sendStat: </span><span class="nx">_sendStat</span>
+    <span class="nv">getMaxEntries: </span><span class="nx">_getMaxEntries</span>
+  <span class="p">}</span></div></div></div></div></body></html>

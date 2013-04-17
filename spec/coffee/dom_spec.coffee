@@ -6,12 +6,12 @@ describe 'dom module', ->
       if document.createEvent
         event = document.createEvent "MouseEvents"
         event.initEvent eventName, true, true
-      else 
+      else
         event = document.createEventObject()
-        event.eventType = eventName;
+        event.eventType = eventName
 
-      event.eventName = eventName;
-      event.memo = {};
+      event.eventName = eventName
+      event.memo = {}
 
       if document.createEvent
         element.dispatchEvent event
@@ -30,25 +30,25 @@ describe 'dom module', ->
       DOMelement = document.getElementById('test')
 
     it 'should have "on", "off", "find", "get" functions', ->
-      
-        domObject = dom("div.test ul li a")
-        expect(domObject.on).toBeFunction()
-        expect(domObject.off).toBeFunction()
-        expect(domObject.find).toBeFunction()
-        expect(domObject.get).toBeFunction()
+
+      domObject = dom("div.test ul li a")
+      expect(domObject.on).toBeFunction()
+      expect(domObject.off).toBeFunction()
+      expect(domObject.find).toBeFunction()
+      expect(domObject.get).toBeFunction()
 
     it 'should return object with DOMelement when called with selector', ->
-      
-        domObject = dom("div.test ul li a")
-        expect(_.isEqual(DOMelement, domObject[0])).toBe(true)
-        expect(domObject.length).toBe(1)
-        expect(domObject instanceof dom).toBeTruthy()
+
+      domObject = dom("div.test ul li a")
+      expect(_.isEqual(DOMelement, domObject[0])).toBe(true)
+      expect(domObject.length).toBe(1)
+      expect(domObject instanceof dom).toBeTruthy()
 
     it 'should return empty object when called with invalidselector', ->
-      
-        domObject = dom(".selectorForNoresults")
-        expect(domObject.length).toBe(0)
-        expect(domObject[0]).toBeUndefined()
+
+      domObject = dom(".selectorForNoresults")
+      expect(domObject.length).toBe(0)
+      expect(domObject[0]).toBeUndefined()
 
 
   describe 'binding events', ->
@@ -60,7 +60,7 @@ describe 'dom module', ->
       affix "span.test ul li a span.test"
 
     it 'should bind event handler to element', ->
-      
+
       bindSpy = jasmine.createSpy "bindSpy"
       dom("div.test ul li a").on 'click', bindSpy
 
@@ -68,7 +68,7 @@ describe 'dom module', ->
       expect(bindSpy).toHaveBeenCalled()
 
     it 'should delegate event handler to element', ->
-      
+
       bindSpy = jasmine.createSpy "bindSpy"
       dom("div.test").on 'ul li a', 'click', bindSpy
 
@@ -79,7 +79,7 @@ describe 'dom module', ->
         expect(bindSpy).toHaveBeenCalled()
 
     it 'should delegate event handler to element from body', ->
-      
+
       bindSpy = jasmine.createSpy "bindSpy"
       dom("body").on 'a', 'click', bindSpy
 
@@ -87,7 +87,7 @@ describe 'dom module', ->
       expect(bindSpy).toHaveBeenCalled()
 
     it 'should delegate event handler to element from body, when several elements on page', ->
-      
+
       bindSpy = jasmine.createSpy "bindSpy"
       dom("body").on 'a', 'click', bindSpy
 
@@ -105,11 +105,11 @@ describe 'dom module', ->
       bindSpy = jasmine.createSpy "bindSpy"
       target = null
       original = dom("div.test ul li a").get 0
-      dom("div.test").on 'ul li a', 'click', () ->        
+      dom("div.test").on 'ul li a', 'click', () ->
         target = @
         bindSpy()
 
-      
+
       triggerMouseEvent("click", dom("div.test ul li a span").get(0))
       console.log target, original
       expect(target).toBe original
@@ -129,46 +129,48 @@ describe 'dom module', ->
 
       triggerMouseEvent("click", dom("span.test").get(0))
       expect(bindSpy).not.toHaveBeenCalled()
-        
+
 
   describe 'unbinding events', ->
     beforeEach ->
       affix "div.test ul li a"
 
     it 'should bind and unbind event handler to element', ->
-      
-        bindSpy = jasmine.createSpy "bindSpy"
-        dom("div.test ul li a").on 'click', bindSpy
-        dom("div.test ul li a").off 'click', bindSpy
 
-        triggerMouseEvent("click", dom("div.test ul li a").get(0))
-        expect(bindSpy).not.toHaveBeenCalled()
-        
+      bindSpy = jasmine.createSpy "bindSpy"
+      dom("div.test ul li a").on 'click', bindSpy
+      dom("div.test ul li a").off 'click', bindSpy
+
+      triggerMouseEvent("click", dom("div.test ul li a").get(0))
+      expect(bindSpy).not.toHaveBeenCalled()
+
     it 'should delegate event handler to element', ->
-      
-        bindSpy = jasmine.createSpy "bindSpy"
-        dom("div.test").on 'ul li a', 'click', bindSpy
-        dom("div.test").off 'ul li a', 'click', bindSpy
 
-        triggerMouseEvent("click", dom("div.test ul li a").get(0))
-        expect(bindSpy).not.toHaveBeenCalled()
+      bindSpy = jasmine.createSpy "bindSpy"
+      dom("div.test").on 'ul li a', 'click', bindSpy
+      dom("div.test").off 'ul li a', 'click', bindSpy
+
+      triggerMouseEvent("click", dom("div.test ul li a").get(0))
+      expect(bindSpy).not.toHaveBeenCalled()
 
   describe 'finding objects', ->
     DOMelement = null
     beforeEach ->
       fixture = affix "div.test ul li a#test"
       DOMelement = document.getElementById('test')
+
     it 'should find element inside', ->
-        obj = dom('div.test')
-        foundObj = obj.find('a#test')
-        expect(_.isEqual(foundObj.get(0), DOMelement)).toBeTruthy()
+      obj = dom('div.test')
+      foundObj = obj.find('a#test')
+      expect(_.isEqual(foundObj.get(0), DOMelement)).toBeTruthy()
+
     it 'find should return instance of domQuery', ->
-        obj = dom('div.test')
-        expect(obj instanceof dom).toBeTruthy()
+      obj = dom('div.test')
+      expect(obj instanceof dom).toBeTruthy()
 
 
   describe 'loader API', ->
-    
+
     domReady = null
     beforeEach ->
       domReady = null

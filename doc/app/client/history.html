@@ -1,0 +1,29 @@
+<!DOCTYPE html><html lang="en"><head><title>app/client/history</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="app/client/history"><meta name="groc-project-path" content="app/client/history.coffee"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">app/client/history.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="c1">#### *module* history</span>
+<span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Надстройка над historyAPI, необходима для создания событий истории, это хорошо понижает связность модулей.
+Кроме событий, модуль возвращает false, если historyAPI недоступно, это используется другими модулями, которые зависят от этого,
+в дальнейшем такое поведение нужно бы реализовать с помощью requirejs loaderAPI (например так сделано с модулем dom)</p></div></div><div class="code"><div class="wrapper"><span class="c1">#</span>
+
+
+<span class="nx">define</span> <span class="p">[</span><span class="s">&#39;events&#39;</span><span class="p">],</span> <span class="nf">(events) -&gt;</span>
+  <span class="k">return</span> <span class="kc">false</span> <span class="k">if</span> <span class="o">not</span> <span class="nb">window</span><span class="p">.</span><span class="nx">history</span>
+
+  <span class="nv">originOnpopstate = </span><span class="nb">window</span><span class="p">.</span><span class="nx">onpopstate</span>
+  <span class="nb">window</span><span class="p">.</span><span class="nv">onpopstate = </span><span class="nf">(popStateEvent)-&gt;</span>
+    <span class="k">if</span> <span class="nx">originOnpopstate</span><span class="o">?</span>
+      <span class="nx">originOnpopstate</span><span class="p">.</span><span class="nx">apply</span> <span class="nb">window</span><span class="p">,</span> <span class="nx">arguments</span>
+
+    <span class="nx">events</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;history:popState&quot;</span><span class="p">,</span> <span class="nx">popStateEvent</span><span class="p">.</span><span class="nx">state</span>
+
+  <span class="nv">originPushState = </span><span class="nb">window</span><span class="p">.</span><span class="nx">history</span><span class="p">.</span><span class="nx">pushState</span>
+
+  <span class="nb">window</span><span class="p">.</span><span class="nv">history.pushState = </span><span class="o">-&gt;</span>
+    <span class="nx">originPushState</span><span class="p">.</span><span class="nx">apply</span> <span class="nb">window</span><span class="p">.</span><span class="nx">history</span><span class="p">,</span> <span class="nx">arguments</span>
+    <span class="nx">events</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;history:pushState&quot;</span><span class="p">,</span> <span class="nb">Array</span><span class="o">::</span><span class="nx">slice</span><span class="p">.</span><span class="nx">call</span> <span class="nx">arguments</span>
+
+  <span class="nv">originReplaceState = </span><span class="nb">window</span><span class="p">.</span><span class="nx">history</span><span class="p">.</span><span class="nx">pushState</span>
+
+  <span class="nb">window</span><span class="p">.</span><span class="nv">history.replaceState = </span><span class="o">-&gt;</span>
+    <span class="nx">originReplaceState</span><span class="p">.</span><span class="nx">apply</span> <span class="nb">window</span><span class="p">.</span><span class="nx">history</span><span class="p">,</span> <span class="nx">arguments</span>
+    <span class="nx">events</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;history:replaceState&quot;</span><span class="p">,</span> <span class="nb">Array</span><span class="o">::</span><span class="nx">slice</span><span class="p">.</span><span class="nx">call</span> <span class="nb">Array</span><span class="p">,</span> <span class="nx">arguments</span>
+
+  <span class="k">return</span> <span class="nb">window</span><span class="p">.</span><span class="nx">history</span></div></div></div></div></body></html>

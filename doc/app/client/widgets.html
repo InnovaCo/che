@@ -1,0 +1,127 @@
+<!DOCTYPE html><html lang="en"><head><title>app/client/widgets</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="app/client/widgets"><meta name="groc-project-path" content="app/client/widgets.coffee"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">app/client/widgets.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="cm">#### *module* widgets</span>
+<span class="cm">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Инициализирует виджеты на DOM-элементах, хранит список инстансов</p></div></div><div class="code"><div class="wrapper"><span class="cm">#</span>
+
+<span class="cm">define [&quot;events&quot;, &quot;dom&quot;, &quot;utils/destroyer&quot;, &quot;config&quot;, &quot;utils/guid&quot;, &quot;underscore&quot;], (events, dom, destroyer, config, guid, _)-&gt;</span>
+<span class="cm">  widgetsInstances = {}</span>
+<span class="cm">  eventSplitter = /^(\S+)\s*(.*)$/</span>
+
+<span class="cm">  ###</span><span class="c1"># bindWidgetDomEvents(eventsList, widget)</span>
+  <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Привязывает обработчиков событий на корень DOM-элемента и делегирует им события</p></div></div><div class="code"><div class="wrapper">  <span class="nv">bindWidgetDomEvents = </span><span class="nf">(eventsList, widget) -&gt;</span>
+    <span class="nv">elem = </span><span class="nx">dom</span> <span class="nx">widget</span><span class="p">.</span><span class="nx">element</span>
+
+    <span class="nx">_</span><span class="p">.</span><span class="nx">each</span> <span class="nx">eventsList</span><span class="p">,</span> <span class="nf">(handler, eventDescr) -&gt;</span>
+      <span class="nv">splittedDescr = </span><span class="nx">eventDescr</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="nx">eventSplitter</span><span class="p">)</span>
+      <span class="nv">name = </span><span class="nx">splittedDescr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+      <span class="nv">selector = </span><span class="nx">splittedDescr</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+      <span class="nv">handler = </span><span class="k">if</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isString</span> <span class="nx">handler</span> <span class="k">then</span> <span class="nx">widget</span><span class="p">[</span><span class="nx">handler</span><span class="p">]</span> <span class="k">else</span> <span class="nx">handler</span>
+      <span class="nx">eventsList</span><span class="p">[</span><span class="nx">eventDescr</span><span class="p">]</span> <span class="o">=</span> <span class="nx">handler</span>
+      <span class="nx">elem</span><span class="p">.</span><span class="kc">on</span> <span class="nx">selector</span><span class="p">,</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">handler</span>
+
+
+  <span class="cm">#### unbindWidgetDomEvents(eventsData, widget)</span>
+<span class="cm">  #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Отвязывает обработчиков с корня</p></div></div><div class="code"><div class="wrapper"><span class="cm">  unbindWidgetDomEvents = (eventsData, widget) -&gt;</span>
+<span class="cm">    elem = dom widget.element</span>
+<span class="cm">    _.each eventsData, (handler, eventDescr) -&gt;</span>
+<span class="cm">      splittedDescr = eventDescr.split eventSplitter</span>
+<span class="cm">      name = splittedDescr[1]</span>
+<span class="cm">      selector = splittedDescr[2]</span>
+<span class="cm">      elem.off selector, name, handler</span>
+
+
+<span class="cm">  ###</span><span class="c1"># bindWidgetModuleEvents(eventsList, widget)</span>
+  <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Привязывает обработчиков событий приложения</p></div></div><div class="code"><div class="wrapper">  <span class="nv">bindWidgetModuleEvents = </span><span class="nf">(eventsList, widget) -&gt;</span>
+    <span class="nx">_</span><span class="p">.</span><span class="nx">each</span> <span class="nx">eventsList</span><span class="p">,</span> <span class="nf">(handler, name) -&gt;</span>
+      <span class="nv">handler = </span><span class="k">if</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isString</span> <span class="nx">handler</span> <span class="k">then</span> <span class="nx">widget</span><span class="p">[</span><span class="nx">handler</span><span class="p">]</span> <span class="k">else</span> <span class="nx">handler</span>
+      <span class="nx">events</span><span class="p">.</span><span class="nx">bind</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">handler</span><span class="p">,</span> <span class="nx">widget</span>
+      <span class="nx">eventsList</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span> <span class="o">=</span> <span class="nx">handler</span>
+
+
+  <span class="cm">#### unbindWidgetModuleEvents(eventsList)</span>
+<span class="cm">  #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Отвязывает обработчиков событий приложения</p></div></div><div class="code"><div class="wrapper"><span class="cm">  unbindWidgetModuleEvents = (eventsList) -&gt;</span>
+<span class="cm">    _.each eventsList, (handler, name) -&gt;</span>
+<span class="cm">      events.unbind name, handler</span>
+
+
+<span class="cm">  ###</span><span class="c1"># widgets</span>
+  <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Менеджер виджетов, следит за тем, чтобы лишнего не было создано, а также может удалять уже не нужные экземпляры виджетов</p></div></div><div class="code"><div class="wrapper">  <span class="c1">#</span>
+
+  <span class="nv">widgets =</span>
+    <span class="nv">_instances: </span><span class="p">{}</span>
+    <span class="nv">_id_attr: </span><span class="nf">(name) -&gt;</span>
+      <span class="k">return</span> <span class="s">&quot;data-</span><span class="si">#{</span><span class="nx">name</span><span class="si">}</span><span class="s">-id&quot;</span><span class="p">.</span><span class="nx">replace</span> <span class="sr">/\//g</span><span class="p">,</span> <span class="s">&quot;-&quot;</span>
+
+    <span class="nv">remove: </span><span class="nf">(widget) -&gt;</span>
+      <span class="nx">widget</span><span class="p">.</span><span class="nx">element</span><span class="p">.</span><span class="nx">removeAttribute</span> <span class="nx">@_id_attr</span> <span class="nx">widget</span><span class="p">.</span><span class="nx">name</span>
+      <span class="k">delete</span> <span class="nx">@_instances</span><span class="p">[</span><span class="nx">widget</span><span class="p">.</span><span class="nx">id</span><span class="p">]</span>
+      <span class="nx">destroyer</span> <span class="nx">widget</span>
+
+    <span class="nv">get: </span><span class="nf">(name, element) -&gt;</span>
+      <span class="nv">id_attr = </span><span class="nx">@_id_attr</span> <span class="nx">name</span>
+      <span class="k">return</span> <span class="nx">@_instances</span><span class="p">[</span><span class="nx">element</span><span class="p">.</span><span class="nx">getAttribute</span> <span class="nx">id_attr</span><span class="p">]</span>
+
+    <span class="nv">add: </span><span class="nf">(name, element, _widget) -&gt;</span>
+      <span class="nv">prevInstance = </span><span class="nx">@get</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">element</span>
+      <span class="k">if</span> <span class="nx">prevInstance</span><span class="o">?</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>do some things with existing instance, if need so</p></div></div><div class="code"><div class="wrapper">        <span class="k">return</span> <span class="nx">prevInstance</span>
+
+      <span class="nv">instance = </span><span class="k">new</span> <span class="nx">Widget</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">element</span><span class="p">,</span> <span class="nx">_widget</span>
+      <span class="nx">instance</span><span class="p">.</span><span class="nx">element</span><span class="p">.</span><span class="nx">setAttribute</span> <span class="nx">@_id_attr</span><span class="p">(</span><span class="nx">name</span><span class="p">),</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">id</span>
+      <span class="nx">@_instances</span><span class="p">[</span><span class="nx">instance</span><span class="p">.</span><span class="nx">id</span><span class="p">]</span> <span class="o">=</span> <span class="nx">instance</span>
+
+      <span class="nx">instance</span>
+  
+
+  <span class="cm">#### Widget(@name, @element, _widget)</span>
+<span class="cm">  #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Конструктор виджетов, инициализирует виджет на DOM-элементе только один раз, в следующие разы возвращает уже созданные экземпляры</p></div></div><div class="code"><div class="wrapper"><span class="cm">  #</span>
+
+<span class="cm">  Widget = (@name, @element, _widget) -&gt;</span>
+<span class="cm">    _.extend @, _widget</span>
+<span class="cm">    @id = guid()</span>
+<span class="cm">    @init?(@element)</span>
+<span class="cm">    @turnOn()</span>
+<span class="cm">    @isInitialized = yes</span>
+
+<span class="cm">  Widget:: =</span>
+
+<span class="cm">    ###</span><span class="c1"># Widget.prototype.turnOn()</span>
+    <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Привязывает обработчиков событий</p></div></div><div class="code"><div class="wrapper">    <span class="nv">turnOn: </span><span class="o">-&gt;</span>
+      <span class="k">if</span> <span class="nx">@_isOn</span>
+        <span class="k">return</span>
+      <span class="nx">bindWidgetDomEvents</span> <span class="nx">@domEvents</span><span class="p">,</span> <span class="nx">@</span>
+      <span class="nx">bindWidgetModuleEvents</span> <span class="nx">@moduleEvents</span><span class="p">,</span> <span class="nx">@</span>
+      <span class="vi">@_isOn = </span><span class="kc">yes</span>
+      <span class="nx">@</span>
+
+    <span class="cm">#### Widget.prototype.turnOff()</span>
+<span class="cm">    #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Отвязывает обработчиков событий</p></div></div><div class="code"><div class="wrapper"><span class="cm">    turnOff: -&gt;</span>
+<span class="cm">      if not @_isOn</span>
+<span class="cm">        return</span>
+<span class="cm">      unbindWidgetDomEvents @domEvents, @</span>
+<span class="cm">      unbindWidgetModuleEvents @moduleEvents, @</span>
+<span class="cm">      @_isOn = no</span>
+<span class="cm">      @</span>
+
+<span class="cm">    ###</span><span class="c1"># Widget.prototype.destroy()</span>
+    <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Отвязывает обработчиков событий и очищает экземпляр виджета</p></div></div><div class="code"><div class="wrapper">    <span class="nv">destroy: </span><span class="o">-&gt;</span>
+      <span class="nx">@turnOff</span><span class="p">()</span>
+      <span class="nx">widgets</span><span class="p">.</span><span class="nx">remove</span> <span class="nx">@</span>
+
+
+  <span class="k">return</span> <span class="nv">widgetsInterface =</span>
+    <span class="cm">#### widgets._manager</span>
+<span class="cm">    #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Ссылка на менеджер виджетов</p></div></div><div class="code"><div class="wrapper"><span class="cm">    _manager: widgets</span>
+
+<span class="cm">    ###</span><span class="c1"># widgets._constructor</span>
+    <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Ссылка на конструктор виджетов</p></div></div><div class="code"><div class="wrapper">    <span class="nv">_constructor: </span><span class="nx">Widget</span>
+
+    <span class="cm">#### widgets.get(name, element)</span>
+<span class="cm">    #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Возвращает уже ранее созданный экземпляр виджета для конкретного элемента</p></div></div><div class="code"><div class="wrapper"><span class="cm">    get: (name, element) -&gt;</span>
+<span class="cm">      name = config.baseWidgetsPath + name</span>
+<span class="cm">      return widgets.get name, element</span>
+
+<span class="cm">    ###</span><span class="c1"># widgets.create(name, element, ready)</span>
+    <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Подгружает необходимый модуль (по имени) и инициализирует виджет</p></div></div><div class="code"><div class="wrapper">    <span class="nv">create: </span><span class="nf">(name, element, ready) -&gt;</span>
+      <span class="k">if</span> <span class="o">not</span> <span class="p">(</span><span class="sr">///^http///</span><span class="p">).</span><span class="nx">test</span> <span class="nx">name</span>
+        <span class="nv">name = </span><span class="nx">config</span><span class="p">.</span><span class="nx">baseWidgetsPath</span> <span class="o">+</span> <span class="nx">name</span>
+      <span class="nx">require</span> <span class="p">[</span><span class="nx">name</span><span class="p">],</span> <span class="nf">(widget) -&gt;</span>
+        <span class="nv">instance = </span><span class="nx">widgets</span><span class="p">.</span><span class="nx">add</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">element</span><span class="p">,</span> <span class="nx">widget</span>
+        <span class="nx">ready</span><span class="o">?</span><span class="p">(</span><span class="nx">instance</span><span class="p">)</span></div></div></div></div></body></html>

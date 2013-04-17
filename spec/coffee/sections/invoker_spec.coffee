@@ -18,7 +18,9 @@ describe 'sections/invoker module', ->
   #     define "testModule", ->
   #       init: (element) ->
 
-  #     sections = "<title>title section</title><section data-selector='#one'><span class='widgets some_section' data-js-modules='testModule'>test</span></section>"
+  #     sections = "<title>title section</title>
+  #       <section data-selector='#one'><span class='widgets some_section' data-js-modules='testModule'>test</span>
+  #       </section>"
   #     affix "#one div.some_another_section"
 
   #   it 'should compress back and forward sections', ->

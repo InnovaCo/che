@@ -61,7 +61,7 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
   # Менеджер виджетов, следит за тем, чтобы лишнего не было создано, а также может удалять уже не нужные экземпляры виджетов
   #
 
-  widgets = 
+  widgets =
     _instances: {}
     _id_attr: (name) ->
       return "data-#{name}-id".replace /\//g, "-"

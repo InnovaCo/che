@@ -1,0 +1,138 @@
+<!DOCTYPE html><html lang="en"><head><title>app/client/sections/invoker</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="app/client/sections/invoker"><meta name="groc-project-path" content="app/client/sections/invoker.coffee"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">app/client/sections/invoker.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="cm">#### *module* sections/invoker</span>
+<span class="cm">#</span>
+<span class="cm">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Модуль для непосредственного выполнения переходов.
+Получая данные о секциях, создает набор объектов, необходимых для
+замены DOM-элементов. Создаются массивы элеметов, которые необходимо
+изъять из DOM, а также те, которые должны быть вставлены вместо.
+Операция смены секции полностью обратима и так же кроме вставки/удаления
+элементов подразумевает включение (инициализацию)/отключение виджетов.</p></div></div><div class="code"><div class="wrapper"><span class="cm">#</span>
+
+<span class="cm">define [</span>
+<span class="cm">  &quot;sections/asyncQueue&quot;,</span>
+<span class="cm">  &quot;dom&quot;,</span>
+<span class="cm">  &quot;events&quot;,</span>
+<span class="cm">  &quot;loader&quot;,</span>
+<span class="cm">  &quot;config&quot;,</span>
+<span class="cm">  &quot;utils/widgetsData&quot;,</span>
+<span class="cm">  &quot;widgets&quot;,</span>
+<span class="cm">  &quot;underscore&quot;], (asyncQueue, dom, events, loader, config, widgetsData, widgets, _) -&gt;</span>
+
+
+<span class="cm">  ###</span><span class="c1"># Invoker(@reloadSections)</span>
+  <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Конструктор объекта действий при переходе, содежит в себе данные для переходов в обе стороны ()</p></div></div><div class="code"><div class="wrapper">  <span class="c1">#</span>
+  <span class="nv">Invoker = </span><span class="nf">(@reloadSections) -&gt;</span>
+
+    <span class="vi">@_back = </span><span class="kc">null</span>
+    <span class="vi">@_forward = </span><span class="kc">null</span>
+    <span class="vi">@_is_applied = </span><span class="kc">no</span>
+    <span class="vi">@_is_sections_updated = </span><span class="kc">no</span>
+
+  <span class="nv">Invoker:: =</span>
+
+    <span class="cm">#### Invoker.initializeSections()</span>
+<span class="cm">    #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Инициализация объектов перехода.
+Создается массив с ссылками на элементы, которые нужно изъять,
+и создаются DOM-элементы для вставки.
+Выполняется асинхнонно, то есть инструкция для инициализации
+помещается в очередь asycQueue.</p></div></div><div class="code"><div class="wrapper"><span class="cm">    #</span>
+<span class="cm">    initializeSections: () -&gt;</span>
+<span class="cm">      if not @_is_sections_updated or not @_forward or not @_back</span>
+<span class="cm">        asyncQueue.next =&gt;</span>
+<span class="cm">          @_isCompressed = no</span>
+
+<span class="cm">          reloadSectionsHtml = dom @reloadSections</span>
+
+<span class="cm">          if not dom(&#39;title&#39;)[0]</span>
+<span class="cm">            dom(&#39;head&#39;)[0].appendChild document.createElement &#39;title&#39;</span>
+
+<span class="cm">          @_back = {}</span>
+<span class="cm">          @_forward = {}</span>
+
+<span class="cm">          for element in reloadSectionsHtml.get()</span>
+<span class="cm">            nodeName = element.nodeName.toLowerCase()</span>
+
+<span class="cm">            if nodeName is config.sectionTagName</span>
+<span class="cm">              selector = element.getAttribute &quot;data-#{config.sectionSelectorAttributeName}&quot;</span>
+<span class="cm">            else if nodeName is &#39;title&#39;</span>
+<span class="cm">              selector = nodeName</span>
+<span class="cm">            else</span>
+<span class="cm">              continue</span>
+
+<span class="cm">            if dom(selector)[0]?</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>NodeList превращается в массив, потому что нам нужны только ссылки на элементы, а не живые коллекции</p></div></div><div class="code"><div class="wrapper"><span class="cm">              @_back[selector] = Array.prototype.slice.call dom(selector)[0].childNodes</span>
+<span class="cm">              @_forward[selector] = Array.prototype.slice.call element.childNodes</span>
+
+<span class="cm">        @_is_sections_updated = yes</span>
+<span class="cm">        </span>
+
+
+
+<span class="cm">    ###</span><span class="c1"># Invoker::update()</span>
+    <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Обновление данных о секциях. Помечается, что секции не проинициализированны, что вызовет повторную иницализацию при вызове метода run</p></div></div><div class="code"><div class="wrapper">    <span class="c1">#</span>
+    <span class="nv">update: </span><span class="nf">(sections) -&gt;</span>
+      <span class="vi">@reloadSections = </span><span class="nx">sections</span>
+      <span class="vi">@_is_sections_updated = </span><span class="kc">no</span>
+
+
+    <span class="cm">#### Invoker::run()</span>
+<span class="cm">    #</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Замена элементов подлежащих изъятию на новые элементы, инициализация перед этим, если необходимо</p></div></div><div class="code"><div class="wrapper"><span class="cm">    #</span>
+<span class="cm">    run: -&gt;</span>
+
+<span class="cm">      if @_is_applied</span>
+<span class="cm">        @undo()</span>
+
+<span class="cm">      @initializeSections()</span>
+
+<span class="cm">      asyncQueue.next =&gt;</span>
+
+<span class="cm">        forward: @_forward</span>
+<span class="cm">        back: @_back</span>
+
+<span class="cm">      @_insertSections()</span>
+<span class="cm">      @_is_applied = yes</span>
+
+<span class="cm">    ###</span><span class="c1"># Invoker::undo()</span>
+    <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Обратное по отношению к run действие, разве что не отменяется инициализация</p></div></div><div class="code"><div class="wrapper">    <span class="c1">#</span>
+    <span class="nv">undo: </span><span class="o">-&gt;</span>
+      <span class="k">return</span> <span class="kc">false</span> <span class="k">if</span> <span class="nx">@_is_applied</span> <span class="o">isnt</span> <span class="kc">true</span>
+      <span class="nx">asyncQueue</span><span class="p">.</span><span class="nx">next</span> <span class="o">=&gt;</span>
+        <span class="nv">forward: </span><span class="nx">@_back</span> <span class="o">or</span> <span class="p">{}</span>
+        <span class="nv">back: </span><span class="nx">@_forward</span> <span class="o">or</span> <span class="p">{}</span>
+
+      <span class="nx">@_insertSections</span><span class="p">()</span>
+      <span class="vi">@_is_applied = </span><span class="kc">no</span>
+
+
+    <span class="c1">#### Invoker::_insertSections(forward, back)</span>
+    <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Вставка секций forward вместо секций back, выполняется асинхронно,
+добавляя инструкции в очередь asynQuque</p></div></div><div class="code"><div class="wrapper">    <span class="c1">#</span>
+    <span class="nv">_insertSections: </span><span class="nf">(forward, back, selectors) -&gt;</span>
+
+      <span class="nx">asyncQueue</span><span class="p">.</span><span class="nx">next</span> <span class="nf">(sections) -&gt;</span>
+        <span class="nv">insertionData = </span><span class="p">{}</span>
+        <span class="k">for</span> <span class="nx">selector</span> <span class="k">in</span> <span class="nx">_</span><span class="p">.</span><span class="nx">keys</span> <span class="nx">sections</span><span class="p">.</span><span class="nx">back</span>
+          <span class="nx">insertionData</span><span class="p">[</span><span class="nx">selector</span><span class="p">]</span> <span class="o">=</span>
+            <span class="nv">back: </span><span class="nx">sections</span><span class="p">.</span><span class="nx">back</span><span class="p">[</span><span class="nx">selector</span><span class="p">]</span>
+            <span class="nv">forward: </span><span class="nx">sections</span><span class="p">.</span><span class="nx">forward</span><span class="p">[</span><span class="nx">selector</span><span class="p">]</span>
+
+        <span class="nx">insertionData</span>
+
+      <span class="p">.</span><span class="nx">each</span> <span class="nf">(section, selector, context) -&gt;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>приостановка выполнения очереди, так как дальше опять идеи асинхронная инструкция</p></div></div><div class="code"><div class="wrapper">        <span class="nx">context</span><span class="p">.</span><span class="nx">pause</span><span class="p">()</span>
+
+        <span class="nx">loader</span><span class="p">.</span><span class="nx">search</span> <span class="nx">section</span><span class="p">.</span><span class="nx">forward</span><span class="p">,</span> <span class="p">(</span><span class="nx">widgetsList</span><span class="p">)</span> <span class="o">=&gt;</span>
+          <span class="nv">container = </span><span class="nx">dom</span><span class="p">(</span><span class="nx">selector</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+          <span class="k">for</span> <span class="nx">element</span> <span class="k">in</span> <span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">slice</span><span class="p">.</span><span class="nx">call</span> <span class="nx">container</span><span class="p">.</span><span class="nx">childNodes</span>
+            <span class="nx">element</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">.</span><span class="nx">removeChild</span> <span class="nx">element</span>
+
+          <span class="k">for</span> <span class="nx">element</span> <span class="k">in</span> <span class="nx">section</span><span class="p">.</span><span class="nx">forward</span>
+            <span class="nx">container</span><span class="p">.</span><span class="nx">appendChild</span> <span class="nx">element</span>
+
+          <span class="k">for</span> <span class="nx">element</span> <span class="k">in</span> <span class="nx">section</span><span class="p">.</span><span class="nx">back</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>if element.parentNode?
+  element.parentNode.removeChild element</p></div></div><div class="code"><div class="wrapper">            <span class="k">for</span> <span class="nx">data</span> <span class="k">in</span> <span class="nx">widgetsData</span> <span class="nx">element</span>
+              <span class="nx">widgets</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span> <span class="nx">data</span><span class="p">.</span><span class="nx">element</span><span class="p">)</span><span class="o">?</span><span class="p">.</span><span class="nx">turnOff</span><span class="p">()</span>
+
+          </div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>возобновление выполнения очереди</p></div></div><div class="code"><div class="wrapper">          <span class="nx">context</span><span class="p">.</span><span class="nx">resume</span><span class="p">()</span>
+
+      <span class="p">.</span><span class="nx">next</span> <span class="o">-&gt;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Сообщаем об окончании вставки секций</p></div></div><div class="code"><div class="wrapper">        <span class="nx">events</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;sections:inserted&quot;</span>
+
+  <span class="k">return</span> <span class="nx">Invoker</span></div></div></div></div></body></html>

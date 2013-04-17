@@ -1,0 +1,31 @@
+<!DOCTYPE html><html lang="en"><head><title>app/client/sections/loader</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../../"><meta name="groc-document-path" content="app/client/sections/loader"><meta name="groc-project-path" content="app/client/sections/loader.coffee"><link rel="stylesheet" type="text/css" media="all" href="../../../assets/style.css"><script type="text/javascript" src="../../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">app/client/sections/loader.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="cm">#### *module* sections/loader</span>
+<span class="cm">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Загрузчик секций с сервера, данные о небходимых секциях
+отправляются в хидере "X-Che-Sections", это необходимо, чтобы
+точно отличать остальные запросы от запросов за секциями,
+так как согласно основной идее эти запросы отправляются всегда
+на разные url</p></div></div><div class="code"><div class="wrapper"><span class="cm">#</span>
+<span class="cm">define [&quot;ajax&quot;, &quot;events&quot;], (ajax, events) -&gt;</span>
+<span class="cm">  sectionsRequest = null</span>
+
+<span class="cm">  ###</span><span class="c1"># Интерфейс модуля: (url, method, sectionsHeader, index, data) -&gt;</span>
+  <span class="c1">#</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Кроме данных об пути, методе и необходимых секциях, принимает параметр index, который добавляется к загруженным данным,
+необходим для точного встраивания секций в цепь переходов, так как могут быть запрошены данные для переходов в середине цепи</p></div></div><div class="code"><div class="wrapper">  <span class="c1">#</span>
+  <span class="nf">(url, method, sectionsHeader, index, data = []) -&gt;</span>
+    <span class="nx">sectionsRequest</span><span class="o">?</span><span class="p">.</span><span class="nx">abort</span><span class="p">()</span>
+    <span class="nv">sectionsRequest = </span><span class="nx">ajax</span>
+      <span class="nv">url: </span><span class="nx">url</span><span class="p">,</span>
+      <span class="nv">method: </span><span class="nx">method</span><span class="p">,</span>
+      <span class="nv">data: </span><span class="nx">data</span><span class="p">,</span>
+      <span class="nv">headers:</span>
+        <span class="s">&quot;X-Che-Sections&quot;</span><span class="o">:</span> <span class="nx">sectionsHeader</span>
+      <span class="nv">type: </span><span class="s">&quot;text&quot;</span>
+
+    <span class="nx">sectionsRequest</span><span class="p">.</span><span class="nx">success</span> <span class="nf">(request, sections) -&gt;</span>
+      <span class="nv">state =</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Подразумевается, что url мог смениться (например при редиректе), и поэтому он всегда берется из пришедших данных,
+конкретно из заголовка  "X-Che-Url"</p></div></div><div class="code"><div class="wrapper">        <span class="nv">url: </span><span class="nx">request</span><span class="p">.</span><span class="nx">getResponseHeader</span> <span class="s">&quot;X-Che-Url&quot;</span>
+        <span class="nv">header: </span><span class="nx">sectionsHeader</span>
+        <span class="nv">index: </span><span class="nx">index</span>
+        <span class="nv">method: </span><span class="nx">method</span>
+        <span class="nv">sections: </span><span class="nx">sections</span>
+
+      <span class="nx">events</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;sections:loaded&quot;</span><span class="p">,</span> <span class="nx">state</span></div></div></div></div></body></html>

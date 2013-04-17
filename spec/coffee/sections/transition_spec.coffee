@@ -13,7 +13,7 @@ describe 'sections/transition module', ->
 
   beforeEach ->
     waitsFor ->
-      Transition?    
+      Transition?
 
   describe 'creating transitions', ->
     beforeEach ->
@@ -31,8 +31,8 @@ describe 'sections/transition module', ->
 
       prevTransition = firstTransition
       for i in [1..10]
-        transition = new Transition 
-          index: i 
+        transition = new Transition
+          index: i
           sections: "<section data-selector='#one'><span>hello #{i}</span></section>",
           prevTransition
 
@@ -45,8 +45,8 @@ describe 'sections/transition module', ->
 
       prevTransition = firstTransition
       for i in [1..9]
-        transition = new Transition 
-          index: i 
+        transition = new Transition
+          index: i
           sections: "<section data-selector='#one'><span>hello #{i}</span></section>",
           prevTransition
 

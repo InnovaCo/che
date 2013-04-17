@@ -5,10 +5,10 @@ define ['module'], (module) ->
   # ----------------------------------
   # Options
   # ----------------------------------
-  options = _.extend {
-      maxEntries: 500
-      logLevel: 10
-    }, module.config()
+  options = _.extend
+    maxEntries: 500
+    logLevel: 10
+  , module.config()
 
   # ----------------------------------
   # Small class for one log entry
@@ -42,7 +42,7 @@ define ['module'], (module) ->
       return @entries.shift()
 
     empty: () ->
-      @entries.length = 0  
+      @entries.length = 0
       true
 
   # ----------------------------------
@@ -88,7 +88,7 @@ define ['module'], (module) ->
     true
 
   _getMaxEntries = () ->
-    return 0 + entriesList.maxEntries 
+    return 0 + entriesList.maxEntries
 
   # ----------------------------------
   # Module API

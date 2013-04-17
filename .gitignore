@@ -24,3 +24,4 @@ _SpecRunner.html
 /spec/js
 /spec/helpers/js
 /reports*
+/doc/*

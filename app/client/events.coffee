@@ -7,7 +7,7 @@
 
 define ['underscore'],  (_) ->
 
-  
+
   #### Oops(name)
   #
   # Конструктор события, назначает имя, инициализирует спискок обработчиков пустым объектом
@@ -19,23 +19,23 @@ define ['underscore'],  (_) ->
 
   Oops:: =
 
-    
+
     ####  Oops.prototype._data()
     #
     # Создает данные о событии для передачи обработчику
     _data: ->
       name: @name
 
-    
+
     ####  Oops.prototype._handlerCaller
     #
     # Вызывает очередного обработчика
     #
     _handlerCaller: (handler, args) ->
       handler.apply handler.context, args
-      
 
-    
+
+
     ####  Oops.prototype._nextHandlerCall
     #
     # Достает очередного обработчика события и передает его для вызова
@@ -47,12 +47,13 @@ define ['underscore'],  (_) ->
         if handler.options.isSync
           @_handlerCaller handler, args
         else
-          _.delay =>
-
+          _.delay(
             @_handlerCaller handler, args
+            1
+          )
         @_nextHandlerCall(args)
 
-    
+
     ####  Oops.prototype.dispatch(args)
     #
     # Запускает исполнение обработчиков события
@@ -66,7 +67,7 @@ define ['underscore'],  (_) ->
       @_nextHandlerCall args
       @
 
-    
+
     ####  Oops.prototype.bind(handler, context, [options])
     #
     # Привязывает обработчик к событию
@@ -80,7 +81,7 @@ define ['underscore'],  (_) ->
         @_handlerCaller handler
       @
 
-    
+
     ####  Oops.prototype.once(handler, [context], [options])
     #
     # Привязывает обработчика к событию, который исполнится только один раз
@@ -90,11 +91,11 @@ define ['underscore'],  (_) ->
       onceHandler = ->
         self.unbind onceHandler
         handler.apply this, arguments
-        
+
       @bind onceHandler, context, options
       @
 
-    
+
     ####  Oops.prototype.unbind(handler)
     #
     # Отвязывает обработчика от события
@@ -120,7 +121,7 @@ define ['underscore'],  (_) ->
     @
 
   Events:: =
-    
+
     ####  Events::sprout([name])
     #
     # Отпочковывает объект событий, если указано имя [name],
@@ -132,7 +133,7 @@ define ['underscore'],  (_) ->
         @[name] = instance
 
       instance
-      
+
     ####  Events::create(name)
     #
     # Создает новое событие, либо отдает уже созданное
@@ -140,15 +141,15 @@ define ['underscore'],  (_) ->
     create: (name) ->
       @list[name] = @list[name] or new Oops name
 
-    
+
     ####  Events::once(name, handler, [context], [options])
     #
     # Создает новое событие, либо отдает уже созданное и привязывает обработчика, который сработает только один раз
     #
     once: (name, handler, context, options) ->
       @create(name).once(handler, context, options)
-    
-    
+
+
     ####  Events::bind(eventsNames, handler, [context], [options])
     #
     # Создает новое событие (может быть и несколько, если в eventsNames указаны имена через запятую), либо отдает уже созданное и привязывает обработчика
@@ -176,7 +177,7 @@ define ['underscore'],  (_) ->
 
       @create(bindEventsList[0])
 
-    
+
     ####  Events::unbind(name, handler)
     #
     # Отвязывает обработчка от события
@@ -185,7 +186,7 @@ define ['underscore'],  (_) ->
       if @list[name]
         @list[name].unbind(handler)
 
-    
+
     ####  Events::trigger(name, [args])
     #
     # Вызывает исполнение обработчиков событий, сохраняет переданные данные, если такого событие не было, то оно создается и в нем сохраняются эти данные

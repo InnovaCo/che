@@ -8,25 +8,9 @@ describe "widgets module", ->
   clickHandlerSpy = null
   anotherEventHandlerSpy = null
 
-  triggerMouseEvent = null
+  triggerMouseEvent = domEvents.triggerMouseEvent
 
   beforeEach ->
-    triggerMouseEvent = (eventName, element) ->
-      if document.createEvent
-        event = document.createEvent "MouseEvents"
-        event.initEvent eventName, true, true
-      else
-        event = document.createEventObject()
-        event.eventType = eventName
-
-      event.eventName = eventName
-      event.memo = {}
-
-      if document.createEvent
-        element.dispatchEvent event
-      else
-        element.fireEvent "on" + event.eventType, event
-
     clickSpy = jasmine.createSpy 'clickSpy'
     clickHandlerSpy = jasmine.createSpy 'clickHandlerSpy'
     sampleEventSpy = jasmine.createSpy "sampleEventSpy"

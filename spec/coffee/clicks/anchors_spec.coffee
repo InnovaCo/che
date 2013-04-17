@@ -13,25 +13,10 @@ describe "clicks/anchors module", ->
     anchors.reset()
 
   describe "anchor clicking", ->
-    triggerMouseEvent = null
+    triggerMouseEvent = domEvents.triggerMouseEvent
 
     beforeEach ->
-      jasmine.Clock.useMock()
-      triggerMouseEvent = (eventName, element) ->
-        if document.createEvent
-          event = document.createEvent "MouseEvents"
-          event.initEvent eventName, true, true
-        else
-          event = document.createEventObject()
-          event.eventType = eventName
-
-        event.eventName = eventName
-        event.memo = {}
-
-        if document.createEvent
-          element.dispatchEvent event
-        else
-          element.fireEvent "on" + event.eventType, event
+      jasmine.Clock.useMock();
 
       anchors.reset()
       affix "a[data-reload-sections='testData']"

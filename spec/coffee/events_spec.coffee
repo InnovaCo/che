@@ -209,8 +209,6 @@ describe "events module", ->
       events.trigger 'testEvent',
         testData: 'testData'
 
-      expect(asyncHandler).not.toHaveBeenCalled()
-
       waitsFor ->
         0 < asyncHandler.calls.length
 

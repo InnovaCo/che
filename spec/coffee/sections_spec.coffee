@@ -449,18 +449,18 @@ describe 'sections module', ->
         success: (handler) ->
           handler request, loadedSections
 
-      realAjaxGet = ajax.get
-      fakeAjaxGet = (params) ->
+      realAjaxDispatch = ajax.dispatch
+      fakeAjaxDispatch = (params) ->
         return requestStub
 
-      ajax.get = fakeAjaxGet
+      ajax.dispatch = fakeAjaxDispatch
 
       spyOn(events, "trigger").andCallThrough()
 
       sectionsLoader "http://test.com/one/two", "GET", "sections header", 1
 
-      state = events.trigger.mostRecentCall.args[1]
-
+      state = events.trigger.calls[0].args[1]
+      
       expect(state.url).toBe("http://test.com/one/two")
       expect(state.sections).toBe("<title>TITLE!</title>
         <section data-selector='#one'>sdkjhfksjd
@@ -470,7 +470,7 @@ describe 'sections module', ->
       expect(state.header).toBe("sections header")
       expect(state.index).toBe(1)
 
-      ajax.get = realAjaxGet
+      ajax.dispatch = realAjaxDispatch
 
 
     it "should update sections from server, when traversing sections", ->

@@ -181,6 +181,23 @@ define ['events', 'utils/params', "utils/destroyer", "underscore"], (events, par
     if options.url?
       options.url = createGETurl options.url, options.data
     new Ajax(options)
-    
+   
+  #### ajax.post(options)
+  #
+  # Отправка POST-запросов
+  #
+   
+  ajax.post = (options) ->
+    options.method = "POST"
+    new Ajax(options)
+
+  #### ajax.dispatch(options)
+  #
+  # Диспатчер ajax запросов в зависимости от типа
+  #
+
+  ajax.dispatch = (options) ->
+    if options.method? and options.method.toLowerCase() == "post" then ajax.post(options) else ajax.get(options)
+
   ajax
 

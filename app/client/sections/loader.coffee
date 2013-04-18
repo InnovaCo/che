@@ -16,7 +16,7 @@ define ["ajax", "events"], (ajax, events) ->
   #
   (url, method, sectionsHeader, index, data = []) ->
     sectionsRequest?.abort()
-    sectionsRequest = ajax
+    sectionsRequest = ajax.dispatch
       url: url,
       method: method,
       data: data,

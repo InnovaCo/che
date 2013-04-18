@@ -475,10 +475,7 @@ describe 'sections module', ->
 
     it "should update sections from server, when traversing sections", ->
 
-      allDone = no
-      events.bind "transition:invoked", ->
-        allDone = yes
-
+      spyOn(ajax, "dispatch").andCallThrough()
       sections._transitions.last = null
       sections._transitions.current = sections._transitions.create()
 
@@ -490,7 +487,7 @@ describe 'sections module', ->
         sections: "<section data-selector='#one'><div></div></section>"
 
       waitsFor ->
-        allDone is yes
+        0 < ajax.dispatch.calls.length
 
       runs ->
         requestInfo = ajax.get.mostRecentCall.args[0]

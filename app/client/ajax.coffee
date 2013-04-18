@@ -8,7 +8,7 @@ define ['events', 'utils/params', "utils/destroyer", "underscore"], (events, par
 
   createGETurl = (url, data) ->
     splittedUrl = url.split "?"
-    getParams = if data? then "?#{params data}"  else if splittedUrl[1] then "?#{splittedUrl[1]}" else ""
+    getParams = if data? and not _.isEmpty data then "?#{params data}" else if splittedUrl[1] then "?#{splittedUrl[1]}" else ""
     "#{splittedUrl[0]}#{getParams}"
 
   #### sendRequest(url, data, type, eventsSprout, headers)

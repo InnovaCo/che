@@ -102,15 +102,15 @@ describe "ajax module", ->
       complete = jasmine.createSpy "complete"
 
       instance = ajax.get
-        url: "foo/bar",
-        error: error,
-        success: success,
+        url: "foo/bar"
+        error: error
+        success: success
         complete: complete
 
       request = instance._request
 
       request.readyState = 4
-      request.status = 0
+      request.status = 404
       request.onreadystatechange()
 
       waitsFor ->

@@ -14,7 +14,7 @@ define ['events'], (events) ->
     if originOnpopstate?
       originOnpopstate.apply window, arguments
 
-    events.trigger "history:popState", popStateEvent.state
+    events.trigger "history:popState", popStateEvent.state if popStateEvent.state?
 
   originPushState = window.history.pushState
 

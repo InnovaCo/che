@@ -107,6 +107,7 @@ describe "widgets module", ->
 
   describe 'turning widget on', ->
     it 'should turn widget on after it was turned off', ->
+      jasmine.Clock.useMock()
 
       element = dom("div.widget").get(0)
       widgetInstance = widgets._manager.add 'sampleWidget', element, sampleWidget
@@ -119,6 +120,8 @@ describe "widgets module", ->
 
       events.trigger("sampleEvent", {})
       events.trigger("anotherEvent", {})
+
+      jasmine.Clock.tick(101)
 
       expect(clickSpy).toHaveBeenCalled()
       expect(clickHandlerSpy).toHaveBeenCalled()

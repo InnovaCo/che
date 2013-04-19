@@ -517,13 +517,14 @@ describe 'sections module', ->
     it "should load sections from localstorage, when going forward, and then update from server", ->
 
       allDone = no
+      origin = window.location.origin
       events.bind "transition:invoked", ->
         allDone = yes
 
       spyOn(storage, "get").andCallThrough()
-      storage.save "sectionsHistory", window.location.origin + "|header:HEADER", reload_sections
+      storage.save "sectionsHistory", origin + "|header:HEADER", reload_sections
 
-      events.trigger "pageTransition:init", [window.location.origin, "HEADER", {}]
+      events.trigger "pageTransition:init", [origin, "HEADER", "GET", {}]
 
       waitsFor ->
         allDone is yes
@@ -533,10 +534,10 @@ describe 'sections module', ->
         storageGetInfo = storage.get.mostRecentCall.args
 
         expect(ajax.get).toHaveBeenCalled()
-        expect(requestInfo.url).toBe window.location.origin
+        expect(requestInfo.url).toBe origin
         expect(storage.get).toHaveBeenCalled()
         expect(storageGetInfo[0]).toBe "sectionsHistory"
-        expect(storageGetInfo[1]).toBe window.location.origin + "|header:HEADER"
+        expect(storageGetInfo[1]).toBe origin + "|header:HEADER"
 
   describe "traversing sections back", ->
     reloadSectionsArr = null

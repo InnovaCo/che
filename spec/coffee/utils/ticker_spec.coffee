@@ -42,8 +42,6 @@ describe "utils/ticker module", ->
 
   describe "work with ticker", ->
     newTicker = null
-    beforeEach ->
-      newTicker = ticker(10, callback)
 
     it "should start ticker mock", ->
       call2 = jasmine.createSpy('call2')

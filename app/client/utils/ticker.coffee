@@ -28,7 +28,7 @@ define [], () ->
 
     _tick: () ->
       for callback in @_callbacks
-        setTimeout callback
+        callback()
 
   # timer(period, [callback])
   #

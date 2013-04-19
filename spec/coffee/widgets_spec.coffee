@@ -107,9 +107,6 @@ describe "widgets module", ->
 
   describe 'turning widget on', ->
     it 'should turn widget on after it was turned off', ->
-      old_delay = _.delay
-      _.delay = (handler, args)->
-        handler.apply(this, args)
 
       element = dom("div.widget").get(0)
       widgetInstance = widgets._manager.add 'sampleWidget', element, sampleWidget
@@ -122,8 +119,6 @@ describe "widgets module", ->
 
       events.trigger("sampleEvent", {})
       events.trigger("anotherEvent", {})
-
-      _.delay = old_delay
 
       expect(clickSpy).toHaveBeenCalled()
       expect(clickHandlerSpy).toHaveBeenCalled()

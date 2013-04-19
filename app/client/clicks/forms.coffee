@@ -32,7 +32,11 @@ define ['dom!', 'config', 'events', 'lib/serialize'], (dom, config, events, seri
 
       method = formNode.getAttribute('method') or "GET"
       
-      clicks.trigger "form:click", [url, data, method, formData]
+      clicks.trigger "form:click",
+        url: url,
+        data: data,
+        method: method,
+        formData: formData
       e.preventDefault()
       return false
 

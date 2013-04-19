@@ -7,9 +7,14 @@
 define ["clicks/forms", "clicks/anchors", "history", "events"], (forms, anchors, history, events) ->
   return false if not history
 
-  #### handler(url, data, method, formData)
+  #### handler()
   # Обработчик, вызывает событие "pageTransition:init"
-  handler = (url, data, method, formData) ->
+  handler = (data) ->
+    url = data.url ? null
+    data = data.data ? []
+    method = data.method ? "GET"
+    formData = data.formData ? []
+    
     events.trigger "pageTransition:init", [url, data, method, formData]
 
   events.bind "pageTransition:success", (data) ->

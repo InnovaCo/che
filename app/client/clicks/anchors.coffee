@@ -17,7 +17,10 @@ define ['dom!', 'config', 'events'], (dom, config, events) ->
       
       data = @getAttribute config.reloadSectionsDataAttributeName
       url = @getAttribute 'href'
-      clicks.trigger "anchor:click", [url, data, "GET"]
+      clicks.trigger "anchor:click",
+        url: url,
+        data: data,
+        method: "GET"
 
       e.preventDefault()
       return false

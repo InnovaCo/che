@@ -31,11 +31,12 @@ describe "clicks/anchors module", ->
       triggerMouseEvent "click", $("a[data-reload-sections]")[0]
 
       jasmine.Clock.tick(1000)
-
+      
       expect(handler).toHaveBeenCalled()
-      expect(handler.mostRecentCall.args[0][0]).toBe(null)
-      expect(handler.mostRecentCall.args[0][1]).toBe("'testData'")
-      expect(handler.mostRecentCall.args[0][2]).toBe("GET")
+      handlerCall = handler.mostRecentCall.args[0][0]
+      expect(handlerCall.url).toBe(null)
+      expect(handlerCall.data).toBe("'testData'")
+      expect(handlerCall.method).toBe("GET")
 
     it "should not call handler, when have attr with reload sections params", ->
       handler = jasmine.createSpy("handler")

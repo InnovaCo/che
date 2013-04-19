@@ -31,9 +31,10 @@ describe "clicks/forms module", ->
       jasmine.Clock.tick(1000)
 
       expect(handler).toHaveBeenCalled()
-      expect(handler.mostRecentCall.args[0][0]).toBe("")
-      expect(handler.mostRecentCall.args[0][1]).toBe("testData")
-      expect(handler.mostRecentCall.args[0][2]).toBe("GET")
+      handlerCall = handler.mostRecentCall.args[0][0]
+      expect(handlerCall.url).toBe("")
+      expect(handlerCall.data).toBe("testData")
+      expect(handlerCall.method).toBe("GET")
 
     it "should call handler with serialized form data, when post form have attr with reload sections params", ->
       handler = jasmine.createSpy("handler")
@@ -41,16 +42,17 @@ describe "clicks/forms module", ->
       forms ->
         handler arguments
 
-      formNode = affix 'form[data-reload-sections="testData"][method="POST"] input[type="hidden"][value="123"][name="testInput"] input[type=submit]'
+      formNode = affix 'form[data-reload-sections="testData"][method="POST"][action="/test"] input[type="hidden"][value="123"][name="testInput"] input[type=submit]'
       triggerMouseEvent "click", $(formNode[0]).find("input[type=submit]")[0]
 
       jasmine.Clock.tick(1000)
 
       expect(handler).toHaveBeenCalled()
-      expect(handler.mostRecentCall.args[0][0]).toBe("")
-      expect(handler.mostRecentCall.args[0][1]).toBe("testData")
-      expect(handler.mostRecentCall.args[0][2]).toBe("POST")
-      expect(handler.mostRecentCall.args[0][3]).toBe("testInput=123")
+      handlerCall = handler.mostRecentCall.args[0][0]
+      expect(handlerCall.url).toBe("/test")
+      expect(handlerCall.data).toBe("testData")
+      expect(handlerCall.method).toBe("POST")
+      expect(handlerCall.formData).toBe("testInput=123")
 
     it "should not call handler, when have attr with reload sections params", ->
       handler = jasmine.createSpy("handler")

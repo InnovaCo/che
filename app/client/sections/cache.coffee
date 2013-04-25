@@ -5,7 +5,9 @@
 # о секциях, при этом состояние не сохраняется, если в качестве значения
 # поля method указано "post"
 #
-define ["utils/storage"], (storage) ->
+define ["config", "utils/storage/storageFactory"], (config, storageFactory) ->
+
+  storage = storageFactory.getStorage config.storage
 
   helpers =
     # Генерирование ключа не основе url и header

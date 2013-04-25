@@ -9,4 +9,5 @@ define
   reloadSectionsDataAttributeName: 'data-reload-sections'
   baseWidgetsPath: ''
   sectionTagName: "section"
-  sectionSelectorAttributeName: "selector"
+  sectionSelectorAttributeName: "selector",
+  storage: "localStorage",

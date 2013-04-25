@@ -17,11 +17,11 @@ describe 'sections module', ->
     'sections/loader',
     'events',
     'widgets',
-    'utils/storage',
+    'utils/storage/storageFactory',
     'history',
     'ajax',
     'lib/async'
-    ], (sectionsModule, queueModule, invokerModule, loaderModule, eventsModule, widgetsModule, storageModule, browserHistoryModule, ajaxModule, asyncModule) ->
+    ], (sectionsModule, queueModule, invokerModule, loaderModule, eventsModule, widgetsModule, storageFactory, browserHistoryModule, ajaxModule, asyncModule) ->
     sections = sectionsModule
     queue = queueModule
     Invoker = invokerModule
@@ -29,7 +29,7 @@ describe 'sections module', ->
     events = eventsModule
     bindedEvents = events.list
     widgets = widgetsModule
-    storage = storageModule
+    storage = storageFactory.getStorage 'localStorage'
     browserHistory = browserHistoryModule
     ajax = ajaxModule
     async = asyncModule

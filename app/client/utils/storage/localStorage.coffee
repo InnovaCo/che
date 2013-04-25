@@ -1,109 +1,48 @@
-#### *module* storage
+#### *module* localStorage
 #
 #
 #---
-# Модуль для хранения временных данных, нужных другим модулям.
+# Модуль для хранения временных данных в local/session storage
 #
-define [], ->
-  #
-  # Работа с самим LocalStorage и SessionStorage
-  #
-  _localStorage = window.localStorage
-  _sessionStorage = window.sessionStorage
+define ["utils/storage/abstract"], (Storage) ->
 
-  getFromLocalStorage = (varName) ->
-    return _localStorage.getItem(varName) ? _sessionStorage.getItem(varName)
+  class LocalStorage extends Storage
+    _localStorage = window.localStorage
+    _sessionStorage = window.sessionStorage
 
-  saveToLocalStorage = (varName, value, isSessionOnly) ->
-    _storage = if isSessionOnly then _sessionStorage else _localStorage
-    removeFromLocalStorage varName        # Чистим на всякий случай оба storage, чтобы не осталось дубликатов
-    try
-      _storage.setItem varName, value
-      return on
-    catch err
-      # @todo: log error
-      return off
+    constructor: () ->
+      if not isLocalStorageAvailable
+        return false
+      super
 
-  removeFromLocalStorage = (varName) ->
-    _localStorage.removeItem varName
-    _sessionStorage.removeItem varName
-    on
+    @get = (varName) ->
+      return _localStorage.getItem(varName) ? _sessionStorage.getItem(varName)
 
+    @save = (varName, value, isSessionOnly) ->
+      _storage = if isSessionOnly then _sessionStorage else _localStorage
+      @remove varName        # Чистим на всякий случай оба storage, чтобы не осталось дубликатов
+      try
+        _storage.setItem varName, value
+        return on
+      catch err
+        # @todo: log error
+        return off
 
-  getKeysFromLocalStorage = (isSessionOnly) ->
-    _storage = if isSessionOnly then _sessionStorage else _localStorage
-    objToReturn = {}
-    for item in [0.._storage.length]
-      objToReturn[_storage.key(item)] = _storage.get _storage.key(item)
+    @remove = (varName) ->
+      _localStorage.removeItem varName
+      _sessionStorage.removeItem varName
+      on
 
-    return objToReturn
+    @getKeys = (isSessionOnly) ->
+      _storage = if isSessionOnly then _sessionStorage else _localStorage
+      objToReturn = {}
+      for item in [0.._storage.length]
+        objToReturn[_storage.key(item)] = _storage.get _storage.key(item)
 
-  #
-  # Fallback — работа с куками
-  #
-  # A complete cookies reader/writer framework with full unicode support.
-  # Использованы куски кода вот отсюда:
-  # https://developer.mozilla.org/en-US/docs/DOM/document.cookie
-  getFromCookie = (varName) ->
-    return null if not varName or not hasItemInCookie(varName)
-    unescape document.cookie.replace(new RegExp("(?:^|.*;\\s*)" + escape(varName).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=\\s*((?:[^;](?!;))*[^;]?).*"), "$1")
+      return objToReturn
 
+    # Вспомогательные методы
+    isLocalStorageAvailable = () ->
+      return typeof _localStorage isnt "undefined"
 
-  saveToCookie = (varName, value, isSessionOnly) ->
-    return false if not varName or /^(?:expires|max\-age|path|domain|secure)$/i.test(varName)
-    path = "/"
-    expires = "; expires=Tue, 19 Jan 2038 03:14:07 GMT" if not isSessionOnly
-    document.cookie = "#{escape(varName)}=#{escape(value)};path=#{path}" + expires
-
-  
-  removeFromCookie = (varName) ->
-    return  if not varName or not hasItemInCookie(varName)
-    document.cookie = escape(sKey) + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT" + ((if sPath then "; path=" + sPath else ""))
-
-  hasItemInCookie: (sKey) ->
-    (new RegExp("(?:^|;\\s*)" + escape(sKey).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=")).test document.cookie
-
-
-  # Вспомогательные методы
-  isLocalStorageAvailable = () ->
-    return typeof _localStorage isnt "undefined"
-
-  createVarName = (moduleName, varName) ->
-    "#{moduleName}/#{varName}"
-
-  removeItem: (sKey, sPath) ->
-
-  getKeysFromCookies =  ->
-    keys = document.cookie.replace(/((?:^|\s*;)[^\=]+)(?=;|$)|^\s*|\s*(?:\=[^;]*)?(?:\1|$)/g, "").split(/\s*(?:\=[^;]*)?;\s*/)
-    objToReturn = {}
-    for index in [0..keys.length]
-      objToReturn[keys(index)] = unescape getFromCookie keys(index)
-
-    objToReturn
-
-  # Делаем открытый API, чтобы было удобно отлаживать и тестировать
-  returnObj =
-    save: (moduleName, varName, value, isSessionOnly, isStorageOnly) ->
-      value = JSON.stringify value
-      key = createVarName moduleName, varName
-      return saveToLocalStorage(key, value, isSessionOnly) if isLocalStorageAvailable()
-      return false if isStorageOnly
-      return saveToCookie key, value, isSessionOnly
-
-    get: (moduleName, varName) ->
-      key = createVarName moduleName, varName
-      value = if isLocalStorageAvailable() then getFromLocalStorage(key, varName) else getFromCookie key, varName
-      return JSON.parse value
-
-    remove: (moduleName, varName) ->
-      return removeFromLocalStorage(createVarName moduleName, varName) if isLocalStorageAvailable()
-      return removeFromCookie createVarName moduleName, varName
-
-    # исключительно для тестирования и отладки
-    getKeys: ()->
-      objToReturn =
-        localStorage: getKeysFromLocalStorage()
-        sessionStorage: getKeysFromLocalStorage true
-        cookies: getKeysFromCookies()
-
-  return returnObj
+  return new LocalStorage()

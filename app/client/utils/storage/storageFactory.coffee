@@ -6,8 +6,9 @@
 # Доступные типы хранилищ:
 # "localStorage" - хранит данные в localStorage & sessionStorage
 # "cookies" - хранит данные в cookies
+# "fake" - фейковый режим (ничего никуда не сохраняется)
 #
-define ["utils/storage/localStorage", "utils/storage/cookieStorage"], (localStorage, cookieStorage) ->
+define ["utils/storage/localStorage", "utils/storage/cookieStorage", "utils/storage/fakeStorage"], (localStorage, cookieStorage, fakeStorage) ->
 
   returnObj =
     getStorage: (storageType) ->
@@ -17,6 +18,7 @@ define ["utils/storage/localStorage", "utils/storage/cookieStorage"], (localStor
         break if storage and storage.instance
       if not storage
         console.warn "Can not initialize storage"
+        fakeStorage
       else
         storage
 
@@ -24,6 +26,7 @@ define ["utils/storage/localStorage", "utils/storage/cookieStorage"], (localStor
       switch type
         when "localStorage" then localStorage
         when "cookies" then cookieStorage
+        when "fake" then fakeStorage
         else false
       
   return returnObj

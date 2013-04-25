@@ -30,3 +30,6 @@ define ["config", "utils/storage/storageFactory"], (config, storageFactory) ->
   #
   get: (url, header) ->
     storage.get "sectionsHistory", helpers.stateId(url, header)
+    
+  getStorage: ->
+    storage

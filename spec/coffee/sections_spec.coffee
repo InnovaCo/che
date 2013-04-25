@@ -10,6 +10,7 @@ describe 'sections module', ->
   bindedEvents = null
   Invoker = null
   sectionsLoader = null
+  cache = null
   require [
     'sections',
     'sections/asyncQueue',
@@ -20,8 +21,9 @@ describe 'sections module', ->
     'utils/storage/storageFactory',
     'history',
     'ajax',
-    'lib/async'
-    ], (sectionsModule, queueModule, invokerModule, loaderModule, eventsModule, widgetsModule, storageFactory, browserHistoryModule, ajaxModule, asyncModule) ->
+    'lib/async',
+    'sections/cache'
+    ], (sectionsModule, queueModule, invokerModule, loaderModule, eventsModule, widgetsModule, storageFactory, browserHistoryModule, ajaxModule, asyncModule, cacheModule) ->
     sections = sectionsModule
     queue = queueModule
     Invoker = invokerModule
@@ -33,6 +35,7 @@ describe 'sections module', ->
     browserHistory = browserHistoryModule
     ajax = ajaxModule
     async = asyncModule
+    cache = cacheModule
 
   resetModules = () ->
     events.list = bindedEvents
@@ -521,8 +524,9 @@ describe 'sections module', ->
       events.bind "transition:invoked", ->
         allDone = yes
 
-      spyOn(storage, "get").andCallThrough()
-      storage.save "sectionsHistory", origin + "|header:HEADER", reload_sections
+      currentStorage = cache.getStorage()
+      spyOn(currentStorage, "get").andCallThrough()
+      currentStorage.save "sectionsHistory", origin + "|header:HEADER", reload_sections
 
       events.trigger "pageTransition:init", [origin, "HEADER", "GET", {}]
 
@@ -531,11 +535,11 @@ describe 'sections module', ->
 
       runs ->
         requestInfo = ajax.get.mostRecentCall.args[0]
-        storageGetInfo = storage.get.mostRecentCall.args
+        storageGetInfo = currentStorage.get.mostRecentCall.args
 
         expect(ajax.get).toHaveBeenCalled()
         expect(requestInfo.url).toBe origin
-        expect(storage.get).toHaveBeenCalled()
+        expect(currentStorage.get).toHaveBeenCalled()
         expect(storageGetInfo[0]).toBe "sectionsHistory"
         expect(storageGetInfo[1]).toBe origin + "|header:HEADER"
 

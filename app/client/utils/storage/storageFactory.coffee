@@ -11,11 +11,19 @@ define ["utils/storage/localStorage", "utils/storage/cookieStorage"], (localStor
 
   returnObj =
     getStorage: (storageType) ->
-      switch storageType
+      storage = null
+      for type in storageType
+        storage = @getStorageByType(type)
+        break if storage and storage.instance
+      if not storage
+        console.warn "Can not initialize storage"
+      else
+        storage
+
+    getStorageByType: (type) ->
+      switch type
         when "localStorage" then localStorage
         when "cookies" then cookieStorage
-        else
-          console.warn "Unknown storage type: " + storageType
-          return localStorage
+        else false
       
   return returnObj

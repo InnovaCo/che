@@ -10,4 +10,4 @@ define
   baseWidgetsPath: ''
   sectionTagName: "section"
   sectionSelectorAttributeName: "selector",
-  storage: "localStorage", # possible: "cookies",
+  storage: ["localStorage", "cookies"], # possible: "cookies",

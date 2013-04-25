@@ -29,7 +29,7 @@ describe 'sections module', ->
     events = eventsModule
     bindedEvents = events.list
     widgets = widgetsModule
-    storage = storageFactory.getStorage 'localStorage'
+    storage = storageFactory.getStorage ['localStorage']
     browserHistory = browserHistoryModule
     ajax = ajaxModule
     async = asyncModule

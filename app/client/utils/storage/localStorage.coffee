@@ -11,7 +11,7 @@ define ["utils/storage/abstract"], (Storage) ->
     _sessionStorage = window.sessionStorage
 
     constructor: () ->
-      if not isLocalStorageAvailable
+      if not isLocalStorageAvailable()
         return false
       super
 
@@ -43,6 +43,7 @@ define ["utils/storage/abstract"], (Storage) ->
 
     # Вспомогательные методы
     isLocalStorageAvailable = () ->
+      console.log _localStorage, window.localStorage
       return typeof _localStorage isnt "undefined"
 
   return new LocalStorage()

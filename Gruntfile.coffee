@@ -23,7 +23,7 @@ module.exports = (grunt) ->
         jasmine_helpers: "spec/helpers/js/"
 
     # Just Copy files (библиотеки в чистом виде, или что еще)
-    copy: 
+    copy:
       app:
         files: [
           expand: true
@@ -32,7 +32,7 @@ module.exports = (grunt) ->
           dest: "<%= path.dest.client %>"
         ]
 
-    # Coffee-script 
+    # Coffee-script
     coffee:
       app:
         files: [
@@ -44,7 +44,7 @@ module.exports = (grunt) ->
         ]
         options:
           bare: false
-          sourceMap: true
+          # sourceMap: true
 
       specs:
         files: [
@@ -56,7 +56,7 @@ module.exports = (grunt) ->
         ]
         options:
           bare: false
-          sourceMap: true
+          # sourceMap: true
 
       jasmine_helpers:
         files: [
@@ -68,9 +68,9 @@ module.exports = (grunt) ->
         ]
         options:
           bare: false
-          sourceMap: true
+          # sourceMap: true
 
-    connect: 
+    connect:
       phantom:
         options:
           port: 8889
@@ -83,15 +83,15 @@ module.exports = (grunt) ->
 
     open:
       specs:
-        path: "http://localhost:<%= connect.browser.options.port %>/_SpecRunner.html" 
+        path: "http://localhost:<%= connect.browser.options.port %>/_SpecRunner.html"
 
     # GROC
     groc:
       app:
         src: ["<%= path.source.client %>/**/*.coffee"]
 
-    
-    # Require.js 
+
+    # Require.js
     requirejs:
       compile:
         options:
@@ -100,6 +100,8 @@ module.exports = (grunt) ->
           include: ["loader", "events"]
           out: "public/js/app-require-optimized.js"
           optimize: "none"
+          # generateSourceMaps: true
+          # preserveLicenseComments: false
           paths:
             # Хитрый ход (официальный), чтобы not include этот файл в сборку
             underscore: "empty:"
@@ -107,28 +109,28 @@ module.exports = (grunt) ->
             underscore:
               exports: "_"
 
-    
-    # Jasmine tests 
+
+    # Jasmine tests
     jasmine:
       # affix needs jquery (for jasmine fixtures)
-      src: ["public/js/app.js"]
-      options: 
+      src: ["public/js/app-min.js"]
+      options:
         vendor: ["public/js/lib/require.js", "public/js/lib/underscore-min.js", "public/js/lib/jquery-1.9.1.min.js"]
         specs: "spec/js/**/*_spec.js"
         helpers: "spec/helpers/**/*.js"
-        #host: "http://localhost:<%= connect.phantom.options.port %>/"
+        host: "http://localhost:<%= connect.phantom.options.port %>/"
         junit:
           path: "reports/.junit-output/"
-        template: require('grunt-template-jasmine-istanbul')
-        templateOptions:
-          coverage: 'reports/coverage.json'
-          report: 'reports/coverage'
-          #template: require('grunt-template-jasmine-requirejs'),
-          #templateOptions:
-          #  requireConfig:
-          #    baseUrl: '.grunt/grunt-contrib-jasmine/src/main/js/'
+        #template: require('grunt-template-jasmine-istanbul')
+        #templateOptions:
+        #  coverage: 'reports/coverage.json'
+        #  report: 'reports/coverage'
+        #template: require('grunt-template-jasmine-requirejs'),
+        #templateOptions:
+        #  requireConfig:
+        #    baseUrl: '.grunt/grunt-contrib-jasmine/src/main/js/'
       timeout: 10000
-    
+
     # CoffeeLint
     coffeelint:
       app:
@@ -143,27 +145,36 @@ module.exports = (grunt) ->
         files:
           src: ["spec/coffee/*.coffee","spec/coffee/**/*.coffee"]
         options: grunt.file.readJSON('configs/coffeelint.json')
-    
-    # Concatenation & clean 
+
+    # Concatenation & clean
     concat:
       app:
         src: ["public/js/app-require-config.js", "public/js/app-require-optimized.js"]
         dest: "public/js/app.js"
 
+    uglify:
+      app:
+        files:
+            "public/js/app-min.js": ["public/js/app.js"]
+        # options:
+          # sourceMap: 'public/js/app-min-map.js'
+          # sourceMapIn: ["public/js/app-require-config.map", "public/js/*.map]
+
     clean:
       file: "public/js/app-require-optimized.js"
 
-    
-    # Watch tasks 
+
+    # Watch tasks
     #watch:
     #  tests:
     #    files: ["<config:jasmine.specs>", "src/**/*js"]
     #    tasks: "jasmine"
 
   grunt.registerTask "lint", ["coffeelint"]
-  grunt.registerTask "require", ["coffee","requirejs","concat","clean"]
-  grunt.registerTask "spec", ["require","jasmine"]
+  grunt.registerTask "require", ["coffee","requirejs","concat","uglify","clean"]
   grunt.registerTask "livetest", ["open","connect:browser"]
 
   grunt.registerTask "default", ["lint","copy","require"]
+
+  grunt.registerTask "spec", ["default","connect:phantom","jasmine"]
   grunt.registerTask "full", ["default","jasmine","groc"]

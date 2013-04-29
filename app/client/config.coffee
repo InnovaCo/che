@@ -11,3 +11,7 @@ define
   sectionTagName: "section"
   sectionSelectorAttributeName: "selector",
   storage: ["fake", "localStorage", "cookies"],
+  
+  setup: (customConfig) ->
+    @[param] = value for param, value of customConfig
+    @

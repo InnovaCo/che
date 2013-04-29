@@ -2,6 +2,13 @@
 #
 #
 
-# Подключает модули 'loader', 'lib/domReady'
+@che = (customConfig) ->
 
-requirejs ['loader', 'clicks', 'sections'], (loader) ->
+  # Переопределяем дефолтные параметры конфига, если надо
+  (
+    requirejs ['config'], (config) ->
+      config.setup customConfig
+  ) if customConfig
+
+  # Подключает модули 'loader', 'lib/domReady'
+  requirejs ['loader', 'clicks', 'sections'], (loader) ->

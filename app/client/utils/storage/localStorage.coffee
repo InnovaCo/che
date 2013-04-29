@@ -43,7 +43,6 @@ define ["utils/storage/abstract"], (Storage) ->
 
     # Вспомогательные методы
     isLocalStorageAvailable = () ->
-      console.log _localStorage, window.localStorage
       return typeof _localStorage isnt "undefined"
 
   return new LocalStorage()

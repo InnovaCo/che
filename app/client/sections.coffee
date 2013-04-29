@@ -70,6 +70,14 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
   events.bind "sections:loaded", (state) ->
     cache.save state
     transitions.create state
+    
+  #### Обработка события "sections:error"
+  #
+  # Действия в случае ошибке при запросе секций
+  #
+  events.bind "sections:error", (state, errorCode, errorMessage) ->
+    #todo Сделать конфигурирование error handler`а
+    console.log "SECTION ERROR: ", state, errorCode, errorMessage
 
   #### Обработка события pageTransition:init
   #

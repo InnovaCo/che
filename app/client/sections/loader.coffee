@@ -15,6 +15,13 @@ define ["ajax", "events"], (ajax, events) ->
   # необходим для точного встраивания секций в цепь переходов, так как могут быть запрошены данные для переходов в середине цепи
   #
   (url, method, sectionsHeader, index, data = []) ->
+    getState = (url, sections) ->
+      url: url
+      header: sectionsHeader
+      index: index
+      method: method
+      sections: sections
+
     sectionsRequest?.abort()
     sectionsRequest = ajax.dispatch
       url: url,
@@ -24,15 +31,10 @@ define ["ajax", "events"], (ajax, events) ->
         "X-Che-Sections": sectionsHeader
         "X-Che": true
       type: "text"
+      error: (request) ->
+        state = getState url, sectionsHeader
+        events.trigger "sections:error", [state, request.status, request.statusText]
 
     sectionsRequest.success (request, sections) ->
-      state =
-        # Подразумевается, что url мог смениться (например при редиректе), и поэтому он всегда берется из пришедших данных,
-        # конкретно из заголовка  "X-Che-Url"
-        url: request.getResponseHeader "X-Che-Url"
-        header: sectionsHeader
-        index: index
-        method: method
-        sections: sections
-
+      state = getState (request.getResponseHeader "X-Che-Url"), sections
       events.trigger "sections:loaded", state

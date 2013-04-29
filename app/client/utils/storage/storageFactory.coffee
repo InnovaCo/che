@@ -4,9 +4,9 @@
 #---
 # Фабрика, инициализирующая необходимый модуль для работы с хранилищем
 # Доступные типы хранилищ:
-# "localStorage" - хранит данные в localStorage & sessionStorage
-# "cookies" - хранит данные в cookies
-# "fake" - фейковый режим (ничего никуда не сохраняется)
+#   * "localStorage" - хранит данные в localStorage & sessionStorage
+#   * "cookies" - хранит данные в cookies
+#   * "fake" - фейковый режим (ничего никуда не сохраняется)
 #
 define ["utils/storage/localStorage", "utils/storage/cookieStorage", "utils/storage/fakeStorage"], (localStorage, cookieStorage, fakeStorage) ->
 

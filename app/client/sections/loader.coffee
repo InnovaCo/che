@@ -22,6 +22,7 @@ define ["ajax", "events"], (ajax, events) ->
       data: data,
       headers:
         "X-Che-Sections": sectionsHeader
+        "X-Che": true
       type: "text"
 
     sectionsRequest.success (request, sections) ->

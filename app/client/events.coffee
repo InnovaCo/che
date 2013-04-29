@@ -35,7 +35,6 @@ define ['underscore'],  (_) ->
       handler.apply handler.context, args
 
 
-
     ####  Oops.prototype._nextHandlerCall
     #
     # Достает очередного обработчика события и передает его для вызова
@@ -141,6 +140,16 @@ define ['underscore'],  (_) ->
     create: (name) ->
       @list[name] = @list[name] or new Oops name
 
+    createList: (name, pureOnly) ->
+      nameInNS = name.split "@"
+      namePure = nameInNS[0]
+      evts = []
+      evts[namePure] = @create namePure
+      if !pureOnly and nameInNS.length > 1
+        for index in [1..(nameInNS.length-1)]
+          nameWithNS = "#{namePure}@#{nameInNS[index]}"
+          evts[nameWithNS] = @create nameWithNS
+      evts
 
     ####  Events::once(name, handler, [context], [options])
     #
@@ -170,21 +179,26 @@ define ['underscore'],  (_) ->
       else
         eventHandler = handler
 
-      self = @
       for eventName in bindEventsList
-        do (eventName) ->
-          self.create(eventName).bind eventHandler, context, options
+        do (eventName) =>
+          @create(eventName).bind(eventHandler, context, options)
 
       @create(bindEventsList[0])
-
 
     ####  Events::unbind(name, handler)
     #
     # Отвязывает обработчка от события
     #
     unbind: (name, handler) ->
-      if @list[name]
-        @list[name].unbind(handler)
+      nameInNS = name.split "@"
+      namePure = nameInNS[0]
+
+      @list[namePure].unbind(handler) if @list[namePure]
+
+      if nameInNS.length > 1
+        for index in [1..(nameInNS.length-1)]
+          nameWithNS = "#{namePure}@#{nameInNS[index]}"
+          @list[nameWithNS].unbind(handler) if @list[nameWithNS]
 
 
     ####  Events::trigger(name, [args])
@@ -192,7 +206,8 @@ define ['underscore'],  (_) ->
     # Вызывает исполнение обработчиков событий, сохраняет переданные данные, если такого событие не было, то оно создается и в нем сохраняются эти данные
     #
     trigger: (name, args) ->
-      @create(name).dispatch(args)
+      evt.dispatch(args) for evtName, evt of @createList(name)
+
 
   #### Глобальная шина событий
   #

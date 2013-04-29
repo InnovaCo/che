@@ -7,9 +7,11 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks "grunt-contrib-copy"
   grunt.loadNpmTasks "grunt-contrib-jasmine"
   grunt.loadNpmTasks "grunt-contrib-connect"
+  grunt.loadNpmTasks "grunt-contrib-livereload"
   grunt.loadNpmTasks "grunt-coffeelint"
   grunt.loadNpmTasks "grunt-groc"
   grunt.loadNpmTasks "grunt-open"
+  grunt.loadNpmTasks "grunt-regarde"
 
   grunt.initConfig
     path:

@@ -134,58 +134,38 @@ describe "events module", ->
       events.bind "one, two, three", handler, {},
         isSync: true
 
-      events.trigger 'one',
-        data: "one"
+      events.trigger 'one', data: "one"
+      expect(handler).not.toHaveBeenCalled()
+
+      events.trigger 'two', data: "two"
 
       expect(handler).not.toHaveBeenCalled()
 
-      events.trigger 'two',
-        data: "two"
-
-      expect(handler).not.toHaveBeenCalled()
-
-      events.trigger 'three',
-        data: "three"
+      events.trigger 'three', data: "three"
 
       expect(handler).toHaveBeenCalled()
       expect(handler.calls.length).toBe(1)
 
-      events.trigger 'one',
-        data: "one"
-
-      events.trigger 'two',
-        data: "two"
-
+      events.trigger 'one', data: "one"
+      events.trigger 'two', data: "two"
 
       expect(handler.calls.length).toBe(1)
 
-      events.trigger 'one',
-        data: "one"
-
-      events.trigger 'two',
-        data: "two"
-
-      events.trigger 'three',
-        data: "three"
+      events.trigger 'one', data: "one"
+      events.trigger 'two', data: "two"
+      events.trigger 'three', data: "three"
 
       expect(handler.calls.length).toBe(2)
 
-      events.trigger 'one',
-        data: "one"
-
-      events.trigger 'two',
-        data: "two"
-
-      events.trigger 'three',
-        data: "three"
+      events.trigger 'one', data: "one"
+      events.trigger 'two', data: "two"
+      events.trigger 'three', data: "three"
 
       expect(handler.calls.length).toBe(3)
 
-      events.trigger 'three',
-        data: "three"
+      events.trigger 'three', data: "three"
 
       expect(handler.calls.length).toBe(3)
-
 
 
   describe "calling handlers", ->
@@ -226,13 +206,11 @@ describe "events module", ->
       handlers.push jasmine.createSpy("handler_5")
 
       bind = (handler) ->
-        events.bind "testEvent", handler, {},
-          isSync: true
+        events.bind "testEvent", handler, {}, isSync: true
 
       bind handler for handler in handlers
 
-      events.trigger "testEvent",
-        testData: "testData"
+      events.trigger "testEvent", testData: "testData"
 
       expect(handlers[0]).toHaveBeenCalled()
       expect(handlers[1]).toHaveBeenCalled()
@@ -248,3 +226,32 @@ describe "events module", ->
 
       expect(events.list['testEvent']).toBeDefined()
       expect(events.list['testEvent']._lastArgs[0].testData).toBe("testData")
+
+
+    describe "with namespaces", ->
+      it "should trigger two events (with namespace and clear one) when user trigger event with one namespace", ->
+        handlerClear = jasmine.createSpy "handlerClear"
+        handlerNamespace = jasmine.createSpy "handlerNamespace"
+
+        events.bind "testEventClear", handlerClear, {}, isSync: true
+        events.bind "testEventClear@testNamespace", handlerNamespace, {}, isSync: true
+
+        events.trigger "testEventClear@testNamespace", testData: "testData"
+
+        expect( handlerClear ).toHaveBeenCalled()
+        expect( handlerNamespace ).toHaveBeenCalled()
+
+      it "should'n react on event with namespace if triggering such event without namespace", ->
+        handlerClear = jasmine.createSpy "handlerClear"
+        handlerNamespace = jasmine.createSpy "handlerNamespace"
+
+        events.bind "testEventClear", handlerClear, {}, isSync: true
+        events.bind "testEventClear@testNamespace", handlerNamespace, {}, isSync: true
+
+        events.trigger "testEventClear", testData: "testData"
+
+        expect( handlerClear ).toHaveBeenCalled()
+        expect( handlerNamespace ).not.toHaveBeenCalled()
+
+
+

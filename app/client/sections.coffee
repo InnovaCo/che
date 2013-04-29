@@ -7,7 +7,7 @@
 
 
 
-define ["history", "events", "sections/loader", "sections/transition", "sections/cache"],  (history, events, sectionsLoader, Transition, cache) ->
+define ["history", "events", "sections/loader", "sections/transition", "sections/cache", "utils/errorHandlers/errorHandler"],  (history, events, sectionsLoader, Transition, cache, errorHandler) ->
   return false if not history
 
   #### transitions
@@ -76,8 +76,10 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
   # Действия в случае ошибке при запросе секций
   #
   events.bind "sections:error", (state, errorCode, errorMessage) ->
-    #todo Сделать конфигурирование error handler`а
-    console.log "SECTION ERROR: ", state, errorCode, errorMessage
+    errorHandler.processError "sectionLoadError",
+      state: state,
+      errorCode: errorCode,
+      errorMessage: errorMessage
 
   #### Обработка события pageTransition:init
   #

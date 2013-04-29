@@ -1,5 +1,5 @@
 describe "sections loader module", ->
-  loader = null
+  loader = errorHandler = null
   realXMLHttpRequest = null
   XMLHttpRequestsList = null
   beforeEach ->
@@ -17,8 +17,9 @@ describe "sections loader module", ->
 
       request
 
-    require ["sections/loader"], (loaderModule) ->
+    require ["sections/loader", "utils/errorHandlers/errorHandler"], (loaderModule, errorHandlerModule) ->
       loader = loaderModule
+      errorHandler = errorHandlerModule
 
     waitsFor ->
       loader?
@@ -41,3 +42,25 @@ describe "sections loader module", ->
       expect(request.setRequestHeader).toHaveBeenCalled()
       expect(request.setRequestHeader.calls[1].args.join(',')).toBe "X-Che-Sections,a:#b"
       expect(request.setRequestHeader.calls[2].args.join(',')).toBe "X-Che,true"
+
+    it "should call error handler when request is fail", ->
+      loader '/test', 'GET', 'a:#b', 1, []
+
+      processError = jasmine.createSpy "processError"
+
+      handler =
+        sectionLoadError: () -> processError(arguments)
+      
+      errorHandler.addErrorHandler handler
+
+      request = _.last XMLHttpRequestsList
+
+      request.readyState = 4
+      request.status = 404
+      request.onreadystatechange()
+
+      waitsFor ->
+        0 < processError.calls.length
+      runs ->
+        expect(processError).toHaveBeenCalled()
+        expect(processError.mostRecentCall.args[0][0].errorCode).toBe(404)

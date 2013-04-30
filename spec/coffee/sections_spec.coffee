@@ -371,6 +371,8 @@ describe 'sections module', ->
           expect(opacity_widget._isOn).toBeFalsy()
 
   describe 'saving transition sections to localStorage', ->
+    originalStorage = null
+    
     reload_sections =
       url: window.location.origin
       title: "test Title"
@@ -378,12 +380,15 @@ describe 'sections module', ->
       sections: "<section data-selector='#one'><span class='widgets' data-js-modules='widgets/rotation, widgets/gradient'>hello</span></section>"
 
     beforeEach ->
+      originalStorage = cache.getStorage()
+      cache.setStorage(storage)
       storage.remove "sectionsHistory", window.location.origin
       affix "div#one span.section"
 
       resetModules()
 
-
+    afterEach ->
+      cache.setStorage(originalStorage)
 
     it "should save sections data to localstorage", ->
       allDone = no

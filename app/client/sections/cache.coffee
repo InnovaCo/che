@@ -33,3 +33,10 @@ define ["config", "utils/storage/storageFactory"], (config, storageFactory) ->
     
   getStorage: ->
     storage
+
+  #### setStorage(newStorage)
+  #
+  # Подмена storage. Используется в тестах.
+  #
+  setStorage: (newStorage) ->
+    storage = newStorage

@@ -164,7 +164,8 @@ module.exports = (grunt) ->
 
     clean:
       optimized: ["public/js/app-require-optimized.js"]
-      full: ["public/js"]
+      public: ["public/js"]
+      specs: ["spec/js", "spec/helpers/js"]
 
 
     # Watch tasks
@@ -177,7 +178,7 @@ module.exports = (grunt) ->
   grunt.registerTask "require", ["coffee","requirejs","concat","uglify","clean:optimized"]
   grunt.registerTask "livetest", ["open","connect:browser"]
 
-  grunt.registerTask "default", ["clean:full","lint","copy","require"]
+  grunt.registerTask "default", ["clean:public","lint","copy","require"]
 
-  grunt.registerTask "spec", ["default","connect:phantom","jasmine"]
-  grunt.registerTask "full", ["default","jasmine","groc"]
+  grunt.registerTask "spec", ["clean:specs","default","connect:phantom","jasmine"]
+  grunt.registerTask "full", ["clean:specs","default","jasmine","groc"]

@@ -1,6 +1,4 @@
-
-
-describe "[Storage module]", ->
+describe "[LocalStorage module]", ->
   # storage tests
   mockups =
     localStorage =
@@ -18,7 +16,7 @@ describe "[Storage module]", ->
   storage = null
 
   beforeEach ->
-    require ["utils/storage"], (storageModule) ->
+    require ["utils/storage/localStorage"], (storageModule) ->
       storage = storageModule
 
     waitsFor ->

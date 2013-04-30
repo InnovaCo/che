@@ -163,7 +163,8 @@ module.exports = (grunt) ->
           # sourceMapIn: ["public/js/app-require-config.map", "public/js/*.map]
 
     clean:
-      file: "public/js/app-require-optimized.js"
+      optimized: ["public/js/app-require-optimized.js"]
+      full: ["public/js"]
 
 
     # Watch tasks
@@ -173,10 +174,10 @@ module.exports = (grunt) ->
     #    tasks: "jasmine"
 
   grunt.registerTask "lint", ["coffeelint"]
-  grunt.registerTask "require", ["coffee","requirejs","concat","uglify","clean"]
+  grunt.registerTask "require", ["coffee","requirejs","concat","uglify","clean:optimized"]
   grunt.registerTask "livetest", ["open","connect:browser"]
 
-  grunt.registerTask "default", ["lint","copy","require"]
+  grunt.registerTask "default", ["clean:full","lint","copy","require"]
 
   grunt.registerTask "spec", ["default","connect:phantom","jasmine"]
   grunt.registerTask "full", ["default","jasmine","groc"]

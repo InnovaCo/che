@@ -131,7 +131,7 @@ module.exports = (grunt) ->
         #templateOptions:
         #  requireConfig:
         #    baseUrl: '.grunt/grunt-contrib-jasmine/src/main/js/'
-      timeout: 10000
+        timeout: 10000
 
     # CoffeeLint
     coffeelint:

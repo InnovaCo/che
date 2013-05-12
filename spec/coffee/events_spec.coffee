@@ -228,30 +228,30 @@ describe "events module", ->
       expect(events.list['testEvent']._lastArgs[0].testData).toBe("testData")
 
 
-    describe "with namespaces", ->
-      it "should trigger two events (with namespace and clear one) when user trigger event with one namespace", ->
-        handlerClear = jasmine.createSpy "handlerClear"
-        handlerNamespace = jasmine.createSpy "handlerNamespace"
+  describe "triggering events with namespaces", ->
+    it "should trigger two events (with namespace and clear one) when user trigger event with one namespace", ->
+      handlerClear = jasmine.createSpy "handlerClear"
+      handlerNamespace = jasmine.createSpy "handlerNamespace"
 
-        events.bind "testEventClear", handlerClear, {}, isSync: true
-        events.bind "testEventClear@testNamespace", handlerNamespace, {}, isSync: true
+      events.bind "testEventClear", handlerClear, {}, isSync: true
+      events.bind "testEventClear@testNamespace", handlerNamespace, {}, isSync: true
 
-        events.trigger "testEventClear@testNamespace", testData: "testData"
+      events.trigger "testEventClear@testNamespace", testData: "testData"
 
-        expect( handlerClear ).toHaveBeenCalled()
-        expect( handlerNamespace ).toHaveBeenCalled()
+      expect( handlerClear ).toHaveBeenCalled()
+      expect( handlerNamespace ).toHaveBeenCalled()
 
-      it "should'n react on event with namespace if triggering such event without namespace", ->
-        handlerClear = jasmine.createSpy "handlerClear"
-        handlerNamespace = jasmine.createSpy "handlerNamespace"
+    it "should'nt react on event with namespace if triggering such event without namespace", ->
+      handlerClear = jasmine.createSpy "handlerClear"
+      handlerNamespace = jasmine.createSpy "handlerNamespace"
 
-        events.bind "testEventClear", handlerClear, {}, isSync: true
-        events.bind "testEventClear@testNamespace", handlerNamespace, {}, isSync: true
+      events.bind "testEventClear", handlerClear, {}, isSync: true
+      events.bind "testEventClear@testNamespace", handlerNamespace, {}, isSync: true
 
-        events.trigger "testEventClear", testData: "testData"
+      events.trigger "testEventClear", testData: "testData"
 
-        expect( handlerClear ).toHaveBeenCalled()
-        expect( handlerNamespace ).not.toHaveBeenCalled()
+      expect( handlerClear ).toHaveBeenCalled()
+      expect( handlerNamespace ).not.toHaveBeenCalled()
 
 
 

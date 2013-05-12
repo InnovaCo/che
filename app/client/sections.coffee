@@ -1,10 +1,11 @@
 #### *module* sections
 #
-# Основной модуль для работы с секциями, умеет загружать, кэшировать и менять секции с помощью модулей
+# Основной модуль для работы с секциями, умеет загружать,
+# кэшировать и менять секции с помощью модулей
 # "sections/loader", "sections/transition", "sections/cache".
-# Также не будет работать, если модуль history возвращает false (это происходит при отсутствии historyAPI)
+# Также не будет работать, если модуль history возвращает false
+# (это происходит при отсутствии historyAPI)
 #
-
 
 
 define ["history", "events", "sections/loader", "sections/transition", "sections/cache", "utils/errorHandlers/errorHandler"],  (history, events, sectionsLoader, Transition, cache, errorHandler) ->
@@ -22,14 +23,19 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
     last: null
 
     ###### transitions.current
-    # Текущий примененный переход, в случае, когда был переход назад по истории, current не равен last
+    # Текущий примененный переход, в случае, когда был переход
+    # назад по истории, current не равен last
     #
     current: null
 
     ###### transitions.create(state)
-    # Создает новый объект перехода, устанавливает в нем ссылки на предыдущий, а сам новый теперь записывается в last,
-    # кроме того, обновляются, либо записываются данные в historyState. Если же такой переход уже был создан (state имеет параметр index),
-    # то совершается ищем по индексу нужный переход, применяем его (функция transitions.go) и обновляем его данные
+    # Создает новый объект перехода, устанавливает в нем ссылки
+    # на предыдущий, а сам новый теперь записывается в last,
+    # кроме того, обновляются, либо записываются данные
+    # в historyState. Если же такой переход уже был создан
+    # (state имеет параметр index), то совершается ищем по индексу
+    # нужный переход, применяем его (функция transitions.go)
+    # и обновляем его данные
     #
     create: (state) ->
       state = state or {index: 0, url: window.location.href}
@@ -83,7 +89,8 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
 
   #### Обработка события pageTransition:init
   #
-  # Проверяется, есть ли такие секции уже в кэше, если есть, то используем их и параллельно смотрим на сервере
+  # Проверяется, есть ли такие секции уже в кэше, если есть,
+  # то используем их и параллельно смотрим на сервере
   #
   events.bind "pageTransition:init", (url, sectionsHeader, method, formData) ->
     state = cache.get url, sectionsHeader

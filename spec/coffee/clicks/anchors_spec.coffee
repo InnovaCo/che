@@ -38,7 +38,7 @@ describe "clicks/anchors module", ->
       expect(handlerCall.data).toBe("'testData'")
       expect(handlerCall.method).toBe("GET")
 
-    it "should not call handler, when have attr with reload sections params", ->
+    it "should'nt call handler, when don't have attr with reload sections params", ->
       handler = jasmine.createSpy("handler")
 
       anchors ->

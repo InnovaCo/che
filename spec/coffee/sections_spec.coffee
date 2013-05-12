@@ -84,6 +84,10 @@ describe 'sections module', ->
       sections: "<section data-selector='#one'><span>hello</span></section>\
       <section data-selector='#two'><span>world</span></section>"
 
+    reload_sections_with_ns =
+      sections: "<section data-selector='#one' data-section-namespace='testNS'><span>hello</span></section>\
+      <section data-selector='#two' data-section-namespace='secondTestNS'><span>world</span></section>"
+
     beforeEach ->
       affix "div#one span.section"
       affix "div#two span.section"
@@ -136,6 +140,69 @@ describe 'sections module', ->
 
         waitsFor ->
           allDone
+
+        runs ->
+          expect($("#one span.section").length).toBe 1
+          expect($("#two span.section").length).toBe 1
+
+    it 'should trigger event about each section with namespace due replacing sections', ->
+      sectionsReplaced = false
+      sectionWithNSInserted = false
+      sectionWithSecondNSInserted = false
+
+      events.bind "pageTransition:success", ->
+        sectionsReplaced = true
+      events.bind "section-testNS:inserted", ->
+        sectionWithNSInserted = true
+      events.bind "section-secondTestNS:inserted", ->
+        sectionWithSecondNSInserted = true
+
+      transition = sections._transitions.create reload_sections_with_ns
+
+      waitsFor ->
+        sectionsReplaced && sectionWithNSInserted && sectionWithSecondNSInserted
+
+      runs ->
+        expect($("#one").length).toBe 1
+        expect($("#two").length).toBe 1
+        expect($("#one span.section").length).toBe 0
+        expect($("#two span.section").length).toBe 0
+        expect($("#one span").text()).toBe "hello"
+        expect($("#two span").text()).toBe "world"
+
+    it 'should replace sections and trigger events about section with namespace removed due undo', ->
+      allDoneForward = no
+      allDone = no
+      sectionNSRemoved = no
+
+      events.bind "pageTransition:success", (info) ->
+        allDoneForward = info.transition.index is 1
+
+      transition = sections._transitions.create reload_sections_with_ns
+
+      waitsFor ->
+        allDoneForward
+
+      runs ->
+        expect($("#one").length).toBe 1
+        expect($("#two").length).toBe 1
+        expect($("#one span").text()).toBe "hello"
+        expect($("#two span").text()).toBe "world"
+
+        expect($("#one span.section").length).toBe 0
+        expect($("#two span.section").length).toBe 0
+
+        events.bind "pageTransition:success", (info) ->
+          allDone = info.transition.index is 0
+
+        events.bind "section-testNS:removed", (info) ->
+          sectionNSRemoved = yes
+
+        transition.prev()
+
+
+        waitsFor ->
+          allDone && sectionNSRemoved
 
         runs ->
           expect($("#one span.section").length).toBe 1
@@ -510,7 +577,6 @@ describe 'sections module', ->
         allDone = yes
 
       storage.save "sectionsHistory", reload_sections.url, reload_sections
-
       events.trigger "pageTransition:init", window.location.origin, {}
 
       waitsFor ->
@@ -604,8 +670,6 @@ describe 'sections module', ->
               allDone = yes
           sections._transitions.go 1
 
-
-
       waitsFor ->
         allDone
       runs ->
@@ -613,5 +677,11 @@ describe 'sections module', ->
         expect($("div.backHistory#one span.widgets").text()).toBe "hello"
 
     it "should change url to previous state", ->
+      #TODO: where is test?
+      false
     it "should change layout to previous 3th state, when going to 3th prev state", ->
+      #TODO: where is test?
+      false
     it "should change url to previous 3th state, when going to 3th prev state", ->
+      #TODO: where is test?
+      false

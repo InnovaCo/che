@@ -9,8 +9,10 @@ define
   reloadSectionsDataAttributeName: 'data-reload-sections'
   baseWidgetsPath: ''
   sectionTagName: "section"
-  sectionSelectorAttributeName: "selector",
-  storage: ["fake", "localStorage", "cookies"],
+  sectionSelectorAttributeName: "selector"
+  sectionSelectorNSAttributeName: 'section-namespace'
+  sectionNSdelimiter: ' '
+  storage: ["fake", "localStorage", "cookies"]
   
   setup: (customConfig) ->
     @[param] = value for param, value of customConfig

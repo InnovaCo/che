@@ -1,48 +1,127 @@
 # Story: Popup module
 
 describe "[Popups module]", ->
-  require ["sections","events", "utils/popup"], (sections, events, popup) ->
+  popups = null
+  sections = null
+  events = null
+  beforeEach ->
+    popups = null
+    sections = null
+    events = null
+    require ["sections","events", "utils/popups"], (sectionsModule, eventsModule, popupsModule) ->
+      sections = sectionsModule
+      events = eventsModule
+      popups = popupsModule
+      popups.on()
 
+    waitsFor ->
+      popups isnt null
+
+  afterEach ->
+    popups.off()
+
+  resetModules = () ->
+    events.list = events.list
+    sections._transitions.last = null
+    sections._transitions.current = sections._transitions.create()
+
+  ###### Narrative
+  # *As* an any other module
+  # *I want* to log my activity
+  # *So that* I can use give API
+  describe "Module interface", ->
     beforeEach ->
+      affix "div#one span.section"
+      affix "div#two span.section"
+      resetModules()
 
-    afterEach ->
+    reload_sections_with_popup =
+      sections: "<section data-selector='#one' data-section-namespace='testNS'><span>hello</span></section>\
+      <section data-selector='#two' data-section-namespace='popup'><div>popupContent</div></section>"
 
-    ###### Narrative
-    # *As* an popup module
-    # *I want* to know when the section with namespace "popup" is inserted into DOM
-    # *So that* I can start animation for show this popup
-    describe "At start of work", ->
-      it "should create div with given selector for handling popups into it", ->
-        
-        # dom(config.popupContainerSelector)
+    it 'should have "on", "off", "getCurrentPopup", "isTurnedOn", "registerShowHideFunc", "unregisterShowHideFunc" methods', ->
+      expect(popups.on).toBeFunction()
+      expect(popups.off).toBeFunction()
+      expect(popups.getCurrentPopup).toBeFunction()
+      expect(popups.isTurnedOn).toBeFunction()
+      expect(popups.registerShowHideFunc).toBeFunction()
+      expect(popups.unregisterShowHideFunc).toBeFunction()
 
+    it '.getCurrentPopup() must return current popup-section, if it is active"', ->
+      sectionsReplaced = false
+      popupInserted = false
+      popupSection = {}
 
-    describe "Section with given namespace 'popup' is inserted, popup-module", ->
-      reload_sections_with_popup =
-        sections: "<section data-selector='#one' data-section-namespace='testNS'><span>hello</span></section>\
-        <section data-selector='#two' data-section-namespace='popup'><div>popupContent</div></section>"
+      events.bind "section-popup:inserted", (section) ->
+        popupSection = section
+        sectionsReplaced = true
+        popupInserted = true
 
-      it "should know about it", ->
-        popupInserted = false
-        sectionsReplaced = false
-
-        events.bind "section-popup:inserted", ->
-          popupInserted = true
-
-        events.bind "pageTransition:success", ->
-          sectionsReplaced = true
 
       transition = sections._transitions.create reload_sections_with_popup
 
       waitsFor ->
-        sectionsReplaced && popupInserted
+        popupInserted
 
       runs ->
-        expect($("#one").length).toBe 1
-        expect($("#two").length).toBe 1
-        expect($("#one span.section").length).toBe 0
-        expect($("#two span.section").length).toBe 0
-        expect($("#one span").text()).toBe "hello"
-        expect($("#two span").text()).toBe "world"
+        expect(popups.getCurrentPopup()).toBe popupSection
+        expect($("#two div").text()).toBe "popupContent"
+
+    it '.isTurnedOn() must return false after .off() called, and true after .on() called', ->
+      popups.off()
+      expect( popups.isTurnedOn() ).toBe off
+      popups.on()
+      expect( popups.isTurnedOn() ).toBe on
+
+
+    it '.registerShowHideFunc() must register callbacks', ->
+      customShowPopup = jasmine.createSpy "customShow"
+      customHidePopup = jasmine.createSpy "customHide"
+      popupInserted = false
+
+      events.bind "section-popup:inserted", (section) ->
+        popupInserted = true
+
+      popups.registerShowHideFunc(customShowPopup, customHidePopup)
+      transition = sections._transitions.create reload_sections_with_popup
+
+      waitsFor ->
+        popupInserted
+
+      runs ->
+        expect( customShowPopup ).toHaveBeenCalled()
+
+
+    it '.unregisterShowHideFunc() must unregister callbacks', ->
+      customShowPopup = jasmine.createSpy "customShow"
+      customHidePopup = jasmine.createSpy "customHide"
+      popupInserted = false
+
+      events.bind "section-popup:inserted", (section) ->
+        popupInserted = true
+
+      popups.registerShowHideFunc(customShowPopup, customHidePopup)
+      transition = sections._transitions.create reload_sections_with_popup
+
+      waitsFor ->
+        popupInserted
+
+      runs ->
+        expect( customShowPopup ).toHaveBeenCalled()
+
+        resetModules()
+        customShowPopup.reset()
+        popupInserted = false
+
+        popups.unregisterShowHideFunc()
+        transition = sections._transitions.create reload_sections_with_popup
+
+        waitsFor ->
+          popupInserted
+
+        runs ->
+          expect( customShowPopup ).not.toHaveBeenCalled()
+
+
 
 

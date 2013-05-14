@@ -14,9 +14,11 @@
   requirejs ['utils/errorHandlers/errorHandler', 'utils/errorHandlers/console'], (errorHanler, consoleHandler) ->
     errorHanler.addErrorHandler consoleHandler
 
-  if customConfig.modules?
-    baseUrl = '' if not customConfig.baseUrl?
-    requirejs {baseUrl: customConfig.baseUrl}, customConfig.modules, () ->
+  customConfig.modules ?= []
+
+  for module in customConfig.modules
+    switch module
+      when 'popups' then requirejs ['utils/popups'], (popups) -> che.popups = popups
 
   # Подключает модули 'loader', 'lib/domReady'
   requirejs ['loader', 'clicks', 'sections'], (loader) ->

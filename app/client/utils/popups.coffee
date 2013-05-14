@@ -38,6 +38,7 @@ define ["underscore","events"], (_, events)->
     events.unbind "section-popup:removed", removePopup
     turnedOn = off
 
+  bindEvents()
 
   return {
     on: () ->

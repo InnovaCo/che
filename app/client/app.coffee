@@ -14,5 +14,9 @@
   requirejs ['utils/errorHandlers/errorHandler', 'utils/errorHandlers/console'], (errorHanler, consoleHandler) ->
     errorHanler.addErrorHandler consoleHandler
 
+  if customConfig.modules?
+    baseUrl = '' if not customConfig.baseUrl?
+    requirejs {baseUrl: customConfig.baseUrl}, customConfig.modules, () ->
+
   # Подключает модули 'loader', 'lib/domReady'
   requirejs ['loader', 'clicks', 'sections'], (loader) ->

@@ -16,7 +16,7 @@ define [
 
   transitionsCompressDepth = 5
   transitionsDestroyDepth = 10
-  
+
   #### Transition(@data)
   #
   # Конструктор переходов, переходы образуют между собой двусторонний
@@ -25,10 +25,12 @@ define [
   Transition = (@state, last) ->
     @index = @state.index = @state.index or (last?.index + 1) or 0
 
-    
+
     if @state.sections?
+      #parsedSections = parser @state.sections
+
       @_invoker = new Invoker @state.sections
-      
+
     if last?
       @prev_transition = last
       last.next_transition = @
@@ -54,7 +56,7 @@ define [
     return @
 
   Transition:: =
-  
+
     #### Transition::update(data)
     #
     # Обновляет данные секций для перехода. Если новые данные совпадают

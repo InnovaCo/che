@@ -3,22 +3,18 @@
 #
 
 @che = (customConfig) ->
+  requirejs ['config'], (config) ->
+    # Переопределяем дефолтные параметры конфига, если надо
+    config.setup customConfig if customConfig
 
-  # Переопределяем дефолтные параметры конфига, если надо
-  (
-    requirejs ['config'], (config) ->
-      config.setup customConfig
-  ) if customConfig
-  
+    # Подключаем опциональные модули
+    customConfig.modules ?= []
+    for module in customConfig.modules when config._modules[module]?
+      che.module = config._modules[module]
+
   # Добавляем обработчики ошибок
   requirejs ['utils/errorHandlers/errorHandler', 'utils/errorHandlers/console'], (errorHanler, consoleHandler) ->
     errorHanler.addErrorHandler consoleHandler
-
-  customConfig.modules ?= []
-
-  for module in customConfig.modules
-    switch module
-      when 'popups' then requirejs ['utils/popups'], (popups) -> che.popups = popups
 
   # Подключает модули 'loader', 'lib/domReady'
   requirejs ['loader', 'clicks', 'sections'], (loader) ->

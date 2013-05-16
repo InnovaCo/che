@@ -3,7 +3,7 @@
 # конфиги для черхитектуры
 #
 
-define
+define ['utils/popups'], (popupsModule) ->
   widgetClassName: 'widget'
   widgetDataAttributeName: 'data-js-modules'
   reloadSectionsDataAttributeName: 'data-reload-sections'
@@ -13,6 +13,9 @@ define
   sectionSelectorNSAttributeName: 'section-namespace'
   sectionNSdelimiter: ' '
   storage: ["fake", "localStorage", "cookies"]
+  # todo сделать непереопределяемыми
+  _modules:
+    popups: popupsModule
   
   setup: (customConfig) ->
     @[param] = value for param, value of customConfig

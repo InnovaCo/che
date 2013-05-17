@@ -8,6 +8,7 @@ define
   widgetDataAttributeName: 'data-js-modules'
   reloadSectionsDataAttributeName: 'data-reload-sections'
   baseWidgetsPath: ''
+  sectionName: 'name'
   sectionTagName: "section"
   sectionSelectorAttributeName: "selector"
   sectionSelectorNSAttributeName: 'section-namespace'

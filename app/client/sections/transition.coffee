@@ -9,10 +9,11 @@
 # цепочки превышает 10 объектов
 #
 define [
+  "sections/parser",
   "sections/invoker",
   "sections/asyncQueue",
   "events",
-  "utils/destroyer"], (Invoker, asyncQueue, events, destroyer) ->
+  "utils/destroyer",], (Parser, Invoker, asyncQueue, events, destroyer) ->
 
   transitionsCompressDepth = 5
   transitionsDestroyDepth = 10
@@ -27,9 +28,16 @@ define [
 
 
     if @state.sections?
-      #parsedSections = parser @state.sections
+      parsedSections = new Parser @state.sections
+      console.log "####", parsedSections
 
-      @_invoker = new Invoker @state.sections
+      # отдаем все секции, у которых есть конкретный css-селектор
+      # для вставки в дом
+      @_invoker = new Invoker parsedSections.dom if parsedSections.dom?
+
+      # обновляем title страницы должен смениться
+      # @_invokerTitle = new Invoker parsedSections.title
+
 
     if last?
       @prev_transition = last

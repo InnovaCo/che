@@ -9,14 +9,15 @@
 # цепочки превышает 10 объектов
 #
 define [
+  "sections/parser",
   "sections/invoker",
   "sections/asyncQueue",
   "events",
-  "utils/destroyer"], (Invoker, asyncQueue, events, destroyer) ->
+  "utils/destroyer",], (Parser, Invoker, asyncQueue, events, destroyer) ->
 
   transitionsCompressDepth = 5
   transitionsDestroyDepth = 10
-  
+
   #### Transition(@data)
   #
   # Конструктор переходов, переходы образуют между собой двусторонний
@@ -25,10 +26,19 @@ define [
   Transition = (@state, last) ->
     @index = @state.index = @state.index or (last?.index + 1) or 0
 
-    
+
     if @state.sections?
-      @_invoker = new Invoker @state.sections
-      
+      parsedSections = new Parser @state.sections
+      console.log "####", parsedSections
+
+      # отдаем все секции, у которых есть конкретный css-селектор
+      # для вставки в дом
+      @_invoker = new Invoker parsedSections.dom if parsedSections.dom?
+
+      # обновляем title страницы должен смениться
+      # @_invokerTitle = new Invoker parsedSections.title
+
+
     if last?
       @prev_transition = last
       last.next_transition = @
@@ -54,7 +64,7 @@ define [
     return @
 
   Transition:: =
-  
+
     #### Transition::update(data)
     #
     # Обновляет данные секций для перехода. Если новые данные совпадают

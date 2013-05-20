@@ -24,6 +24,7 @@ define [
   #
   # Конструктор объекта действий при переходе, содежит в себе данные
   # для переходов в обе стороны ()
+  # Принимает уже распарсенные sections.
   #
   Invoker = (@reloadSections) ->
 
@@ -49,48 +50,39 @@ define [
         asyncQueue.next =>
           @_isCompressed = no
 
-          reloadSectionsHtml = dom @reloadSections
-
           if not dom('title')[0]
             dom('head')[0].appendChild document.createElement 'title'
 
           @_back = {}
           @_forward = {}
-          @_backNS = {}
-          @_forwardNS = {}
 
-          for element in reloadSectionsHtml.get()
-            nodeName = element.nodeName.toLowerCase()
+          for section in @reloadSections
+            target = section.selector.target
+
+            # Смотрим, есть ли вообще элемент с таким селектором в существующем
+            # DOM-дереве
+            container = dom(target)[0]
+            continue if not container?
+
+            containerSelector = JSON.parse container.getAttribute "data-#{config.sectionSelectorAttributeName}"
 
 
-            if nodeName is config.sectionTagName
-              selector = element.getAttribute "data-#{config.sectionSelectorAttributeName}"
-              selectorNS = element.getAttribute "data-#{config.sectionSelectorNSAttributeName}"
-            else if nodeName is 'title'
-              selector = nodeName
-            else
-              continue
+            # NodeList превращается в массив, потому что нам нужны только ссылки
+            # на элементы, а не живые коллекции
+            @_forward[target] =
+              html: Array.prototype.slice.call section.element.childNodes
+              selector: section.selector
+              type: section.selector.type ? null
 
-            container = dom(selector)[0]
-            if container?
-              # NodeList превращается в массив, потому что нам нужны только ссылки
-              # на элементы, а не живые коллекции
-              @_back[selector] = Array.prototype.slice.call container.childNodes
-              @_forward[selector] = Array.prototype.slice.call element.childNodes
-              backSelectorNS = container.getAttribute "data-#{config.sectionSelectorNSAttributeName}"
-              
-              if backSelectorNS?
-                backSelectorNS = backSelectorNS.split config.sectionNSdelimiter
-                @_backNS[selector] = _.compact backSelectorNS
+            @_back[target] =
+              html: Array.prototype.slice.call container.childNodes
+              selector: containerSelector
+              type: containerSelector?.type ? null
 
-              if selectorNS?
-                # TODO: trim values for trailing whitespaces
-                selectorNS = selectorNS.split config.sectionNSdelimiter
-                @_forwardNS[selector] = _.compact selectorNS
+
+
 
         @_is_sections_updated = yes
-        
-
 
 
     #### Invoker::update()
@@ -119,8 +111,6 @@ define [
 
         back: @_back
         forward: @_forward
-        backNS: @_backNS
-        forwardNS: @_forwardNS
 
       @_insertSections()
       @_is_applied = yes
@@ -132,10 +122,8 @@ define [
     undo: ->
       return false if @_is_applied isnt true
       asyncQueue.next =>
-        forward: @_back or {}
-        back: @_forward or {}
-        forwardNS: @_backNS or {}
-        backNS: @_forwardNS or {}
+        forward: @_back or {html: {}}
+        back: @_forward or {html: {}}
 
       @_insertSections()
       @_is_applied = no
@@ -151,28 +139,21 @@ define [
       asyncQueue.next (sections) ->
 
         insertionData = {}
-        for selector in _.keys sections.back
-          insertionData[selector] =
-            back: sections.back[selector]
-            forward: sections.forward[selector]
-
-          if sections.forwardNS?[selector]?
-            insertionData[selector].forwardNS = sections.forwardNS[selector]
-
-          if sections.backNS?[selector]?
-            insertionData[selector].backNS = sections.backNS[selector]
+        for target in _.keys sections.back
+          insertionData[target] =
+            back: sections.back[target]
+            forward: sections.forward[target]
 
         insertionData
 
-      .each (section, selector, context) ->
+      .each (section, target, context) ->
         # приостановка выполнения очереди, так как дальше опять
         # идет асинхронная
         context.pause()
 
-        loader.search section.forward, (widgetsList) =>
-          container = dom(selector)[0]
-          if section.forwardNS
-            container.setAttribute "data-#{config.sectionSelectorNSAttributeName}", section.forwardNS.join( config.sectionNSdelimiter )
+        loader.search section.forward.html, (widgetsList) =>
+          container = dom(target)[0]
+          container.setAttribute "data-#{config.sectionSelectorAttributeName}", section.selector
 
           for element in Array.prototype.slice.call container.childNodes
             element.parentNode.removeChild element
@@ -188,11 +169,11 @@ define [
               widgets.get(data.name, data.element)?.turnOff()
 
           # сообщаем про namespace, если таковой указан у элемента
-          if section.backNS
-            events.trigger "section-#{ns}:removed", [section.back] for ns in section.backNS
+          if section.back.type?
+            events.trigger "section-#{type}:removed", [section.back] for type in section.back.type
 
-          if section.forwardNS
-            events.trigger "section-#{ns}:inserted", [section.forward] for ns in section.forwardNS
+          if section.forward.type?
+            events.trigger "section-#{type}:inserted", [section.forward] for type in section.forward.type
 
           # возобновление выполнения очереди
           context.resume()

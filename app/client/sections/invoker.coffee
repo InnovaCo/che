@@ -29,9 +29,7 @@ define [
   Invoker = (@reloadSections) ->
 
     @_back = null
-    @_backNS = null
     @_forward = null
-    @_forwardNS = null
     @_is_applied = no
     @_is_sections_updated = no
 
@@ -56,17 +54,22 @@ define [
           @_back = {}
           @_forward = {}
 
+          console.log "init", @reloadSections
           for section in @reloadSections
             target = section.selector.target
 
+            console.log "hereSo: ", target, section
             # Смотрим, есть ли вообще элемент с таким селектором в существующем
             # DOM-дереве
             container = dom(target)[0]
             continue if not container?
 
-            containerSelector = JSON.parse container.getAttribute "data-#{config.sectionSelectorAttributeName}"
+            try
+              containerSelector = JSON.parse container.getAttribute "data-#{config.sectionSelectorAttributeName}"
+            catch e
+              containerSelector = container.getAttribute "data-#{config.sectionSelectorAttributeName}"
 
-
+            console.log "here: ", containerSelector, target
             # NodeList превращается в массив, потому что нам нужны только ссылки
             # на элементы, а не живые коллекции
             @_forward[target] =
@@ -78,9 +81,6 @@ define [
               html: Array.prototype.slice.call container.childNodes
               selector: containerSelector
               type: containerSelector?.type ? null
-
-
-
 
         @_is_sections_updated = yes
 
@@ -122,8 +122,8 @@ define [
     undo: ->
       return false if @_is_applied isnt true
       asyncQueue.next =>
-        forward: @_back or {html: {}}
-        back: @_forward or {html: {}}
+        forward: @_back or {html: {}, selector: null, type: null}
+        back: @_forward or {html: {}, selector: null, type: null}
 
       @_insertSections()
       @_is_applied = no
@@ -150,7 +150,6 @@ define [
         # приостановка выполнения очереди, так как дальше опять
         # идет асинхронная
         context.pause()
-
         loader.search section.forward.html, (widgetsList) =>
           container = dom(target)[0]
           container.setAttribute "data-#{config.sectionSelectorAttributeName}", section.selector
@@ -158,7 +157,7 @@ define [
           for element in Array.prototype.slice.call container.childNodes
             element.parentNode.removeChild element
 
-          for element in section.forward
+          for element in section.forward.html
             container.appendChild element
 
           for element in section.back

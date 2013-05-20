@@ -29,12 +29,10 @@ define [
 
     if @state.sections?
       parsedSections = new Parser @state.sections
-      console.log "####", parsedSections
 
       # отдаем все секции, у которых есть конкретный css-селектор
       # для вставки в дом
       @_invoker = new Invoker parsedSections.dom if parsedSections.dom?
-
       # обновляем title страницы должен смениться
       # @_invokerTitle = new Invoker parsedSections.title
 
@@ -82,10 +80,11 @@ define [
       if not isStateTheSame
         state.index = @index
         @state = state
-        if @_invoker? and @state.sections?
-          @_invoker.update @state.sections
-        else if @state.sections?
-          @_invoker = new Invoker @state.sections
+        parsedSections = new Parser @state.sections
+        if @_invoker? and parsedSections.dom?
+          @_invoker.update parsedSections.dom
+        else if parsedSections.dom?
+          @_invoker = new Invoker parsedSections.dom
 
         @invoke()
 

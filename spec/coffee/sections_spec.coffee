@@ -9,6 +9,7 @@ describe 'sections module', ->
   queue = null
   bindedEvents = null
   Invoker = null
+  Parser = null
   sectionsLoader = null
   cache = null
   require [
@@ -16,6 +17,7 @@ describe 'sections module', ->
     'sections/asyncQueue',
     'sections/invoker',
     'sections/loader',
+    'sections/parser',
     'events',
     'widgets',
     'utils/storage/storageFactory',
@@ -23,11 +25,12 @@ describe 'sections module', ->
     'ajax',
     'lib/async',
     'sections/cache'
-    ], (sectionsModule, queueModule, invokerModule, loaderModule, eventsModule, widgetsModule, storageFactory, browserHistoryModule, ajaxModule, asyncModule, cacheModule) ->
+    ], (sectionsModule, queueModule, invokerModule, loaderModule, parserModule, eventsModule, widgetsModule, storageFactory, browserHistoryModule, ajaxModule, asyncModule, cacheModule) ->
     sections = sectionsModule
     queue = queueModule
     Invoker = invokerModule
     sectionsLoader = loaderModule
+    Parser = parserModule
     events = eventsModule
     bindedEvents = events.list
     widgets = widgetsModule
@@ -85,8 +88,8 @@ describe 'sections module', ->
       <section data-selector='#two'><span>world</span></section>"
 
     reload_sections_with_ns =
-      sections: "<section data-selector='#one' data-section-namespace='testNS'><span>hello</span></section>\
-      <section data-selector='#two' data-section-namespace='secondTestNS'><span>world</span></section>"
+      sections: "<section data-selector='#one'><span>hello</span></section>\
+      <section data-selector='#two'><span>world</span></section>"
 
     beforeEach ->
       affix "div#one span.section"
@@ -145,6 +148,7 @@ describe 'sections module', ->
           expect($("#one span.section").length).toBe 1
           expect($("#two span.section").length).toBe 1
 
+    ###
     it 'should trigger event about each section with namespace due replacing sections', ->
       sectionsReplaced = false
       sectionWithNSInserted = false
@@ -207,7 +211,7 @@ describe 'sections module', ->
         runs ->
           expect($("#one span.section").length).toBe 1
           expect($("#two span.section").length).toBe 1
-
+    ###
 
   describe 'updating transitions', ->
     reload_sections =
@@ -293,8 +297,12 @@ describe 'sections module', ->
     reload_sections =
       sections: "<title>megatitle!</title><section data-selector='#one'><span>hello</span></section>\
       <section data-selector='#two'><span>world</span></section>"
+    parsedSections = null
 
     beforeEach ->
+
+      parsedSections = new Parser reload_sections.sections
+
       affix "div#one span.section"
       affix "div#two.widgets[data-js-modules=gradient] span.section"
       resetModules()
@@ -308,7 +316,7 @@ describe 'sections module', ->
       expect(transition._invoker).not.toBeDefined()
 
     it "invoker shouldn't contain data for forward and backward transitions right after initialization", ->
-      invoker = new Invoker(reload_sections.sections)
+      invoker = new Invoker parsedSections.dom
 
       expect(invoker._back).toBe null
       expect(invoker._forward).toBe null
@@ -317,7 +325,9 @@ describe 'sections module', ->
 
     it "invoker should contain data for forward and backward transitions after it have ran", ->
       isInvoked = no
-      invoker = new Invoker(reload_sections.sections)
+
+
+      invoker = new Invoker parsedSections.dom
       invoker.run()
 
       queue.next ->
@@ -327,21 +337,22 @@ describe 'sections module', ->
         isInvoked
 
       runs ->
+        console.log invoker
         expect(invoker._back).toBeDefined()
         expect(invoker._back["#one"]).toBeDefined()
         expect(invoker._back["#two"]).toBeDefined()
-        expect(invoker._back["#one"][0].outerHTML.toLowerCase()).toBe("<span class=\"section\"></span>")
-        expect(invoker._back["#one"][0].getAttribute("class")).toBe("section")
+        expect(invoker._back["#one"].html[0].outerHTML.toLowerCase()).toBe("<span class=\"section\"></span>")
+        expect(invoker._back["#one"].html[0].getAttribute("class")).toBe("section")
         # expect(invoker._back["#two"].widgetsInitData).toBeDefined()
 
         expect(invoker._forward).toBeDefined()
         expect(invoker._forward["#one"]).toBeDefined()
         expect(invoker._forward["#two"]).toBeDefined()
-        expect(invoker._forward["#one"][0].innerHTML.toLowerCase()).toBe("hello")
-        expect(invoker._forward["#one"][0].getAttribute("class")).toBe(null)
+        expect(invoker._forward["#one"].html[0].innerHTML.toLowerCase()).toBe("hello")
+        expect(invoker._forward["#one"].html[0].getAttribute("class")).toBe(null)
 
     it "invoker contain data for widgets turning off", ->
-      invoker = new Invoker(reload_sections.sections)
+      invoker = new Invoker parsedSections.dom
       invoker.run()
 
       # expect(invoker._back["#two"].widgetsInitData).toBeDefined()
@@ -352,7 +363,7 @@ describe 'sections module', ->
       events.bind "sections:inserted", ->
         allDone = yes
 
-      invoker = new Invoker(reload_sections.sections)
+      invoker = new Invoker parsedSections.dom
       invoker.run()
 
       waitsFor ->
@@ -371,6 +382,8 @@ describe 'sections module', ->
       sections: "<section data-selector='#one'><span class='widgets' data-js-modules='widgets/rotation, widgets/gradient'>hello</span></section>\
       <section data-selector='#two'><span class='widgets' data-js-modules='widgets/opacity'>world</span></section>"
 
+    parsedSections = new Parser reload_sections.sections
+
     beforeEach ->
       affix("div#one span.section.widgets").find('span').attr("data-js-modules", "widgets/gradient")
       affix("div#two span.section.widgets").find('span').attr("data-js-modules", "widgets/opacity")
@@ -384,7 +397,7 @@ describe 'sections module', ->
       events.bind "sections:inserted", ->
         allDone = yes
 
-      invoker = new Invoker(reload_sections.sections)
+      invoker = new Invoker parsedSections.dom
       invoker.run()
 
       waitsFor ->
@@ -427,7 +440,7 @@ describe 'sections module', ->
         events.bind "sections:inserted", ->
           allDone = yes
 
-        invoker = new Invoker reload_sections.sections
+        invoker = new Invoker parsedSections.dom
         invoker.run()
 
         waitsFor ->

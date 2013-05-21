@@ -8,9 +8,7 @@
 define [
   "sections/asyncQueue",
   "dom",
-  "config",
-  "underscore"], (asyncQueue, dom, config, _) ->
-
+  "config"], (asyncQueue, dom, config) ->
   ####
   #
   # Three ways to describe reload-sections:
@@ -22,53 +20,39 @@ define [
   # Single-Quoted Attribute Value Syntax вполне допустим
   # http://dev.w3.org/html5/html-author/#single-quote-attr
 
-  Parser = (@reloadSections) ->
-    @parsedSections = {}
-    @parseSections()
-    return @parsedSections
-
-  Parser:: =
-    parseSections: () ->
+  return {
+    parseSections: (reloadSections) ->
+      parsedSections = []
       # asyncQueue.next =>
-      reloadSectionsHtml = dom @reloadSections
+      reloadSectionsHtml = dom reloadSections
       for element in reloadSectionsHtml.get()
         nodeName = element.nodeName.toLowerCase()
-        sectionName = ''
+        sectionData = null
 
         if nodeName is config.sectionTagName
-          sectionName = element.getAttribute "data-#{config.sectionName}"
-          selector = @parseSelector element.getAttribute "data-#{config.sectionSelectorAttributeName}"
+          sectionData = @parseSectionParams element.getAttribute config.sectionSelectorAttributeName
         else if nodeName is 'title'
-          selector = {"target": nodeName}
-          # пока кладем вместе со всеми dom-секциями, пусть заменяется
-          # стандартным путем. Потом, если надо будет, можно сделать
-          # специальную отдельную вставку.
-          #
-          # sectionType = "title"
-        else
-          continue
+          sectionData = {"name": nodeName, "params": {"target": nodeName}}
+          
+        # если пришло что-то непотребное, пропускаем его
+        continue if not sectionData
 
-        if selector.target? then sectionType = "dom" else sectionType = "other"
-
-        # приводим type к единому стандарту — array.
-        if selector.type? and _.isString selector.type
-          selector.type = [selector.type]
-
-        @parsedSections[sectionType] = [] if not @parsedSections[sectionType]?
-        @parsedSections[sectionType].push
-          name: sectionName
+        parsedSections.push
+          name: sectionData.name
+          params: sectionData.params
           element: element
-          selector: selector
+      
+      return parsedSections
 
-    # Считаем для простоты, что если просто строка, то это css-селектор
-    parseSelector: (selector) ->
+    parseSectionParams: (sectionParams) ->
+      parsedSectionParams = /([^:]+):\s+(.+)/.exec sectionParams
+      return false if not parsedSectionParams
+      
+      parsedParams = name: parsedSectionParams[1]
       try
-        # ...
-        parsedSelector = JSON.parse selector
-        return parsedSelector
+        parsedParams.params = JSON.parse parsedSectionParams[2]
       catch e
-        return {"target": selector}
-        # ...
-
-
-  return Parser
+        parsedParams.params = {"target": parsedSectionParams[2]}
+      
+      return parsedParams
+  }

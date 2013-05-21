@@ -84,12 +84,12 @@ describe 'sections module', ->
 
   describe 'invoking transitions', ->
     reload_sections =
-      sections: "<section data-selector='#one'><span>hello</span></section>\
-      <section data-selector='#two'><span>world</span></section>"
+      sections: "<section data-selector='someName: #one'><span>hello</span></section>\
+      <section data-selector='someName: #two'><span>world</span></section>"
 
     reload_sections_with_ns =
-      sections: "<section data-selector='#one'><span>hello</span></section>\
-      <section data-selector='#two'><span>world</span></section>"
+      sections: "<section data-selector='someName: #one'><span>hello</span></section>\
+      <section data-selector='someName: #two'><span>world</span></section>"
 
     beforeEach ->
       affix "div#one span.section"

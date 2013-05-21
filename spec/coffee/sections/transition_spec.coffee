@@ -33,7 +33,7 @@ describe 'sections/transition module', ->
       for i in [1..10]
         transition = new Transition
           index: i
-          sections: "<section data-selector='#one'><span>hello #{i}</span></section>",
+          sections: "<section data-selector='someName: #one'><span>hello #{i}</span></section>",
           prevTransition
 
         prevTransition = transition
@@ -47,7 +47,7 @@ describe 'sections/transition module', ->
       for i in [1..9]
         transition = new Transition
           index: i
-          sections: "<section data-selector='#one'><span>hello #{i}</span></section>",
+          sections: "<section data-selector='someName: #one'><span>hello #{i}</span></section>",
           prevTransition
 
         prevTransition = transition

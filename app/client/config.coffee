@@ -8,11 +8,8 @@ define ['utils/popups'], (popupsModule) ->
   widgetDataAttributeName: 'data-js-modules'
   reloadSectionsDataAttributeName: 'data-reload-sections'
   baseWidgetsPath: ''
-  sectionName: 'name'
   sectionTagName: "section"
-  sectionSelectorAttributeName: "selector"
-  sectionSelectorNSAttributeName: 'section-namespace'
-  sectionNSdelimiter: ' '
+  sectionSelectorAttributeName: "data-selector"
   storage: ["fake", "localStorage", "cookies"]
   # todo сделать непереопределяемыми
   _modules:

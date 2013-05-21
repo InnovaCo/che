@@ -11,13 +11,14 @@
 
 define [
   "sections/asyncQueue",
+  "sections/parser",
   "dom",
   "events",
   "loader",
   "config",
   "utils/widgetsData",
   "widgets",
-  "underscore"], (asyncQueue, dom, events, loader, config, widgetsData, widgets, _) ->
+  "underscore"], (asyncQueue, sectionParser, dom, events, loader, config, widgetsData, widgets, _) ->
 
 
   #### Invoker(@reloadSections)
@@ -54,33 +55,25 @@ define [
           @_back = {}
           @_forward = {}
 
-          console.log "init", @reloadSections
           for section in @reloadSections
-            target = section.selector.target
+            target = section.params.target
+            continue if not target
 
-            console.log "hereSo: ", target, section
-            # Смотрим, есть ли вообще элемент с таким селектором в существующем
-            # DOM-дереве
-            container = dom(target)[0]
-            continue if not container?
+            # Смотрим, есть ли вообще элемент с таким селектором
+            # в существующем DOM-дереве
+            containerElement = dom(target)[0]
+            continue if not containerElement?
 
-            try
-              containerSelector = JSON.parse container.getAttribute "data-#{config.sectionSelectorAttributeName}"
-            catch e
-              containerSelector = container.getAttribute "data-#{config.sectionSelectorAttributeName}"
+            container = _.extend(
+              {element: containerElement, name: "", params: {}}
+              sectionParser.parseSectionParams containerElement.getAttribute config.sectionSelectorAttributeName
+            )
 
-            console.log "here: ", containerSelector, target
             # NodeList превращается в массив, потому что нам нужны только ссылки
             # на элементы, а не живые коллекции
-            @_forward[target] =
-              html: Array.prototype.slice.call section.element.childNodes
-              selector: section.selector
-              type: section.selector.type ? null
-
-            @_back[target] =
-              html: Array.prototype.slice.call container.childNodes
-              selector: containerSelector
-              type: containerSelector?.type ? null
+            # {html: Array.prototype.slice.call section.element.childNodes}
+            @_forward[target] = section
+            @_back[target] = container
 
         @_is_sections_updated = yes
 
@@ -108,7 +101,6 @@ define [
       @initializeSections()
 
       asyncQueue.next =>
-
         back: @_back
         forward: @_forward
 
@@ -122,8 +114,8 @@ define [
     undo: ->
       return false if @_is_applied isnt true
       asyncQueue.next =>
-        forward: @_back or {html: {}, selector: null, type: null}
-        back: @_forward or {html: {}, selector: null, type: null}
+        forward: @_back
+        back: @_forward
 
       @_insertSections()
       @_is_applied = no
@@ -136,8 +128,7 @@ define [
     #
     _insertSections: () ->
 
-      asyncQueue.next (sections) ->
-
+      asyncQueue.next (sections) ->        
         insertionData = {}
         for target in _.keys sections.back
           insertionData[target] =
@@ -150,14 +141,17 @@ define [
         # приостановка выполнения очереди, так как дальше опять
         # идет асинхронная
         context.pause()
-        loader.search section.forward.html, (widgetsList) =>
-          container = dom(target)[0]
-          container.setAttribute "data-#{config.sectionSelectorAttributeName}", section.selector
+        forwardHtml = Array.prototype.slice.call section.forward.element.childNodes
+        backHtml = Array.prototype.slice.call section.back.element.childNodes
 
-          for element in Array.prototype.slice.call container.childNodes
+        loader.search forwardHtml, (widgetsList) =>
+          container = section.back.element
+          container.setAttribute config.sectionSelectorAttributeName, "#{section.forward.name}: #{JSON.stringify section.forward.params}"
+
+          for element in backHtml
             element.parentNode.removeChild element
 
-          for element in section.forward.html
+          for element in forwardHtml
             container.appendChild element
 
           for element in section.back
@@ -168,11 +162,11 @@ define [
               widgets.get(data.name, data.element)?.turnOff()
 
           # сообщаем про namespace, если таковой указан у элемента
-          if section.back.type?
-            events.trigger "section-#{type}:removed", [section.back] for type in section.back.type
+          if section.back.ns?
+            events.trigger "section-#{ns}:removed", [section.back] for type in section.back.ns
 
-          if section.forward.type?
-            events.trigger "section-#{type}:inserted", [section.forward] for type in section.forward.type
+          if section.forward.ns?
+            events.trigger "section-#{ns}:inserted", [section.forward] for type in section.forward.ns
 
           # возобновление выполнения очереди
           context.resume()

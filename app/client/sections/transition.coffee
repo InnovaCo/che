@@ -13,7 +13,7 @@ define [
   "sections/invoker",
   "sections/asyncQueue",
   "events",
-  "utils/destroyer",], (Parser, Invoker, asyncQueue, events, destroyer) ->
+  "utils/destroyer",], (sectionParser, Invoker, asyncQueue, events, destroyer) ->
 
   transitionsCompressDepth = 5
   transitionsDestroyDepth = 10
@@ -28,12 +28,13 @@ define [
 
 
     if @state.sections?
-      parsedSections = new Parser @state.sections
+      parsedSections = sectionParser.parseSections @state.sections
 
-      # отдаем все секции, у которых есть конкретный css-селектор
-      # для вставки в дом
-      @_invoker = new Invoker parsedSections.dom if parsedSections.dom?
-      # обновляем title страницы должен смениться
+      if parsedSections
+        # сначала отдаем все секции, для вставки в дом
+        @_invoker = new Invoker parsedSections
+
+    # обновляем title страницы должен смениться
       # @_invokerTitle = new Invoker parsedSections.title
 
 

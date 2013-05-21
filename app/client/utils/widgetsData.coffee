@@ -14,7 +14,7 @@ define ['dom', 'config'], (dom, config) ->
   saveTo = (arrayOfPairs, element) ->
     names = null
     if element and element.getAttribute?
-      names = (element.getAttribute config.widgetDataAttributeName)?.replace(///^\s|\s$///, '').split(///\s*,\s*///)
+      names = (element.getAttribute config.widgetDataAttributeName)?.replace(/^\s|\s$/, '').split(/\s*,\s*/)
 
     return false if not names
 

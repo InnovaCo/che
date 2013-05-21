@@ -128,7 +128,7 @@ define [
     #
     _insertSections: () ->
 
-      asyncQueue.next (sections) ->        
+      asyncQueue.next (sections) ->
         insertionData = {}
         for target in _.keys sections.back
           insertionData[target] =

@@ -39,7 +39,8 @@ define ['dom', 'config'], (dom, config) ->
     else
       root = dom document
 
-    widgetElements = root.find("." + config.widgetClassName).get()
+    widgetElements = root.find("[#{config.widgetDataAttributeName}]").get()
+
     for element in widgetElements
       saveTo pairs, element
     pairs

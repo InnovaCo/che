@@ -127,7 +127,6 @@ define [
     # добавляя инструкции в очередь asynQueue
     #
     _insertSections: () ->
-
       asyncQueue.next (sections) ->
         insertionData = {}
         for target in _.keys sections.back
@@ -140,36 +139,35 @@ define [
       .each (section, target, context) ->
         # приостановка выполнения очереди, так как дальше опять
         # идет асинхронная
-        context.pause()
+        #context.pause()  —— из-за этой штуки получается странный баг — cancel http запросов браузера
         forwardHtml = Array.prototype.slice.call section.forward.element.childNodes
         backHtml = Array.prototype.slice.call section.back.element.childNodes
-
+          
         loader.search forwardHtml, (widgetsList) =>
           container = section.back.element
           container.setAttribute config.sectionSelectorAttributeName, "#{section.forward.name}: #{JSON.stringify section.forward.params}"
-
+  
           for element in backHtml
             element.parentNode.removeChild element
-
+  
           for element in forwardHtml
             container.appendChild element
-
+  
           for element in section.back
             # if element.parentNode?
             #   element.parentNode.removeChild element
-
             for data in widgetsData element
               widgets.get(data.name, data.element)?.turnOff()
 
           # сообщаем про namespace, если таковой указан у элемента
           if section.back.ns?
             events.trigger "section-#{ns}:removed", [section.back] for type in section.back.ns
-
+  
           if section.forward.ns?
             events.trigger "section-#{ns}:inserted", [section.forward] for type in section.forward.ns
-
+  
           # возобновление выполнения очереди
-          context.resume()
+          #context.resume()  —— FIXME: странный cancel http запросов картинок и т.д. в браузере
 
       .next ->
         # Сообщаем об окончании вставки секций

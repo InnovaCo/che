@@ -4,7 +4,6 @@
 #
 
 define ['utils/popups'], (popupsModule) ->
-  widgetClassName: 'widget'
   widgetDataAttributeName: 'data-js-widgets'
   reloadSectionsDataAttributeName: 'data-reload-sections'
   baseWidgetsPath: ''

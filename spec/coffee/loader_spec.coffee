@@ -16,7 +16,7 @@ describe "loader  module", ->
 
     beforeEach ->
       for index in [0..9]
-        affix 'div.widget[data-js-modules="module_' + index + '"]'
+        affix 'div.widget[data-js-widgets="module_' + index + '"]'
 
       requireSpy = spyOn(window, "require").andCallThrough()
 
@@ -36,14 +36,14 @@ describe "loader  module", ->
     beforeEach ->
       parser = null
       for index in [0...3]
-        affix 'div.widget[data-js-modules="module_' + index + '"]'
+        affix 'div.widget[data-js-widgets="module_' + index + '"]'
 
       for index in [0...3]
-        affix 'div.widget[data-js-modules="module_fisrt_' + index + ',
+        affix 'div.widget[data-js-widgets="module_fisrt_' + index + ',
         module_second_' + index + '"]'
 
       for index in [0...3]
-        affix 'div.widget[data-js-modules="module_first_' + index + ',
+        affix 'div.widget[data-js-widgets="module_first_' + index + ',
         module_second_' + index + ', module_thrird_' + index + ' "]'
 
 

@@ -96,8 +96,8 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
   Widget = (@name, @element, _widget) ->
     _.extend @, _widget
     @id = guid()
-    @turnOn()
     @init?(@element)
+    @turnOn()
     @isInitialized = yes
 
   Widget:: =

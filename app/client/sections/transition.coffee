@@ -34,10 +34,6 @@ define [
         # сначала отдаем все секции, для вставки в дом
         @_invoker = new Invoker parsedSections
 
-    # обновляем title страницы должен смениться
-      # @_invokerTitle = new Invoker parsedSections.title
-
-
     if last?
       @prev_transition = last
       last.next_transition = @

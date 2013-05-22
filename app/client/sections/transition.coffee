@@ -28,11 +28,13 @@ define [
 
 
     if @state.sections?
-      parsedSections = sectionParser.parseSections @state.sections
+      sections = sectionParser.parseSections @state.sections
+      
+      section.init() for section in sections
 
-      if parsedSections
+      if sections
         # сначала отдаем все секции, для вставки в дом
-        @_invoker = new Invoker parsedSections
+        @_invoker = new Invoker sections
 
     if last?
       @prev_transition = last

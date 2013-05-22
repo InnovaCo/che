@@ -7,8 +7,9 @@
 
 define [
   "sections/asyncQueue",
+  "sections/section",
   "dom",
-  "config"], (asyncQueue, dom, config) ->
+  "config"], (asyncQueue, Section, dom, config) ->
   ####
   #
   # Three ways to describe reload-sections:
@@ -27,32 +28,26 @@ define [
       reloadSectionsHtml = dom reloadSections
       for element in reloadSectionsHtml.get()
         nodeName = element.nodeName.toLowerCase()
-        sectionData = null
+        section = new Section()
+        section.element = element
 
         if nodeName is config.sectionTagName
-          sectionData = @parseSectionParams element.getAttribute config.sectionSelectorAttributeName
+          @parseSectionParams section, element.getAttribute config.sectionSelectorAttributeName
         else if nodeName is 'title'
-          sectionData = {"name": nodeName, "params": {"target": nodeName}}
-          
-        # если пришло что-то непотребное, пропускаем его
-        continue if not sectionData
+          section.name = nodeName
+          section.params.target = nodeName
 
-        parsedSections.push
-          name: sectionData.name
-          params: sectionData.params
-          element: element
+        parsedSections.push section
       
       return parsedSections
 
-    parseSectionParams: (sectionParams) ->
-      parsedSectionParams = /([^:]+):\s+(.+)/.exec sectionParams
-      return false if not parsedSectionParams
+    parseSectionParams: (section, sectionParams) ->
+      parsedSectionParams = /([^:]+):\s*(.+)/.exec sectionParams
+      return if not parsedSectionParams
       
-      parsedParams = name: parsedSectionParams[1]
+      section.name = parsedSectionParams[1]
       try
-        parsedParams.params = JSON.parse parsedSectionParams[2]
+        section.params = JSON.parse parsedSectionParams[2]
       catch e
-        parsedParams.params = {"target": parsedSectionParams[2]}
-      
-      return parsedParams
+        section.params = {"target": parsedSectionParams[2]}
   }

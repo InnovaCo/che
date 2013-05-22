@@ -12,13 +12,14 @@
 define [
   "sections/asyncQueue",
   "sections/parser",
+  "sections/section",
   "dom",
   "events",
   "loader",
   "config",
   "utils/widgetsData",
   "widgets",
-  "underscore"], (asyncQueue, sectionParser, dom, events, loader, config, widgetsData, widgets, _) ->
+  "underscore"], (asyncQueue, sectionParser, Section, dom, events, loader, config, widgetsData, widgets, _) ->
 
 
   #### Invoker(@reloadSections)
@@ -68,12 +69,16 @@ define [
               {element: containerElement, name: "", params: {}}
               sectionParser.parseSectionParams containerElement.getAttribute config.sectionSelectorAttributeName
             )
+            backSection = new Section()
+            backSection.name = container.name
+            backSection.element = container.element
+            backSection.params = container.params
 
             # NodeList превращается в массив, потому что нам нужны только ссылки
             # на элементы, а не живые коллекции
             # {html: Array.prototype.slice.call section.element.childNodes}
             @_forward[target] = section
-            @_back[target] = container
+            @_back[target] = backSection
 
         @_is_sections_updated = yes
 
@@ -159,12 +164,8 @@ define [
             for data in widgetsData element
               widgets.get(data.name, data.element)?.turnOff()
 
-          # сообщаем про namespace, если таковой указан у элемента
-          if section.back.ns?
-            events.trigger "section-#{ns}:removed", [section.back] for type in section.back.ns
-  
-          if section.forward.ns?
-            events.trigger "section-#{ns}:inserted", [section.forward] for type in section.forward.ns
+          section.back.onRemove()
+          section.forward.onInsert()
   
           # возобновление выполнения очереди
           #context.resume()  —— FIXME: странный cancel http запросов картинок и т.д. в браузере

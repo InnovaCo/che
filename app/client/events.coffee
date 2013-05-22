@@ -206,6 +206,7 @@ define ['underscore'],  (_) ->
     # Вызывает исполнение обработчиков событий, сохраняет переданные данные, если такого событие не было, то оно создается и в нем сохраняются эти данные
     #
     trigger: (name, args) ->
+      #console.log "TRIGGER", name, args
       evt.dispatch(args) for evtName, evt of @createList(name)
 
 

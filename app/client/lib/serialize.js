@@ -5,7 +5,7 @@ define('lib/serialize', [], function () {
 		}
 		var i, j, q = [];
 		for (i = form.elements.length - 1; i >= 0; i = i - 1) {
-			if (form.elements[i].name === "") {
+			if (form.elements[i].name === "" || form.elements[i].disabled) {
 				continue;
 			}
 			switch (form.elements[i].nodeName) {

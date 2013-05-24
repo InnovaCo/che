@@ -65,10 +65,11 @@ define [
             containerElement = dom(target)[0]
             continue if not containerElement?
 
-            container = _.extend(
-              {element: containerElement, name: "", params: {}}
-              sectionParser.parseSectionParams containerElement.getAttribute config.sectionSelectorAttributeName
-            )
+            container =
+              element: containerElement,
+              name: ""
+            container.params = sectionParser.parseSectionParams(container, containerElement.getAttribute config.sectionSelectorAttributeName) || {}
+
             backSection = new Section()
             backSection.name = container.name
             backSection.element = container.element
@@ -148,24 +149,11 @@ define [
         forwardHtml = Array.prototype.slice.call section.forward.element.childNodes
         backHtml = Array.prototype.slice.call section.back.element.childNodes
 
-        loader.search forwardHtml, (widgetsList) =>
-          container = section.back.element
-          container.setAttribute config.sectionSelectorAttributeName, "#{section.forward.name}: #{JSON.stringify section.forward.params}"
+        section.back.removeFromDOM()
+        section.back.turnOffWidgets()
 
-          for element in backHtml
-            element.parentNode.removeChild element
-
-          for element in forwardHtml
-            container.appendChild element
-
-          for element in section.back
-            # if element.parentNode?
-            #   element.parentNode.removeChild element
-            for data in widgetsData element
-              widgets.get(data.name, data.element)?.turnOff()
-
-          section.back.onRemove()
-          section.forward.onInsert()
+        section.forward.turnOnWidgets()
+        section.forward.insertIntoDOM section.back.element
 
           # возобновление выполнения очереди
           #context.resume()  —— FIXME: странный cancel http запросов картинок и т.д. в браузере

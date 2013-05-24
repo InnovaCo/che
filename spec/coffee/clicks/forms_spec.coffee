@@ -69,3 +69,21 @@ describe "clicks/forms module", ->
 
       expect(handler).not.toHaveBeenCalled()
       expect(handlerSubmit).toHaveBeenCalled()
+
+    it "should call handler with correct formed serialized data, when post form with disabled elements", ->
+      handler = jasmine.createSpy("handler")
+
+      forms ->
+        handler arguments
+
+      formNode = affix 'form[data-reload-sections="testData"][method="POST"][action="/test"] input[type="hidden"][value="999"][name="disabledInput"][disabled="disabled"] input[type="hidden"][value="123"][name="testInput"] input[type=submit]'
+      triggerMouseEvent "click", $(formNode[0]).find("input[type=submit]")[0]
+
+      jasmine.Clock.tick(1000)
+
+      expect(handler).toHaveBeenCalled()
+      handlerCall = handler.mostRecentCall.args[0][0]
+      expect(handlerCall.url).toBe("/test")
+      expect(handlerCall.data).toBe("testData")
+      expect(handlerCall.method).toBe("POST")
+      expect(handlerCall.formData).toBe("testInput=123")

@@ -147,17 +147,17 @@ define [
         #context.pause()  —— из-за этой штуки получается странный баг — cancel http запросов браузера
         forwardHtml = Array.prototype.slice.call section.forward.element.childNodes
         backHtml = Array.prototype.slice.call section.back.element.childNodes
-          
+
         loader.search forwardHtml, (widgetsList) =>
           container = section.back.element
           container.setAttribute config.sectionSelectorAttributeName, "#{section.forward.name}: #{JSON.stringify section.forward.params}"
-  
+
           for element in backHtml
             element.parentNode.removeChild element
-  
+
           for element in forwardHtml
             container.appendChild element
-  
+
           for element in section.back
             # if element.parentNode?
             #   element.parentNode.removeChild element
@@ -166,7 +166,7 @@ define [
 
           section.back.onRemove()
           section.forward.onInsert()
-  
+
           # возобновление выполнения очереди
           #context.resume()  —— FIXME: странный cancel http запросов картинок и т.д. в браузере
 

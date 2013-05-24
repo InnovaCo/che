@@ -3,21 +3,31 @@ define ["events", "underscore"], (events, _) ->
     @name
     @params = {}
     @element
-  
+
   Section:: =
     init: () ->
+      postfix = "inserted"
+      @notifyAll postfix
       @processNamespaces "inited"
-      
+
     onInsert: () ->
-      @processNamespaces "inserted"
-    
+      postfix = "inserted"
+      @notifyAll postfix
+      @processNamespaces postfix
+
     onRemove: () ->
-      @processNamespaces "removed"
-        
+      postfix = "removed"
+      @notifyAll postfix
+      @processNamespaces postfix
+
     processNamespaces: (postfix) ->
       return if not @params.ns?
-      
+
       @params.ns = [@params.ns] if _.isString @params.ns
-      events.trigger "section-#{type}:" + postfix, [@] for type in @params.ns
+      @notifyAll(postfix, "-#{type}") for type in @params.ns
+
+    notifyAll: (postfix, suffix) ->
+      return unless postfix
+      events.trigger "section#{suffix}:#{postfix}", [@]
 
   Section

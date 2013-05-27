@@ -23,22 +23,32 @@ define ['dom!', 'config', 'events', 'lib/serialize'], (dom, config, events, seri
         else
           formNode = formNode.parentNode
 
-      data = formNode.getAttribute config.reloadSectionsDataAttributeName
-      url = formNode.getAttribute('action') or ""
-      formData = serialize formNode
+      onSubmit(formNode, e)
 
-      # Достаем метод по которому должна быть отправлена форма, по умолчанию это "GET".
-      # Следует отметить, что "POST"-запросы за секциями не кешируются
+  processForms = (section) ->
+    section = dom section ? 'body'
+    forms = section.find("form[#{config.reloadSectionsDataAttributeName}]").get()
+    (form.onsubmit = (e) ->
+      onSubmit e.target, e
+    ) for form in forms
 
-      method = formNode.getAttribute('method') or "GET"
-      
-      clicks.trigger "form:click",
-        url: url,
-        data: data,
-        method: method,
-        formData: formData
-      e.preventDefault()
-      return false
+  onSubmit = (formNode, e) ->
+    data = formNode.getAttribute config.reloadSectionsDataAttributeName
+    url = formNode.getAttribute('action') or ""
+    formData = serialize formNode
+
+    # Достаем метод по которому должна быть отправлена форма, по умолчанию это "GET".
+    # Следует отметить, что "POST"-запросы за секциями не кешируются
+
+    method = formNode.getAttribute('method') or "GET"
+
+    clicks.trigger "form:click",
+      url: url,
+      data: data,
+      method: method,
+      formData: formData
+    e.preventDefault()
+    return false
 
 
   #### init(callback)
@@ -52,6 +62,7 @@ define ['dom!', 'config', 'events', 'lib/serialize'], (dom, config, events, seri
       clicks = events.sprout()
 
     clicks.bind "form:click", callback
+    processForms()
 
   #### init.reset()
   #
@@ -60,5 +71,14 @@ define ['dom!', 'config', 'events', 'lib/serialize'], (dom, config, events, seri
 
   init.reset = ->
     clicks = null
+
+  #### init.processForms()
+  #
+  # Навешивает обработчик onsubmit на формы внутри секции
+  # По сути, костыльное решение из-за отсутствия аналога $.on,
+  # которое реализует всплытие события submit
+  #
+  init.processForms = (section) ->
+    processForms section
 
   init

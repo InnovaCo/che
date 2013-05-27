@@ -36,6 +36,25 @@ describe "clicks/forms module", ->
       expect(handlerCall.data).toBe("testData")
       expect(handlerCall.method).toBe("GET")
 
+    it "should call handler, when submit form with reload sections params", ->
+      handler = jasmine.createSpy("handler")
+
+      forms ->
+        handler arguments
+
+      formNode = affix 'form[data-reload-sections="testData"]'
+      forms.processForms()
+      console.log formNode
+      $(formNode[0]).submit()
+
+      jasmine.Clock.tick(1000)
+
+      expect(handler).toHaveBeenCalled()
+      handlerCall = handler.mostRecentCall.args[0][0]
+      expect(handlerCall.url).toBe("")
+      expect(handlerCall.data).toBe("testData")
+      expect(handlerCall.method).toBe("GET")
+
     it "should call handler with serialized form data, when post form have attr with reload sections params", ->
       handler = jasmine.createSpy("handler")
 

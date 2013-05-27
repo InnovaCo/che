@@ -4,7 +4,8 @@ define [
   "loader"
   "utils/widgetsData"
   "underscore"
-  ], (events, config, loader, widgetsData, _) ->
+  "clicks/forms"
+  ], (events, config, loader, widgetsData, _, forms) ->
   Section = () ->
     @name
     @params = {}
@@ -13,7 +14,9 @@ define [
   Section:: =
     init: () ->
       @sectionHtml = Array.prototype.slice.call @element.childNodes
-      # @processNamespaces "inited"
+      # навешиваем события на submit формы внутри секции
+      forms.processForms @element
+
 
     removeFromDOM: () ->
       @init() unless @sectionHtml?

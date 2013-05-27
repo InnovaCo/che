@@ -62,6 +62,12 @@ describe "widgets module", ->
       expect(widgetInstance.isInitialized).toBe(yes)
       expect(widgetInstance._isOn).toBe(yes)
 
+    it 'should init versioned widget', ->
+      element = dom("div.widget").get(0)
+      widgetInstance = widgets._manager.add 'sampleWidget?sd=sd', element, sampleWidget
+
+      expect(widgetInstance.init).toBeFunction()
+
     it 'should save instance', ->
       element = dom("div.widget").get(0)
       widgetInstance = widgets._manager.add 'sampleWidget', element, sampleWidget

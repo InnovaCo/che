@@ -38,5 +38,6 @@ define ["ajax", "events"], (ajax, events) ->
         events.trigger "sections:error", [state, request.status, request.statusText]
 
     sectionsRequest.success (request, sections) ->
+      window.location.href = request.getResponseHeader "X-Che-Redirect" if request.getResponseHeader "X-Che-Redirect"
       state = getState (request.getResponseHeader "X-Che-Url"), sections
       events.trigger "sections:loaded", state

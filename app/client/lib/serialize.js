@@ -12,6 +12,20 @@ define('lib/serialize', [], function () {
 			case 'INPUT':
 				switch (form.elements[i].type) {
 				case 'text':
+				case 'email':
+        case 'color':
+        case 'date':
+        case 'datetime':
+        case 'datetime-local':
+        case 'email':
+        case 'month':
+        case 'number':
+        case 'range':
+        case 'search':
+        case 'tel':
+        case 'time':
+        case 'url':
+        case 'week':
 				case 'hidden':
 				case 'password':
 				case 'button':

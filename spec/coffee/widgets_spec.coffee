@@ -49,8 +49,8 @@ describe "widgets module", ->
       widgetInstance = widgets._manager.add  'sampleWidget', element, sampleWidget
 
       expect(widgetInstance.init).toBeFunction()
-      expect(widgetInstance.turnOff).toBeFunction()
-      expect(widgetInstance.turnOn).toBeFunction()
+      expect(widgetInstance.sleepDown).toBeFunction()
+      expect(widgetInstance.wakeUp).toBeFunction()
       expect(widgetInstance.destroy).toBeFunction()
       expect(widgetInstance.anotherEventHandler).toBeFunction()
       expect(widgetInstance.clickHandler).toBeFunction()
@@ -96,7 +96,7 @@ describe "widgets module", ->
       element = dom("div.widget").get(0)
       widgetInstance = widgets._manager.add 'sampleWidget', element, sampleWidget
 
-      widgetInstance.turnOff()
+      widgetInstance.sleepDown()
 
       triggerMouseEvent("click", dom("div.action")[0])
       triggerMouseEvent("click", dom("div.mouser")[0])
@@ -118,8 +118,8 @@ describe "widgets module", ->
       element = dom("div.widget").get(0)
       widgetInstance = widgets._manager.add 'sampleWidget', element, sampleWidget
 
-      widgetInstance.turnOff()
-      widgetInstance.turnOn()
+      widgetInstance.sleepDown()
+      widgetInstance.wakeUp()
 
       triggerMouseEvent("click", dom("div.action")[0])
       triggerMouseEvent("click", dom("div.mouser")[0])

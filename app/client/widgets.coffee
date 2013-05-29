@@ -97,16 +97,16 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
     _.extend @, _widget
     @id = guid()
     @init?(@element)
-    @_turnOn()
+    @wakeUp()
     @isInitialized = yes
 
   Widget:: =
 
-    #### Widget.prototype._turnOn()
+    #### Widget.prototype.wakeUp()
     #
     # Привязывает обработчиков событий
 
-    _turnOn: ->
+    wakeUp: ->
       if @_isOn
         return
       bindWidgetDomEvents @domEvents, @
@@ -115,11 +115,11 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
       @_isOn = yes
       @
 
-    #### Widget.prototype._turnOff()
+    #### Widget.prototype.sleepDown()
     #
     # Отвязывает обработчиков событий
 
-    _turnOff: ->
+    sleepDown: ->
       if not @_isOn
         return
       unbindWidgetDomEvents @domEvents, @
@@ -133,7 +133,7 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
     # Отвязывает обработчиков событий и очищает экземпляр виджета
 
     destroy: ->
-      @_turnOff()
+      @sleepDown()
       widgets.remove @
 
 

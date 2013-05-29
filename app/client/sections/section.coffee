@@ -2,10 +2,11 @@ define [
   "events"
   "config"
   "loader"
+  "widgets"
   "utils/widgetsData"
   "underscore"
   "clicks/forms"
-  ], (events, config, loader, widgetsData, _, forms) ->
+  ], (events, config, loader, widgets, widgetsData, _, forms) ->
   Section = () ->
     @name
     @params = {}
@@ -44,11 +45,8 @@ define [
         on
 
     turnOffWidgets: () ->
-      for element in @element
-        # if element.parentNode?
-        #   element.parentNode.removeChild element
-        for data in widgetsData element
-          widgets.get(data.name, data.element)?.turnOff()
+      for data in widgetsData @element
+        widgets.get(data.name, data.element)?.sleepDown()
 
     onInsert: () ->
       postfix = "inserted"

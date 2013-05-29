@@ -146,11 +146,9 @@ define [
         # приостановка выполнения очереди, так как дальше опять
         # идет асинхронная
         #context.pause()  —— из-за этой штуки получается странный баг — cancel http запросов браузера
-        forwardHtml = Array.prototype.slice.call section.forward.element.childNodes
-        backHtml = Array.prototype.slice.call section.back.element.childNodes
 
-        section.back.removeFromDOM()
         section.back.turnOffWidgets()
+        section.back.removeFromDOM()
 
         section.forward.turnOnWidgets()
         section.forward.insertIntoDOM section.back.element

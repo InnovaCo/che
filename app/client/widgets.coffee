@@ -86,7 +86,7 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
       @_instances[instance.id] = instance
 
       instance
-  
+
 
   #### Widget(@name, @element, _widget)
   #
@@ -111,6 +111,7 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
         return
       bindWidgetDomEvents @domEvents, @
       bindWidgetModuleEvents @moduleEvents, @
+      @onTurnOn?()
       @_isOn = yes
       @
 
@@ -123,6 +124,7 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
         return
       unbindWidgetDomEvents @domEvents, @
       unbindWidgetModuleEvents @moduleEvents, @
+      @onTurnOff?()
       @_isOn = no
       @
 

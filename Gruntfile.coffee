@@ -115,7 +115,7 @@ module.exports = (grunt) ->
     # Jasmine tests
     jasmine:
       # affix needs jquery (for jasmine fixtures)
-      src: ["public/js/app-min.js"]
+      src: ["public/js/app.js"]
       options:
         vendor: ["public/js/lib/require.js", "public/js/lib/underscore-min.js", "public/js/lib/jquery-1.9.1.min.js"]
         specs: "spec/js/**/*_spec.js"

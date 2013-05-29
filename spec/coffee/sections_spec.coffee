@@ -295,13 +295,13 @@ describe 'sections module', ->
 
   describe 'creating invoke objects', ->
     reload_sections =
-      sections: "<title>megatitle!</title><section data-selector='#one'><span>hello</span></section>\
-      <section data-selector='#two'><span>world</span></section>"
+      sections: "<title>megatitle!</title><section data-selector='one: #one'><span>hello</span></section>\
+      <section data-selector='two: #two'><span>world</span></section>"
     parsedSections = null
 
     beforeEach ->
 
-      parsedSections = new Parser reload_sections.sections
+      parsedSections = Parser.parseSections reload_sections.sections
 
       affix "div#one span.section"
       affix "div#two.widgets[data-js-modules=gradient] span.section"
@@ -327,7 +327,7 @@ describe 'sections module', ->
       isInvoked = no
 
 
-      invoker = new Invoker parsedSections.dom
+      invoker = new Invoker parsedSections
       invoker.run()
 
       queue.next ->
@@ -341,18 +341,18 @@ describe 'sections module', ->
         expect(invoker._back).toBeDefined()
         expect(invoker._back["#one"]).toBeDefined()
         expect(invoker._back["#two"]).toBeDefined()
-        expect(invoker._back["#one"].html[0].outerHTML.toLowerCase()).toBe("<span class=\"section\"></span>")
-        expect(invoker._back["#one"].html[0].getAttribute("class")).toBe("section")
+        expect(invoker._back["#one"].sectionHtml[0].outerHTML.toLowerCase()).toBe("<span class=\"section\"></span>")
+        expect(invoker._back["#one"].sectionHtml[0].getAttribute("class")).toBe("section")
         # expect(invoker._back["#two"].widgetsInitData).toBeDefined()
 
         expect(invoker._forward).toBeDefined()
         expect(invoker._forward["#one"]).toBeDefined()
         expect(invoker._forward["#two"]).toBeDefined()
-        expect(invoker._forward["#one"].html[0].innerHTML.toLowerCase()).toBe("hello")
-        expect(invoker._forward["#one"].html[0].getAttribute("class")).toBe(null)
+        expect(invoker._forward["#one"].sectionHtml[0].innerHTML.toLowerCase()).toBe("hello")
+        expect(invoker._forward["#one"].sectionHtml[0].getAttribute("class")).toBe(null)
 
     it "invoker contain data for widgets turning off", ->
-      invoker = new Invoker parsedSections.dom
+      invoker = new Invoker parsedSections
       invoker.run()
 
       # expect(invoker._back["#two"].widgetsInitData).toBeDefined()
@@ -363,7 +363,7 @@ describe 'sections module', ->
       events.bind "sections:inserted", ->
         allDone = yes
 
-      invoker = new Invoker parsedSections.dom
+      invoker = new Invoker parsedSections
       invoker.run()
 
       waitsFor ->
@@ -379,25 +379,27 @@ describe 'sections module', ->
 
   describe 'initilize widgets', ->
     reload_sections =
-      sections: "<section data-selector='#one'><span class='widgets' data-js-modules='widgets/rotation, widgets/gradient'>hello</span></section>\
-      <section data-selector='#two'><span class='widgets' data-js-modules='widgets/opacity'>world</span></section>"
-
-    parsedSections = new Parser reload_sections.sections
+      sections: "<section data-selector='one: #one'><span class='widgets' data-js-widgets='widgets/rotation, widgets/gradient'>hello</span></section>\
+      <section data-selector='two: #two'><span class='widgets' data-js-widgets='widgets/opacity'>world</span></section>"
+    
+    parsedSections = null
 
     beforeEach ->
-      affix("div#one span.section.widgets").find('span').attr("data-js-modules", "widgets/gradient")
-      affix("div#two span.section.widgets").find('span').attr("data-js-modules", "widgets/opacity")
+      affix("div#one span.section.widgets").find('span').attr("data-js-widgets", "widgets/gradient")
+      affix("div#two span.section.widgets").find('span').attr("data-js-widgets", "widgets/opacity")
 
       resetModules()
 
       spyOn(widgets, "create").andCallThrough()
+      
+      parsedSections = Parser.parseSections reload_sections.sections
 
     it "should init all widgets from new sections", ->
       allDone = no
       events.bind "sections:inserted", ->
         allDone = yes
 
-      invoker = new Invoker parsedSections.dom
+      invoker = new Invoker parsedSections
       invoker.run()
 
       waitsFor ->
@@ -440,7 +442,7 @@ describe 'sections module', ->
         events.bind "sections:inserted", ->
           allDone = yes
 
-        invoker = new Invoker parsedSections.dom
+        invoker = new Invoker parsedSections
         invoker.run()
 
         waitsFor ->

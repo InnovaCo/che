@@ -7,11 +7,11 @@
 
 define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
 
-  
+
   #### checkIsElementMatchSelector(selector, element, [root])
   #
   # Проверяет, подходит ли указанный селектор для элемента
-  
+
   checkIsElementMatchSelector = (selectorOrNodeList, element, root) ->
     return false if element is root or not element
     root = root or document
@@ -20,17 +20,17 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
       return listElement if listElement is element
 
     return checkIsElementMatchSelector list, element.parentNode, root
-  
+
   #### callEventHandlers(handlers, eventObj)
   #
   # Вызывает обработчики событий
-  
+
   callEventHandlers = (handlers, eventObj, context) ->
     for handler in handlers
       result = handler.call context, eventObj
       if result is false
         return false
-  
+
   #### query(selector, [root])
   #
   # Возвращает элементы для указанного селектора
@@ -57,7 +57,7 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
     else
       console?.log "haven't tools for selecting node (module helpers/dom)"
 
-  
+
   #### unbindEvent(node, eventName, handler)
   #
   # Отвязывает обработчика от события для указанного DOM-элемента
@@ -74,7 +74,7 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
 
     unbindEvent.apply this, arguments
 
-  
+
   #### bindEvent(node, eventName, handler)
   #
   # Привязывает обработчик к событию для указанного DOM-элемента
@@ -103,7 +103,7 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
         target = eventObject.target or eventObject.srcElement
         if target.nodeType is 3 # defeat Safari bug
           target = target.parentNode
-      
+
         if node.domQueryHandlers[eventObject.type]
           handlers = node.domQueryHandlers[eventObject.type]
           result = true
@@ -122,7 +122,7 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
     node.domQueryHandlers[eventName][selector] = node.domQueryHandlers[eventName][selector] or []
     node.domQueryHandlers[eventName][selector].push handler
 
-  
+
   #### undelegateEvent(node, selector, eventName, handler)
   #
   # Отвязывает обработчика от делегирования событий с элементов по селектору
@@ -202,7 +202,7 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
 
   domQuery:: =
 
-    
+
     #### domQuery::on([selector], eventName, handler)
     #
     # Привязывает обработчика событий на элемент, либо для делегирования событий с элемента по селектору
@@ -214,7 +214,7 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
         binder.apply @, [node].concat(args)
       @
 
-    
+
     #### domQuery::off([selector], eventName, handler)
     #
     # Отключает обработчика событий элемента, либо от делегирования событий с элемента по селектору
@@ -225,7 +225,7 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
       _.each @get(), (node, index) ->
         unbinder.apply @, [node].concat args
       @
-    
+
     #### domQuery::find(selector)
     #
     # Возвращает элемент по селектору в контексте экземпляра domQuery
@@ -270,5 +270,5 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
       onLoad domQuery
     , config
     domQuery
-        
+
   domQuery

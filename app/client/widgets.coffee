@@ -20,6 +20,7 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
       selector = splittedDescr[2]
       handler = if _.isString handler then widget[handler] else handler
       eventsList[eventDescr] = handler
+      _.bind handler, widget
       elem.on selector, name, handler
 
 
@@ -86,7 +87,7 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
       @_instances[instance.id] = instance
 
       instance
-  
+
 
   #### Widget(@name, @element, _widget)
   #

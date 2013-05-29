@@ -11,6 +11,8 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
   #
   # Привязывает обработчиков событий на корень DOM-элемента и делегирует им события
 
+  domBindedHandlersList = {}
+
   bindWidgetDomEvents = (eventsList, widget) ->
     elem = dom widget.element
 
@@ -18,9 +20,10 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
       splittedDescr = eventDescr.split(eventSplitter)
       name = splittedDescr[1]
       selector = splittedDescr[2]
-      handler = if _.isString handler then widget[handler] else handler
+      if _.isString handler
+        handler = domBindedHandlersList[handler] = _.bind widget[handler], widget
       eventsList[eventDescr] = handler
-      _.bind handler, widget
+
       elem.on selector, name, handler
 
 
@@ -34,6 +37,7 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
       splittedDescr = eventDescr.split eventSplitter
       name = splittedDescr[1]
       selector = splittedDescr[2]
+      handler = domBindedHandlersList[handler] if domBindedHandlersList[handler]?
       elem.off selector, name, handler
 
 

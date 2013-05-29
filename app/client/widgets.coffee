@@ -86,7 +86,7 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
       @_instances[instance.id] = instance
 
       instance
-
+  
 
   #### Widget(@name, @element, _widget)
   #
@@ -97,34 +97,34 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
     _.extend @, _widget
     @id = guid()
     @init?(@element)
-    @turnOn()
+    @_turnOn()
     @isInitialized = yes
 
   Widget:: =
 
-    #### Widget.prototype.turnOn()
+    #### Widget.prototype._turnOn()
     #
     # Привязывает обработчиков событий
 
-    turnOn: ->
+    _turnOn: ->
       if @_isOn
         return
       bindWidgetDomEvents @domEvents, @
       bindWidgetModuleEvents @moduleEvents, @
-      @onTurnOn?()
+      @turnOn?()
       @_isOn = yes
       @
 
-    #### Widget.prototype.turnOff()
+    #### Widget.prototype._turnOff()
     #
     # Отвязывает обработчиков событий
 
-    turnOff: ->
+    _turnOff: ->
       if not @_isOn
         return
       unbindWidgetDomEvents @domEvents, @
       unbindWidgetModuleEvents @moduleEvents, @
-      @onTurnOff?()
+      @turnOff?()
       @_isOn = no
       @
 
@@ -133,7 +133,7 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
     # Отвязывает обработчиков событий и очищает экземпляр виджета
 
     destroy: ->
-      @turnOff()
+      @_turnOff()
       widgets.remove @
 
 

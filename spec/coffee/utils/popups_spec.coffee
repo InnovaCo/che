@@ -29,7 +29,7 @@ describe "[Popups module]", ->
   # *As* an any other module
   # *I want* to log my activity
   # *So that* I can use give API
-  describe "Module interface", ->
+  xdescribe "Module interface", ->
     beforeEach ->
       affix "div#one span.section"
       affix "div#two span.section"

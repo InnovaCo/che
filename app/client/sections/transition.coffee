@@ -79,11 +79,14 @@ define [
       if not isStateTheSame
         state.index = @index
         @state = state
-        parsedSections = new Parser @state.sections
-        if @_invoker? and parsedSections.dom?
-          @_invoker.update parsedSections.dom
-        else if parsedSections.dom?
-          @_invoker = new Invoker parsedSections.dom
+        sections = sectionParser.parseSections @state.sections
+        
+        section.init() for section in sections
+        
+        if @_invoker? and sections?
+          @_invoker.update sections
+        else if sections?
+          @_invoker = new Invoker section
 
         @invoke()
 

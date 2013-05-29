@@ -216,13 +216,13 @@ describe 'sections module', ->
   describe 'updating transitions', ->
     reload_sections =
       url: "test.com"
-      sections: "<section data-selector='#one'><span>hello</span></section>\
-      <section data-selector='#two'><span>world</span></section>"
+      sections: "<section data-selector='one: #one'><span>hello</span></section>\
+      <section data-selector='two: #two'><span>world</span></section>"
 
     update_sections =
       url: "test.com"
-      sections: "<section data-selector='#one'><span>Hello</span></section>\
-      <section data-selector='#two'><span>Universe</span></section>"
+      sections: "<section data-selector='one: #one'><span>Hello</span></section>\
+      <section data-selector='two: #two'><span>Universe</span></section>"
 
     beforeEach ->
       affix "div#one span.section"

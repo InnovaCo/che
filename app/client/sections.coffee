@@ -38,7 +38,7 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
     # и обновляем его данные
     #
     create: (state) ->
-      state = state or {index: 0, url: window.location.href}
+      state = state or {index: 0, url: window.location.href, sectionsHeader: []}
       if @last? and state.index <= @last.index
         transition = @go state.index
         transition.update state
@@ -50,7 +50,7 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
         @last = new Transition state, @last
         return @last
 
-    ###### transitions.create(state)
+    ###### transitions.go(index)
     # Запускает все переходы от текущего до перехода с указанным индексом
     #
 
@@ -111,6 +111,7 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
     if state?
       transitions.go state.index
       if state.url?
+       # window.location.href = state.url if not state.sectionsHeader # fallback case
         sectionsLoader state.url, state.method, state.sectionsHeader, state.index
     # here ask server for updated sections (history case)
 

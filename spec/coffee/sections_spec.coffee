@@ -32,7 +32,7 @@ describe 'sections module', ->
     sectionsLoader = loaderModule
     Parser = parserModule
     events = eventsModule
-    bindedEvents = events.list
+    bindedEvents = _.clone events.list
     widgets = widgetsModule
     storage = storageFactory.getStorage ['localStorage']
     browserHistory = browserHistoryModule
@@ -41,7 +41,7 @@ describe 'sections module', ->
     cache = cacheModule
 
   resetModules = () ->
-    events.list = bindedEvents
+    events.list = _.clone bindedEvents
     sections._transitions.last = null
     sections._transitions.current = sections._transitions.create()
 
@@ -337,7 +337,6 @@ describe 'sections module', ->
         isInvoked
 
       runs ->
-        console.log invoker
         expect(invoker._back).toBeDefined()
         expect(invoker._back["#one"]).toBeDefined()
         expect(invoker._back["#two"]).toBeDefined()
@@ -516,7 +515,7 @@ describe 'sections module', ->
       reload_sections =
         url: window.location.origin
         sections: "<title>TITLE!</title>
-          <section data-selector='#one'>sdkjhfksjd
+          <section data-selector='one: #one'>sdkjhfksjd
           <span class='widgets' data-js-modules='widgets/rotation, widgets/gradient'>hello</span>
           </section>"
       affix "div#one span.section"
@@ -524,7 +523,7 @@ describe 'sections module', ->
 
     it "should load sections and correctly convert in to state object", ->
       loadedSections = "<title>TITLE!</title>
-        <section data-selector='#one'>sdkjhfksjd
+        <section data-selector='one: #one'>sdkjhfksjd
         <span class='widgets' data-js-modules='widgets/rotation, widgets/gradient'>hello</span>
         </section>"
 
@@ -553,11 +552,11 @@ describe 'sections module', ->
       
       expect(state.url).toBe("http://test.com/one/two")
       expect(state.sections).toBe("<title>TITLE!</title>
-        <section data-selector='#one'>sdkjhfksjd
+        <section data-selector='one: #one'>sdkjhfksjd
         <span class='widgets' data-js-modules='widgets/rotation, widgets/gradient'>hello</span>
         </section>")
       expect(state.method).toBe('GET')
-      expect(state.header).toBe("sections header")
+      expect(state.sectionsHeader).toBe("sections header")
       expect(state.index).toBe(1)
 
       ajax.dispatch = realAjaxDispatch
@@ -574,7 +573,7 @@ describe 'sections module', ->
       events.trigger "history:popState",
         index: 0
         url: window.location.origin
-        sections: "<section data-selector='#one'><div></div></section>"
+        sections: "<section data-selector='one: #one'><div></div></section>"
 
       waitsFor ->
         0 < ajax.dispatch.calls.length
@@ -640,32 +639,32 @@ describe 'sections module', ->
         index: 1
         url: "http://sections.com/one"
         sections: "<title>TITLE! number 1</title>
-          <section data-selector='#one'>sdkjhfksjd
+          <section data-selector='one: #one'>sdkjhfksjd
           <span class='widgets' data-js-modules='widgets/rotation, widgets/gradient'>hello</span>
           </section>"
       ,
         index: 2
         url: "http://sections.com/two"
         sections: "<title>TITLE! number 2</title>
-          <section data-selector='#one'><span>Yo!</span>Man!
+          <section data-selector='one: #one'><span>Yo!</span>Man!
           </section>"
       ,
         index: 3
         url: "http://sections.com/three"
         sections: "<title>TITLE! number 3
-          </title><section data-selector='#one'>Gangham<span class='yo'>style!</span>
+          </title><section data-selector='one: #one'>Gangham<span class='yo'>style!</span>
           </section>"
       ,
         index: 4
         url: "http://sections.com/four"
         sections: "<title>TITLE! number 4</title>
-          <section data-selector='#one'>Snop doggy<span class='yo'>dog!</span>
+          <section data-selector='one: #one'>Snop doggy<span class='yo'>dog!</span>
           </section>"
       ,
         index: 5
         url: "http://sections.com/five"
         sections: "<title>TITLE! number 5</title>
-          <section data-selector='#one'><span class='end'>circus end!</span>
+          <section data-selector='one: #one'><span class='end'>circus end!</span>
           </section>"
       ]
 
@@ -675,15 +674,15 @@ describe 'sections module', ->
     it "should change layout to previous state", ->
       allDone = no
 
-      for state in reloadSectionsArr
-        sections._transitions.create state
-
       events.bind "pageTransition:success", (info) ->
         if info.transition.index is 5
           events.bind "pageTransition:success", (info) ->
             if info.transition.index is 1
               allDone = yes
           sections._transitions.go 1
+      
+      for state in reloadSectionsArr
+        sections._transitions.create state
 
       waitsFor ->
         allDone

@@ -68,7 +68,7 @@ define [
       return unless postfix
       triggerParams = [@]
       triggerParams.push params if params?
-      console.log suffix, postfix, triggerParams
+      #console.log suffix, postfix, triggerParams
       events.trigger "section#{suffix}:#{postfix}", triggerParams
 
   Section

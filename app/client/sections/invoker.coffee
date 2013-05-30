@@ -74,6 +74,7 @@ define [
             backSection.name = container.name
             backSection.element = container.element
             backSection.params = container.params
+            backSection.params.target = section.params.target
 
             # NodeList превращается в массив, потому что нам нужны только ссылки
             # на элементы, а не живые коллекции
@@ -151,7 +152,7 @@ define [
         section.back.removeFromDOM()
 
         section.forward.turnOnWidgets()
-        section.forward.insertIntoDOM(dom(section.forward.params.target)[0])
+        section.forward.insertIntoDOM(dom(section.forward.params.target)[0]) if section.forward.params.target?
 
           # возобновление выполнения очереди
           #context.resume()  —— FIXME: странный cancel http запросов картинок и т.д. в браузере

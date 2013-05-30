@@ -19,7 +19,7 @@ define ["ajax", "events"], (ajax, events) ->
   (url, method, sectionsHeader, index, data = []) ->
     getState = (url, sections) ->
       url: url
-      header: sectionsHeader
+      sectionsHeader: sectionsHeader
       index: index
       method: method
       sections: sections

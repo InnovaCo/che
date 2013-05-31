@@ -4,6 +4,7 @@ describe "widgets module", ->
   events = null
   sampleWidget = null
   clickSpy = null
+  clickSpyMouseover = null
   sampleEventSpy = null
   clickHandlerSpy = null
   anotherEventHandlerSpy = null
@@ -12,6 +13,7 @@ describe "widgets module", ->
 
   beforeEach ->
     clickSpy = jasmine.createSpy 'clickSpy'
+    clickSpyMouseover = jasmine.createSpy 'clickSpyMouseover'
     clickHandlerSpy = jasmine.createSpy 'clickHandlerSpy'
     sampleEventSpy = jasmine.createSpy "sampleEventSpy"
     anotherEventHandlerSpy = jasmine.createSpy "anotherEventHandlerSpy"
@@ -22,6 +24,7 @@ describe "widgets module", ->
       domEvents:
         "click div.action": clickSpy
         "click div.mouser": "clickHandler"
+        "mouseover div.mouser": clickSpyMouseover
       clickHandler: clickHandlerSpy
       moduleEvents:
         "sampleEvent": sampleEventSpy
@@ -123,6 +126,7 @@ describe "widgets module", ->
 
       triggerMouseEvent("click", dom("div.action")[0])
       triggerMouseEvent("click", dom("div.mouser")[0])
+      triggerMouseEvent("mouseover", dom("div.mouser")[0])
 
       events.trigger("sampleEvent", {})
       events.trigger("anotherEvent", {})
@@ -130,6 +134,22 @@ describe "widgets module", ->
       jasmine.Clock.tick(101)
 
       expect(clickSpy).toHaveBeenCalled()
+      expect(clickSpyMouseover).toHaveBeenCalled()
       expect(clickHandlerSpy).toHaveBeenCalled()
       expect(sampleEventSpy).toHaveBeenCalled()
       expect(anotherEventHandlerSpy).toHaveBeenCalled()
+
+    it 'should turn widget on and trigger events on form element', ->
+      jasmine.Clock.useMock()
+
+      affix("form.widget ul li div.mouser div.action input")
+      element = dom("form.widget").get(0)
+      widgetInstance = widgets._manager.add 'sampleWidget', element, sampleWidget
+
+      triggerMouseEvent("click", dom("form.widget div.action")[0])
+      triggerMouseEvent("click", dom("form.widget div.mouser")[0])
+
+      jasmine.Clock.tick(101)
+
+      expect(clickSpy).toHaveBeenCalled()
+      expect(clickHandlerSpy).toHaveBeenCalled()

@@ -113,9 +113,9 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
               result = callEventHandlers handlers, eventObject, targetElement
           result
 
-      bindEvent node, eventName, delegateHandler
       node.domQueryDelegateHandler = delegateHandler
 
+    bindEvent node, eventName, node.domQueryDelegateHandler
     handler.guid = handler.guid or guid()
     node.domQueryHandlers = node.domQueryHandlers or {}
     node.domQueryHandlers[eventName] = node.domQueryHandlers[eventName] or {}
@@ -190,6 +190,12 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
       else
         elements = selector or [document]
 
+      if elements.elements?
+        @length = 1
+        @selector = selector
+        @[0] = selector
+        return
+        
       if elements.length is undefined or elements.nodeType is 3
         elements = [elements]
 

@@ -34,6 +34,21 @@ describe 'dom module', ->
       expect(domObject.length).toBe(0)
       expect(domObject[0]).toBeUndefined()
 
+    it 'should find form element', ->
+
+      affix "form.testForm div#testi input"
+      el = document.createElement "input"
+      document.getElementById("testi").appendChild el
+      domObject = dom("form.testForm")
+
+      expect(domObject.length).toBe(1)
+      expect(domObject[0]).toBeDefined()
+      
+      domObjectForm = dom(dom("form.testForm").get()[0])
+
+      expect(domObjectForm.length).toBe(1)
+      expect(domObjectForm[0]).toBeDefined()
+
 
   describe 'binding events', ->
     beforeEach ->

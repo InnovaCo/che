@@ -24,7 +24,10 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
         handler = domBindedHandlersList[handler] = _.bind widget[handler], widget
       eventsList[eventDescr] = handler
 
-      elem.on selector, name, handler
+      if selector is "@element"
+        elem.on name, handler
+      else
+        elem.on selector, name, handler
 
 
   #### unbindWidgetDomEvents(eventsData, widget)
@@ -38,7 +41,10 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
       name = splittedDescr[1]
       selector = splittedDescr[2]
       handler = domBindedHandlersList[handler] if domBindedHandlersList[handler]?
-      elem.off selector, name, handler
+      if selector is "@element"
+        elem.off name, handler
+      else
+        elem.off selector, name, handler
 
 
   #### bindWidgetModuleEvents(eventsList, widget)

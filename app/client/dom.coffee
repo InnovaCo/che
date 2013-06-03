@@ -198,7 +198,7 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
         @selector = selector
         @[0] = selector
         return
-        
+
       if elements.length is undefined or elements.nodeType is 3
         elements = [elements]
 

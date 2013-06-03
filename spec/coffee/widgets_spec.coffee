@@ -4,6 +4,7 @@ describe "widgets module", ->
   events = null
   sampleWidget = null
   clickSpy = null
+  clickSpyRoot = null
   clickSpyMouseover = null
   sampleEventSpy = null
   clickHandlerSpy = null
@@ -13,6 +14,7 @@ describe "widgets module", ->
 
   beforeEach ->
     clickSpy = jasmine.createSpy 'clickSpy'
+    clickSpyRoot = jasmine.createSpy 'clickSpyRoot'
     clickSpyMouseover = jasmine.createSpy 'clickSpyMouseover'
     clickHandlerSpy = jasmine.createSpy 'clickHandlerSpy'
     sampleEventSpy = jasmine.createSpy "sampleEventSpy"
@@ -24,6 +26,7 @@ describe "widgets module", ->
       domEvents:
         "click div.action": clickSpy
         "click div.mouser": "clickHandler"
+        "click @element": clickSpyRoot
         "mouseover div.mouser": clickSpyMouseover
       clickHandler: clickHandlerSpy
       moduleEvents:
@@ -153,3 +156,15 @@ describe "widgets module", ->
 
       expect(clickSpy).toHaveBeenCalled()
       expect(clickHandlerSpy).toHaveBeenCalled()
+
+    it 'should turn widget on and trigger events on root element', ->
+      jasmine.Clock.useMock()
+
+      element = dom("div.widget").get(0)
+      widgetInstance = widgets._manager.add 'sampleWidget', element, sampleWidget
+
+      triggerMouseEvent("click", dom("div.widget")[0])
+
+      jasmine.Clock.tick(101)
+
+      expect(clickSpyRoot).toHaveBeenCalled()

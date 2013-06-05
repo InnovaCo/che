@@ -57,28 +57,22 @@ define [
           @_forward = {}
 
           for section in @reloadSections
+            continue if not section.params.target?
             target = section.params.target
-            continue if not target
-
-            # Смотрим, есть ли вообще элемент с таким селектором
-            # в существующем DOM-дереве
-            containerElement = dom(target)[0]
-            continue if not containerElement?
-
-            container =
-              element: containerElement,
-              name: ""
-            container.params = sectionParser.parseSectionParams(container, containerElement.getAttribute config.sectionSelectorAttributeName) || {}
-
             backSection = new Section()
-            backSection.name = container.name
-            backSection.element = container.element
-            backSection.params = container.params
-            backSection.params.target = section.params.target
+            backSection.name = ""
+            backSection.params.target = target
 
-            # NodeList превращается в массив, потому что нам нужны только ссылки
-            # на элементы, а не живые коллекции
-            # {html: Array.prototype.slice.call section.element.childNodes}
+            switch target
+              when "icon"
+                backSection.element = dom('link[rel="shortcut icon"]')[0]
+                backSection.params.ns = ['icon']
+              else
+                containerElement = dom(target)[0]
+                continue if not containerElement?
+                backSection.element = containerElement
+                sectionParser.parseSectionParams(backSection, containerElement.getAttribute config.sectionSelectorAttributeName)
+
             @_forward[target] = section
             @_back[target] = backSection
 
@@ -153,6 +147,7 @@ define [
 
         section.forward.turnOnWidgets()
         section.forward.insertIntoDOM(dom(section.forward.params.target)[0]) if section.forward.params.target?
+        section.forward.processNamespaces "turnOn"
 
           # возобновление выполнения очереди
           #context.resume()  —— FIXME: странный cancel http запросов картинок и т.д. в браузере

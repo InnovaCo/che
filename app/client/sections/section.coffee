@@ -14,15 +14,18 @@ define [
 
   Section:: =
     init: () ->
-      @sectionHtml = Array.prototype.slice.call @element.childNodes
-      # навешиваем события на submit формы внутри секции
-      forms.processForms @element
+      if @element.childNodes?
+        @sectionHtml = Array.prototype.slice.call @element.childNodes
+        # навешиваем события на submit формы внутри секции
+        forms.processForms @element
+      else
+        @sectionHtml = []
 
 
     removeFromDOM: () ->
       @init() unless @sectionHtml?
       for element in @sectionHtml
-        element.parentNode.removeChild element
+        element.parentNode.removeChild element if element.parentNode?
 
       @onRemove()
 

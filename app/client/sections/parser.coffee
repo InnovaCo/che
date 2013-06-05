@@ -36,9 +36,12 @@ define [
         else if nodeName is 'title'
           section.name = nodeName
           section.params.target = nodeName
+        else if nodeName is 'link' and element.rel is 'shortcut icon'
+          section.params.target = 'icon'
+          section.params.ns = ['icon']
 
         parsedSections.push section
-      
+
       return parsedSections
 
     parseSectionParams: (section, sectionParams) ->

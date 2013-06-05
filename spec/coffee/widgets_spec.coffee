@@ -170,7 +170,7 @@ describe "widgets module", ->
       expect(clickSpyRoot).toHaveBeenCalled()
 
   describe 'many similar widgets on page', ->
-    it 'should have initialisation exactly on their own containers', ->
+    it 'should call their methods exactly in own context', ->
       jasmine.Clock.useMock()
       eventSpy = jasmine.createSpy 'eventSpy'
 

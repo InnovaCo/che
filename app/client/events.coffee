@@ -75,7 +75,9 @@ define ['underscore'],  (_) ->
     bind: (handler, context, options) ->
       handler.id = handler.id or +_.uniqueId()
       handler.contexts = handler.contexts or []
-      handler.contexts.push context
+      if not _.find(handler.contexts, (value)-> value is context)
+        handler.contexts.push(context)
+
       handler.options = handler.options or options or {}
       @_handlers[handler.id] = handler
       if handler.options.recall and @_lastArgs

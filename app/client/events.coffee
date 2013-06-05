@@ -32,7 +32,8 @@ define ['underscore'],  (_) ->
     # Вызывает очередного обработчика
     #
     _handlerCaller: (handler, args) ->
-      handler.apply handler.context, args
+      for context in handler.contexts
+        handler.apply context, args
 
 
     ####  Oops.prototype._nextHandlerCall
@@ -73,7 +74,8 @@ define ['underscore'],  (_) ->
     #
     bind: (handler, context, options) ->
       handler.id = handler.id or +_.uniqueId()
-      handler.context = context
+      handler.contexts = handler.contexts or []
+      handler.contexts.push context
       handler.options = handler.options or options or {}
       @_handlers[handler.id] = handler
       if handler.options.recall and @_lastArgs
@@ -102,7 +104,7 @@ define ['underscore'],  (_) ->
     unbind: (handler) ->
       id = handler.id
       if id and @_handlers[id]
-        delete  @_handlers[id]
+        delete @_handlers[id]
       @
 
   window.evnts = []

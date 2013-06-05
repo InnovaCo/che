@@ -168,3 +168,42 @@ describe "widgets module", ->
       jasmine.Clock.tick(101)
 
       expect(clickSpyRoot).toHaveBeenCalled()
+
+  describe 'many similar widgets on page', ->
+    it 'should have initialisation exactly on their own containers', ->
+      jasmine.Clock.useMock()
+      eventSpy = jasmine.createSpy 'eventSpy'
+
+      affix("div.widget2 ul li div.mouser div.action")
+
+      checkWidget =
+        moduleEvents:
+          "check-many-widgets": "manyWidgetsCheck"
+        manyWidgetsCheck: ->
+          @element.setAttribute "data-test-many-widgets", "yes"
+
+      spyOn(checkWidget, "manyWidgetsCheck").andCallThrough()
+
+
+      element = dom("div.widget").get(0)
+      widgetInstance = widgets._manager.add 'checkWidget', element, checkWidget
+
+      element2 = dom("div.widget2").get(0)
+      widgetInstance2 = widgets._manager.add 'checkWidget', element2, checkWidget
+
+
+      # runs ->
+      events.trigger "check-many-widgets"
+
+      # waitsFor ->
+        # (value is )
+      jasmine.Clock.tick(101)
+      # , 500
+
+      runs ->
+        expect(checkWidget.manyWidgetsCheck).toHaveBeenCalled()
+        expect(checkWidget.manyWidgetsCheck.calls.length).toBe 2
+        expect( dom("div.widget")[0].getAttribute "data-test-many-widgets" ).toBe "yes"
+        expect( dom("div.widget2")[0].getAttribute "data-test-many-widgets" ).toBe "yes"
+
+

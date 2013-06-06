@@ -146,8 +146,7 @@ define [
         section.back.removeFromDOM()
 
         section.forward.turnOnWidgets()
-        section.forward.insertIntoDOM(dom(section.forward.params.target)[0]) if section.forward.params.target?
-        section.forward.processNamespaces "turnOn"
+        section.forward.insertIntoDOM()
 
           # возобновление выполнения очереди
           #context.resume()  —— FIXME: странный cancel http запросов картинок и т.д. в браузере

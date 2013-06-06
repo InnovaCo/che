@@ -634,11 +634,13 @@ describe 'sections module', ->
     beforeEach ->
       resetModules()
       affix "div.backHistory#one span.first"
+      affix 'div link[rel="shortcut icon"][href="/iconOld.ico"]'
 
       reloadSectionsArr = [
         index: 1
         url: "http://sections.com/one"
         sections: "<title>TITLE! number 1</title>
+          <link href='http://test.ru/favicon1.ico' rel='shortcut icon' type='image/ico' />
           <section data-selector='one: #one'>sdkjhfksjd
           <span class='widgets' data-js-modules='widgets/rotation, widgets/gradient'>hello</span>
           </section>"
@@ -646,24 +648,28 @@ describe 'sections module', ->
         index: 2
         url: "http://sections.com/two"
         sections: "<title>TITLE! number 2</title>
+          <link href='http://test.ru/favicon2.ico' rel='shortcut icon' type='image/ico' />
           <section data-selector='one: #one'><span>Yo!</span>Man!
           </section>"
       ,
         index: 3
         url: "http://sections.com/three"
-        sections: "<title>TITLE! number 3
-          </title><section data-selector='one: #one'>Gangham<span class='yo'>style!</span>
+        sections: "<title>TITLE! number 3</title>
+          <link href='http://test.ru/favicon3.ico' rel='shortcut icon' type='image/ico' />
+          <section data-selector='one: #one'>Gangham<span class='yo'>style!</span>
           </section>"
       ,
         index: 4
         url: "http://sections.com/four"
         sections: "<title>TITLE! number 4</title>
+          <link href='http://test.ru/favicon4.ico' rel='shortcut icon' type='image/ico' />
           <section data-selector='one: #one'>Snop doggy<span class='yo'>dog!</span>
           </section>"
       ,
         index: 5
         url: "http://sections.com/five"
         sections: "<title>TITLE! number 5</title>
+          <link href='http://test.ru/favicon5.ico' rel='shortcut icon' type='image/ico' />
           <section data-selector='one: #one'><span class='end'>circus end!</span>
           </section>"
       ]
@@ -689,6 +695,7 @@ describe 'sections module', ->
       runs ->
         expect($("title").text()).toBe "TITLE! number 1"
         expect($("div.backHistory#one span.widgets").text()).toBe "hello"
+        expect($("link[rel='shortcut icon']").attr('href')).toBe "http://test.ru/favicon1.ico"
 
     it "should change url to previous state", ->
       #TODO: where is test?

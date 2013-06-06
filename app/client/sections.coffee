@@ -115,20 +115,6 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
         sectionsLoader state.url, state.method, state.sectionsHeader, state.index
     # here ask server for updated sections (history case)
 
-  #### Обработка пришедших иконок
-  #
-  # Черновой вариант. Следует вынести в отдельный модуль, обрабатывающий кастомные ивенты
-  #
-  events.bind "section-icon:turnOn", (section) ->
-    return if not section.element.href
-    try
-      newFavicon = document.createElement("link")
-      newFavicon.setAttribute "type", "image/ico"
-      newFavicon.setAttribute "rel", "shortcut icon"
-      newFavicon.setAttribute "href", section.element.href
-      oldFavicon = dom('link[rel="shortcut icon"]')[0]
-      oldFavicon.parentNode.replaceChild newFavicon, oldFavicon
-
   #### Событие transition:current:update
   #
   # Создается первый пустой переход, он отражает текущее состояние страницы

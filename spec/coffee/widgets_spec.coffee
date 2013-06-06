@@ -169,11 +169,10 @@ describe "widgets module", ->
 
       expect(clickSpyRoot).toHaveBeenCalled()
 
-  describe 'many similar widgets on page', ->
-    it 'should call their methods exactly in own context', ->
-      jasmine.Clock.useMock()
-      eventSpy = jasmine.createSpy 'eventSpy'
 
+  describe 'many similar widgets on page', ->
+    it 'should call their methods exactly in their own context via moduleEvents', ->
+      jasmine.Clock.useMock()
       affix("div.widget2 ul li div.mouser div.action")
 
       checkWidget =
@@ -191,19 +190,105 @@ describe "widgets module", ->
       element2 = dom("div.widget2").get(0)
       widgetInstance2 = widgets._manager.add 'checkWidget', element2, checkWidget
 
-
-      # runs ->
       events.trigger "check-many-widgets"
 
-      # waitsFor ->
-        # (value is )
       jasmine.Clock.tick(101)
-      # , 500
 
       runs ->
         expect(checkWidget.manyWidgetsCheck).toHaveBeenCalled()
         expect(checkWidget.manyWidgetsCheck.calls.length).toBe 2
         expect( dom("div.widget")[0].getAttribute "data-test-many-widgets" ).toBe "yes"
         expect( dom("div.widget2")[0].getAttribute "data-test-many-widgets" ).toBe "yes"
+
+    it 'should call method only on first widget when click on element inside first container via domEvents', ->
+      jasmine.Clock.useMock()
+      affix("div.widget2 ul li div.mouser div.action")
+
+      checkWidget =
+        domEvents:
+          "click .mouser": "manyWidgetsCheck"
+        manyWidgetsCheck: ->
+          @element.setAttribute "data-test-many-widgets", "yes"
+
+      spyOn(checkWidget, "manyWidgetsCheck").andCallThrough()
+
+
+      element = dom("div.widget").get(0)
+      widgetInstance = widgets._manager.add 'checkWidget', element, checkWidget
+
+      element2 = dom("div.widget2").get(0)
+      widgetInstance2 = widgets._manager.add 'checkWidget', element2, checkWidget
+
+      triggerMouseEvent("click", dom("div.widget div.mouser")[0])
+
+      jasmine.Clock.tick(101)
+
+      runs ->
+        expect(checkWidget.manyWidgetsCheck).toHaveBeenCalled()
+        expect(checkWidget.manyWidgetsCheck.calls.length).toBe 1
+        expect( dom("div.widget")[0].getAttribute "data-test-many-widgets" ).toBe "yes"
+        expect( dom("div.widget2")[0].getAttribute "data-test-many-widgets" ).toBe null
+
+    it 'should call method only on second widget when click on element inside second container via domEvents', ->
+      jasmine.Clock.useMock()
+      affix("div.widget2 ul li div.mouser.mouser2 div.action")
+
+      checkWidget =
+        domEvents:
+          "click .mouser": "manyWidgetsCheck"
+        manyWidgetsCheck: ->
+          @element.setAttribute "data-test-many-widgets", "yes"
+
+      spyOn(checkWidget, "manyWidgetsCheck").andCallThrough()
+
+
+      element = dom("div.widget").get(0)
+      widgetInstance = widgets._manager.add 'checkWidget', element, checkWidget
+
+      element2 = dom("div.widget2").get(0)
+      widgetInstance2 = widgets._manager.add 'checkWidget', element2, checkWidget
+
+      triggerMouseEvent("click", dom("div.widget2 div.mouser")[0])
+
+      jasmine.Clock.tick(101)
+
+      runs ->
+        expect(checkWidget.manyWidgetsCheck).toHaveBeenCalled()
+        expect(checkWidget.manyWidgetsCheck.calls.length).toBe 1
+        expect( dom("div.widget")[0].getAttribute "data-test-many-widgets" ).toBe null
+        expect( dom("div.widget2")[0].getAttribute "data-test-many-widgets" ).toBe "yes"
+
+
+    it "turning off one widget should'nt turn off another one", ->
+      jasmine.Clock.useMock()
+      affix("div.widget2 ul li div.mouser.mouser2 div.action")
+
+      checkWidget =
+        domEvents:
+          "click .mouser": "manyWidgetsCheck"
+        manyWidgetsCheck: ->
+          @element.setAttribute "data-test-many-widgets", "yes"
+
+      spyOn(checkWidget, "manyWidgetsCheck").andCallThrough()
+
+      element = dom("div.widget").get(0)
+      widgetInstance = widgets._manager.add 'checkWidget', element, checkWidget
+
+      element2 = dom("div.widget2").get(0)
+      widgetInstance2 = widgets._manager.add 'checkWidget', element2, checkWidget
+
+      widgetInstance.sleepDown()
+
+      triggerMouseEvent("click", dom("div.widget div.mouser")[0])
+      triggerMouseEvent("click", dom("div.widget2 div.mouser")[0])
+      jasmine.Clock.tick(101)
+
+      runs ->
+        expect(checkWidget.manyWidgetsCheck).toHaveBeenCalled()
+        expect(checkWidget.manyWidgetsCheck.calls.length).toBe 1
+        expect( dom("div.widget")[0].getAttribute "data-test-many-widgets" ).toBe null
+        expect( dom("div.widget2")[0].getAttribute "data-test-many-widgets" ).toBe "yes"
+
+
 
 

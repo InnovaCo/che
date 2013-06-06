@@ -20,14 +20,18 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
       splittedDescr = eventDescr.split(eventSplitter)
       name = splittedDescr[1]
       selector = splittedDescr[2]
+      context = null
       if _.isString handler
-        handler = domBindedHandlersList[handler] = _.bind widget[handler], widget
+        finalHandler = domBindedHandlersList[handler] = widget[handler]
+        context = widget
+      else
+        finalHandler = handler
       eventsList[eventDescr] = handler
 
       if selector is "@element"
-        elem.on name, handler
+        elem.on name, finalHandler, context
       else
-        elem.on selector, name, handler
+        elem.on selector, name, finalHandler, context
 
 
   #### unbindWidgetDomEvents(eventsData, widget)

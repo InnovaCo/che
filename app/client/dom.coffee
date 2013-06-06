@@ -107,6 +107,7 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
           target = target.parentNode
 
         if node.domQueryHandlers[eventObject.type]
+
           handlers = node.domQueryHandlers[eventObject.type]
           result = true
           _.each handlers, (handlers, selector) ->
@@ -130,7 +131,7 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
   # Отвязывает обработчика от делегирования событий с элементов по селектору
   #
   undelegateEvent = (node, selector, eventName, handler) ->
-    return false if not handler.guid
+    # return false if not handler.guid
     return false if not node.domQueryHandlers
     return false if not node.domQueryHandlers[eventName]
     return false if not node.domQueryHandlers[eventName][selector]
@@ -138,8 +139,9 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
     index = null
 
     _.find handlers, (delegateHandler, handlerIndex) ->
+      checkGuid = if delegateHandler.original then delegateHandler.original.guid else delegateHandler.guid
       index = handlerIndex
-      delegateHandler.guid is handler.guid
+      checkGuid is handler.guid
 
     if index isnt null
       handlers.splice index, 1
@@ -214,13 +216,31 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
   domQuery:: =
 
 
-    #### domQuery::on([selector], eventName, handler)
+    #### domQuery::on([selector,] eventName, handler [,context])
     #
-    # Привязывает обработчика событий на элемент, либо для делегирования событий с элемента по селектору
+    # Привязывает обработчика событий на элемент, либо для делегирования
+    # событий с элемента по селектору
     #
-    on: (selector, eventName, handler) ->
-      binder = if arguments.length is 3 then delegateEvent else bindEvent
+    on: (selectorOrEventName, eventNameOrHandler, handlerOrContext, context) ->
+      argHanlderIndex = 2
+      binder = delegateEvent
+
+      if _.isFunction eventNameOrHandler
+        # no selector given, so no delegate event
+        binder = bindEvent
+        argHanlderIndex--
+
+      finalHandler = handler = arguments[argHanlderIndex]
+
+      if arguments[(argHanlderIndex + 1)]?
+        # with context
+        handler.guid = handler.guid or guid()
+        finalHandler = _.bind handler, arguments[(argHanlderIndex + 1)]
+        finalHandler.original = handler
+
       args = Array::slice.call(arguments)
+      args[argHanlderIndex] = finalHandler
+
       _.each @get() , (node, index) ->
         binder.apply @, [node].concat(args)
       @
@@ -228,7 +248,8 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
 
     #### domQuery::off([selector], eventName, handler)
     #
-    # Отключает обработчика событий элемента, либо от делегирования событий с элемента по селектору
+    # Отключает обработчика событий элемента, либо от делегирования событий
+    # с элемента по селектору
     #
     off: (selector, eventName, handler) ->
       unbinder = if arguments.length is 3 then undelegateEvent else unbindEvent

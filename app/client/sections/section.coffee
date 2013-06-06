@@ -6,7 +6,8 @@ define [
   "utils/widgetsData"
   "underscore"
   "clicks/forms"
-  ], (events, config, loader, widgets, widgetsData, _, forms) ->
+  "dom"
+  ], (events, config, loader, widgets, widgetsData, _, forms, dom) ->
   Section = () ->
     @name
     @params = {}
@@ -14,7 +15,7 @@ define [
 
   Section:: =
     init: () ->
-      if @element.childNodes?
+      if @element? and @element.childNodes?
         @sectionHtml = Array.prototype.slice.call @element.childNodes
         # навешиваем события на submit формы внутри секции
         forms.processForms @element
@@ -29,14 +30,27 @@ define [
 
       @onRemove()
 
-    insertIntoDOM: ( container ) ->
-      return unless container?
-      @init() unless @sectionHtml?
+    insertIntoDOM: () ->
+      return unless @params.target
+      switch @params.target
+        when "icon"
+          return unless @element.href
+          try
+            newFavicon = document.createElement("link")
+            newFavicon.setAttribute "type", "image/ico"
+            newFavicon.setAttribute "rel", "shortcut icon"
+            newFavicon.setAttribute "href", @element.href
+            oldFavicon = dom('link[rel="shortcut icon"]')[0]
+            oldFavicon.parentNode.replaceChild newFavicon, oldFavicon if oldFavicon?
+        else
+          container = dom(@params.target)[0]
+          return unless container?
+          @init() unless @sectionHtml?
 
-      # говорим контейнеру, мол, теперь внутри вот такая-то секция.
-      container.setAttribute config.sectionSelectorAttributeName, "#{@name}: #{JSON.stringify @params}"
-      for element in @sectionHtml
-        container.appendChild element
+          # говорим контейнеру, мол, теперь внутри вот такая-то секция.
+          container.setAttribute config.sectionSelectorAttributeName, "#{@name}: #{JSON.stringify @params}"
+          for element in @sectionHtml
+            container.appendChild element
 
       @onInsert()
 

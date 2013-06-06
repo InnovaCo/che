@@ -33,7 +33,6 @@ define [
       section.init() for section in sections
 
       if sections
-        # сначала отдаем все секции, для вставки в дом
         @_invoker = new Invoker sections
 
     if last?

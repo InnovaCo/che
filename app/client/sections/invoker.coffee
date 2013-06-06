@@ -60,7 +60,7 @@ define [
             continue if not section.params.target?
             target = section.params.target
             backSection = new Section()
-            backSection.name = ""
+            backSection.name = section.name
             backSection.params.target = target
 
             switch target

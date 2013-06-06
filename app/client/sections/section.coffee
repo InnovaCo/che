@@ -13,22 +13,27 @@ define [
     @params = {}
     @element
 
-  Section:: =
-    init: () ->
-      if @element? and @element.childNodes?
-        @sectionHtml = Array.prototype.slice.call @element.childNodes
-        # навешиваем события на submit формы внутри секции
-        forms.processForms @element
-      else
-        @sectionHtml = []
+    @getSectionHtml = () ->
+      unless @sectionHtml
+        @sectionHtml = if @element? and @element.childNodes? then Array.prototype.slice.call @element.childNodes else []
+      @sectionHtml
 
+    @
+
+  Section:: =
+    turnOn: () ->
+      @turnOnWidgets()
+      @insertIntoDOM()
+      @onInsert()
+
+    turnOff: () ->
+      @turnOffWidgets()
+      @removeFromDOM()
+      @onRemove()
 
     removeFromDOM: () ->
-      @init() unless @sectionHtml?
-      for element in @sectionHtml
+      for element in @getSectionHtml()
         element.parentNode.removeChild element if element.parentNode?
-
-      @onRemove()
 
     insertIntoDOM: () ->
       return unless @params.target
@@ -45,18 +50,14 @@ define [
         else
           container = dom(@params.target)[0]
           return unless container?
-          @init() unless @sectionHtml?
-
+          forms.processForms @element
           # говорим контейнеру, мол, теперь внутри вот такая-то секция.
           container.setAttribute config.sectionSelectorAttributeName, "#{@name}: #{JSON.stringify @params}"
-          for element in @sectionHtml
+          for element in @getSectionHtml()
             container.appendChild element
 
-      @onInsert()
-
     turnOnWidgets: () ->
-      @init() unless @sectionHtml?
-      loader.search @sectionHtml, (widgetsList) =>
+      loader.search @getSectionHtml(), (widgetsList) =>
         # удобно, но пока кажется избыточным такой notify
         #notifyAll "turnedOn", "-widgets", widgetsList
         on
@@ -85,7 +86,6 @@ define [
       return unless postfix
       triggerParams = [@]
       triggerParams.push params if params?
-      #console.log suffix, postfix, triggerParams
       events.trigger "section#{suffix}:#{postfix}", triggerParams
 
   Section

@@ -29,11 +29,7 @@ define [
 
     if @state.sections?
       sections = sectionParser.parseSections @state.sections
-      
-      section.init() for section in sections
-
-      if sections
-        @_invoker = new Invoker sections
+      @_invoker = new Invoker sections if sections
 
     if last?
       @prev_transition = last
@@ -79,8 +75,6 @@ define [
         state.index = @index
         @state = state
         sections = sectionParser.parseSections @state.sections
-        
-        section.init() for section in sections
         
         if @_invoker? and sections?
           @_invoker.update sections

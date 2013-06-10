@@ -1,8 +1,10 @@
 #### *module* events
 #
-# Реализация шины событий можно привязывать, отвязывать, либо обрабатывать событие только один раз,
-# кроме того есть возможность создавать другие шины событий, что полезно для упрощения логики внутри модулей
-# и при этом не сыплется лишнего в глобальную шину событий.
+# Реализация шины событий можно привязывать, отвязывать,
+# либо обрабатывать событие только один раз, кроме того есть
+# возможность создавать другие шины событий, что полезно
+# для упрощения логики внутри модулей, и при этом не сыплется
+# лишнего в глобальную шину событий.
 #
 
 define ['underscore'],  (_) ->
@@ -10,7 +12,8 @@ define ['underscore'],  (_) ->
 
   #### Oops(name)
   #
-  # Конструктор события, назначает имя, инициализирует спискок обработчиков пустым объектом
+  # Конструктор события, назначает имя, инициализирует
+  # спискок обработчиков пустым объектом
   #
   Oops = (name) ->
     @name = name
@@ -32,8 +35,11 @@ define ['underscore'],  (_) ->
     # Вызывает очередного обработчика
     #
     _handlerCaller: (handler, args) ->
-      for context in handler.contexts
-        handler.apply context, args
+      if handler.contexts.length
+        for context in handler.contexts
+          handler.apply context, args
+      else
+        handler.apply null, args
 
 
     ####  Oops.prototype._nextHandlerCall
@@ -75,7 +81,7 @@ define ['underscore'],  (_) ->
     bind: (handler, context, options) ->
       handler.id = handler.id or +_.uniqueId()
       handler.contexts = handler.contexts or []
-      if not _.find(handler.contexts, (value)-> value is context)
+      if context? and not _.find(handler.contexts, (value)-> value is context)
         handler.contexts.push(context)
 
       handler.options = handler.options or options or {}
@@ -113,7 +119,8 @@ define ['underscore'],  (_) ->
 
   ####  Events
   #
-  # Конструктор для шин событий, может создавать новые шины, которые могут наследовать родительские события
+  # Конструктор для шин событий, может создавать новые шины,
+  # которые могут наследовать родительские события
   #
   Events = (@_id) ->
     ####  events.list
@@ -128,7 +135,8 @@ define ['underscore'],  (_) ->
     ####  Events::sprout([name])
     #
     # Отпочковывает объект событий, если указано имя [name],
-    # то сохраняет ссылку на дочений объект в поле родительского по указанному имени.
+    # то сохраняет ссылку на дочений объект в поле родительского
+    # по указанному имени.
     #
     sprout: (name) ->
       instance = new Events()
@@ -157,7 +165,8 @@ define ['underscore'],  (_) ->
 
     ####  Events::once(name, handler, [context], [options])
     #
-    # Создает новое событие, либо отдает уже созданное и привязывает обработчика, который сработает только один раз
+    # Создает новое событие, либо отдает уже созданное
+    # и привязывает обработчика, который сработает только один раз
     #
     once: (name, handler, context, options) ->
       @create(name).once(handler, context, options)
@@ -165,7 +174,9 @@ define ['underscore'],  (_) ->
 
     ####  Events::bind(eventsNames, handler, [context], [options])
     #
-    # Создает новое событие (может быть и несколько, если в eventsNames указаны имена через запятую), либо отдает уже созданное и привязывает обработчика
+    # Создает новое событие (может быть и несколько, если
+    # в eventsNames указаны имена через запятую), либо отдает
+    # уже созданное и привязывает обработчика
     #
     bind: (eventsNames, handler, context, options) ->
       bindEventsList = _.compact eventsNames.split ///\,+\s*|\s+///
@@ -207,7 +218,9 @@ define ['underscore'],  (_) ->
 
     ####  Events::trigger(name, [args])
     #
-    # Вызывает исполнение обработчиков событий, сохраняет переданные данные, если такого событие не было, то оно создается и в нем сохраняются эти данные
+    # Вызывает исполнение обработчиков событий, сохраняет переданные
+    # данные, если такого событие не было, то оно создается
+    # и в нем сохраняются эти данные
     #
     trigger: (name, args) ->
       #console.log "TRIGGER", name, args

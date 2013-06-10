@@ -42,6 +42,7 @@ describe "clicks module", ->
       jasmine.Clock.tick(1000000)
 
       expect(handler).toHaveBeenCalled()
+      expect(handler.calls.length).toBe 1
       expect(handler.mostRecentCall.args[0][0]).toBe(null)
       expect(handler.mostRecentCall.args[0][1]).toBe("'testData'")
       expect(handler.mostRecentCall.args[0][2]).toBe("GET")

@@ -1,7 +1,10 @@
 #### *module* clicks
 #
-# Используя модули из clicks/, навешивает обработчиков на клики по сабмиту форм и ссылкам, принимает данные и
-# запускает механизм перехода между страниц, также проверяет наличие history, при его отсутствии прекращает дальнейшую инициализацию.
+# Используя модули из clicks/, навешивает обработчиков
+# на клики по сабмиту форм и ссылкам, принимает данные
+# и запускает механизм перехода между страниц, также
+# проверяет наличие history, при его отсутствии прекращает
+# дальнейшую инициализацию.
 #
 
 define ["clicks/forms", "clicks/anchors", "history", "events"], (forms, anchors, history, events) ->
@@ -14,7 +17,7 @@ define ["clicks/forms", "clicks/anchors", "history", "events"], (forms, anchors,
     data = eventData.data ? []
     method = eventData.method ? "GET"
     formData = eventData.formData ? []
-    
+
     events.trigger "pageTransition:init", [url, data, method, formData]
 
   events.bind "pageTransition:success", (data) ->
@@ -22,7 +25,9 @@ define ["clicks/forms", "clicks/anchors", "history", "events"], (forms, anchors,
 
   #### init()
   #
-  # Основная инициализация, добавление обработчика к модулям, работающим со специальными формами и ссылками
+  # Основная инициализация, добавление обработчика к модулям,
+  # работающим со специальными формами и ссылками
+  #
   init = () ->
     forms handler
     anchors handler

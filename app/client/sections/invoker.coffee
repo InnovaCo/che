@@ -142,11 +142,8 @@ define [
         # идет асинхронная
         #context.pause()  —— из-за этой штуки получается странный баг — cancel http запросов браузера
 
-        section.back.turnOffWidgets()
-        section.back.removeFromDOM()
-
-        section.forward.turnOnWidgets()
-        section.forward.insertIntoDOM()
+        section.back.turnOff()
+        section.forward.turnOn()
 
           # возобновление выполнения очереди
           #context.resume()  —— FIXME: странный cancel http запросов картинок и т.д. в браузере

@@ -66,9 +66,9 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
   #
   # Отвязывает обработчиков событий приложения
 
-  unbindWidgetModuleEvents = (eventsList) ->
+  unbindWidgetModuleEvents = (eventsList, widget) ->
     _.each eventsList, (handler, name) ->
-      events.unbind name, handler
+      events.unbind name, handler, widget
 
 
   #### widgets

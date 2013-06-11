@@ -46,6 +46,12 @@ describe "events module", ->
       events.unbind "testEvent", handler
       expect(events.list['testEvent']._handlers[handler.id]).not.toBeDefined()
 
+    it "should unbind handler with context", ->
+      handler = ->
+
+      events.bind "testEvent", handler, {}
+      expect(events.list['testEvent']._handlers[handler.id].id).toBe "FAIL!" #@todo
+
     it "should call handler after binding (recall option is true)", ->
       handler = jasmine.createSpy("handler")
 

@@ -109,10 +109,13 @@ define ['underscore'],  (_) ->
     #
     # Отвязывает обработчика от события
     #
-    unbind: (handler) ->
+    unbind: (handler, context) ->
       id = handler.id
       if id and @_handlers[id]
-        delete @_handlers[id]
+        if context?
+          handler.contexts = _.filter handler.contexts, (deleteContext) -> deleteContext isnt context
+        else
+          delete @_handlers[id]
       @
 
   window.evnts = []
@@ -204,16 +207,16 @@ define ['underscore'],  (_) ->
     #
     # Отвязывает обработчка от события
     #
-    unbind: (name, handler) ->
+    unbind: (name, handler, context) ->
       nameInNS = name.split "@"
       namePure = nameInNS[0]
 
-      @list[namePure].unbind(handler) if @list[namePure]
+      @list[namePure].unbind(handler, context) if @list[namePure]
 
       if nameInNS.length > 1
         for index in [1..(nameInNS.length-1)]
           nameWithNS = "#{namePure}@#{nameInNS[index]}"
-          @list[nameWithNS].unbind(handler) if @list[nameWithNS]
+          @list[nameWithNS].unbind(handler, context) if @list[nameWithNS]
 
 
     ####  Events::trigger(name, [args])

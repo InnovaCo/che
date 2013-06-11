@@ -76,7 +76,7 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
   events.bind "sections:loaded", (state) ->
     cache.save state
     transitions.create state
-    
+
   #### Обработка события "sections:error"
   #
   # Действия в случае ошибке при запросе секций

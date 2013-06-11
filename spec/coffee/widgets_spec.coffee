@@ -104,11 +104,11 @@ describe "widgets module", ->
 
       widgetInstance.sleepDown()
 
-      triggerMouseEvent("click", dom("div.action")[0])
-      triggerMouseEvent("click", dom("div.mouser")[0])
+      triggerMouseEvent "click", dom("div.action")[0]
+      triggerMouseEvent "click", dom("div.mouser")[0]
 
-      events.trigger("sampleEvent", {})
-      events.trigger("anotherEvent", {})
+      events.trigger "sampleEvent"
+      events.trigger "anotherEvent"
 
       jasmine.Clock.tick(101)
 

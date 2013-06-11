@@ -114,6 +114,7 @@ define ['underscore'],  (_) ->
       if id and @_handlers[id]
         if context?
           handler.contexts = _.filter handler.contexts, (deleteContext) -> deleteContext isnt context
+          delete @_handlers[id] if not handler.contexts.length
         else
           delete @_handlers[id]
       @

@@ -546,7 +546,7 @@ describe 'sections module', ->
 
       spyOn(events, "trigger").andCallThrough()
 
-      sectionsLoader "http://test.com/one/two", "GET", "sections header", 1
+      sectionsLoader "http://test.com/one/two", "GET", "sections: header", 1
 
       state = events.trigger.calls[0].args[1]
       
@@ -556,7 +556,7 @@ describe 'sections module', ->
         <span class='widgets' data-js-modules='widgets/rotation, widgets/gradient'>hello</span>
         </section>")
       expect(state.method).toBe('GET')
-      expect(state.sectionsHeader).toBe("sections header")
+      expect(state.sectionsHeader).toBe("sections: header")
       expect(state.index).toBe(1)
 
       ajax.dispatch = realAjaxDispatch
@@ -613,7 +613,7 @@ describe 'sections module', ->
       spyOn(currentStorage, "get").andCallThrough()
       currentStorage.save "sectionsHistory", origin + "|header:HEADER", reload_sections
 
-      events.trigger "pageTransition:init", [origin, "HEADER", "GET", {}]
+      events.trigger "pageTransition:init", [origin, "HEADER: s", "GET", {}]
 
       waitsFor ->
         allDone is yes
@@ -626,7 +626,7 @@ describe 'sections module', ->
         expect(requestInfo.url).toBe origin
         expect(currentStorage.get).toHaveBeenCalled()
         expect(storageGetInfo[0]).toBe "sectionsHistory"
-        expect(storageGetInfo[1]).toBe origin + "|header:HEADER"
+        expect(storageGetInfo[1]).toBe origin + "|header:HEADER: s"
 
   describe "traversing sections back", ->
     reloadSectionsArr = null

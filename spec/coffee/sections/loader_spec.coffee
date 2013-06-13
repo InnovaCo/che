@@ -28,7 +28,7 @@ describe "sections loader module", ->
   afterEach ->
     window.XMLHttpRequest = realXMLHttpRequest
 
-  describe "creating correct ajax rerquest", ->
+  describe "creating correct ajax request", ->
     it "should send request with special x-che headers", ->
       loader '/test', 'GET', 'a:#b', 1, []
 

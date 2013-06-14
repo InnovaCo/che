@@ -1,5 +1,5 @@
 describe "sections loader module", ->
-  loader = errorHandler = null
+  loader = errorHandler = events = null
   realXMLHttpRequest = null
   XMLHttpRequestsList = null
   beforeEach ->
@@ -17,9 +17,10 @@ describe "sections loader module", ->
 
       request
 
-    require ["sections/loader", "utils/errorHandlers/errorHandler"], (loaderModule, errorHandlerModule) ->
+    require ["sections/loader", "utils/errorHandlers/errorHandler", "events"], (loaderModule, errorHandlerModule, eventsModule) ->
       loader = loaderModule
       errorHandler = errorHandlerModule
+      events = eventsModule
 
     waitsFor ->
       loader?
@@ -64,3 +65,30 @@ describe "sections loader module", ->
       runs ->
         expect(processError).toHaveBeenCalled()
         expect(processError.mostRecentCall.args[0][0].errorCode).toBe(404)
+
+  describe "processing dom selectors", ->
+    it "should get sections from dom instead of server request", ->
+      sectionsLoaded = null
+      
+      events.bind "sections:loaded", (sections) ->
+        sectionsLoaded = sections
+
+      affix 'div.test title'
+
+      loader window.location.href, 'GET', '.test', 1, []
+
+      request = _.last XMLHttpRequestsList
+
+      waitsFor ->
+        sectionsLoaded
+
+      runs ->
+        expect(request).toBe(undefined)
+        expect(sectionsLoaded).toEqual({
+          url: window.location.href
+          sectionsHeader : '.test'
+          index : 1
+          method : 'GET'
+          sections : '<title></title>'
+        })
+

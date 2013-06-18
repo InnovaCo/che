@@ -12,6 +12,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks "grunt-groc"
   grunt.loadNpmTasks "grunt-open"
   grunt.loadNpmTasks "grunt-regarde"
+  grunt.loadTasks "tasks"
 
   grunt.initConfig
     path:
@@ -23,6 +24,7 @@ module.exports = (grunt) ->
         client: "public/js/"
         spec: "spec/js/"
         jasmine_helpers: "spec/helpers/js/"
+        dependency_graph: "doc/dependency/"
 
     # Just Copy files (библиотеки в чистом виде, или что еще)
     copy:
@@ -167,6 +169,12 @@ module.exports = (grunt) ->
       public: ["public/js"]
       specs: ["spec/js", "spec/helpers/js"]
 
+    dependencygraph:
+      default:
+        src: ["app/client/*.coffee","app/client/**/*.coffee"]
+        dest: "<%= path.dest.dependency_graph %>"
+      options:
+        baseUrl: "app/client/"
 
     # Watch tasks
     #watch:

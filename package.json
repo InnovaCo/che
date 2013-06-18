@@ -6,6 +6,12 @@
     "node": "0.8.x",
     "npm": "1.1.x"
   },
+  "url": "https://github.com/innsand/che",
+  "main": "./public/js/app.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/innsand/che.git"
+  },
   "scripts": {
     "start": "node app"
   },

@@ -28,8 +28,9 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
   # Вызывает обработчики событий
 
   callEventHandlers = (handlers, eventObj, context) ->
+    targetElement = context
     for handler in handlers
-      result = handler.call context, eventObj
+      result = handler.call context, eventObj, targetElement
       if result is false
         return false
 

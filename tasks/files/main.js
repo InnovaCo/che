@@ -1,6 +1,4 @@
-var width = window.innerWidth || d.documentElement.clientWidth || document.body.clientWidth,
-	height = window.innerHeight || d.documentElement.clientHeight || document.body.clientHeight,
-	color = d3.scale.category20(),
+var color = d3.scale.category20(),
 	svg = d3.select('body')
 		.append('svg')
 		.attr('width', 1200)

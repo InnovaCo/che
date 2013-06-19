@@ -181,8 +181,6 @@ module.exports = (grunt) ->
         groupList:
           "app": 3,
           "underscore": 2
-        libsList:
-          "dom!": "DomReady"
 
     # Watch tasks
     #watch:

@@ -25,6 +25,10 @@ body {
 	stroke: #000;
 }
 
+.link.link-force-dep {
+	stroke: blue !important;
+}
+
 .link.reverse-connection {
 	stroke: red;
 	stroke-dasharray: 5,5;

@@ -39,12 +39,19 @@ module.exports = function(grunt) {
 				}
 
 				if (dependency && dependency.length) {
-					for (var i = 0, length = dependency.length, dependencyName; i < length; i++) {
+					for (var i = 0, length = dependency.length, dependencyName, forceDependency; i < length; i++) {
 						dependencyName = dependency[i];
+						forceDependency = false;
+
+						if (dependencyName[dependencyName.length - 1] === '!') {
+							dependencyName = dependencyName.substr(0, dependencyName.length - 1);
+							forceDependency = true;
+						}
 
 						data.links.push({
-							'source': sourceId,
-							'target': rememberModuleName(options.libsList[dependencyName] || dependencyName)
+							source: sourceId,
+							target: rememberModuleName(options.libsList[dependencyName] || dependencyName),
+							forceDependency: forceDependency
 						});
 					};
 				}
@@ -93,6 +100,7 @@ module.exports = function(grunt) {
 		// Создаем файл с данными по зависимостям.
 		fs.writeFileSync(this.data.dest + 'data.json', JSON.stringify(data));
 
-		console.log('all done!');
+		console.log('found modules:\n');
+		console.log(data.nodes);
 	});
 };

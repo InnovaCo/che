@@ -130,7 +130,13 @@ d3.json('data.json', function (error, graph) {
 		.enter()
 		.append('line')
 		.attr('class', function(d) {
-			return 'link ' + ['link', d.source.index, d.target.index].join('-');
+			var className = 'link ' + ['link', d.source.index, d.target.index].join('-');
+
+			if (d.forceDependency) {
+				className += ' link-force-dep';
+			}
+
+			return className;
 		})
 		.style('stroke-width', function (d) {
 			return Math.sqrt(d.value);

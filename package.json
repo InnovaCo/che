@@ -33,7 +33,8 @@
     "grunt-coffeelint": "~0.0.6",
     "grunt-groc": "~0.3.0",
     "grunt-open": "~0.2.0",
-    "grunt-regarde": "~0.1.1"
+    "grunt-regarde": "~0.1.1",
+    "grunt-concat-sourcemap": "*"
   },
   "some": {
     "jade": "*",

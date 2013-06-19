@@ -1,0 +1,41 @@
+body {
+	width: 1000px;
+	height: 1000px;
+}
+
+.node {
+	stroke: #fff;
+	stroke-width: 1.5px;
+}
+
+.node.reverse-connection {
+	fill-opacity: 1 !important;
+	stroke-opacity: 1 !important;
+}
+
+.node.reverse-connection circle {
+	fill: #ccc !important;
+}
+
+.link {
+	stroke: #ccc;
+}
+
+.link.active {
+	stroke: #000;
+}
+
+.link.link-force-dep {
+	stroke: blue !important;
+}
+
+.link.reverse-connection {
+	stroke: red;
+	stroke-dasharray: 5,5;
+	stroke-opacity: .7 !important;
+}
+
+text {
+	font: 10px sans-serif;
+	pointer-events: none;
+}

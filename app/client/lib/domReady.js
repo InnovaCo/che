@@ -89,7 +89,9 @@ define(function () {
         //so removing the || document.readyState === "interactive" test.
         //There is still a window.onload binding that should get fired if
         //DOMContentLoaded is missed.
-        if (document.readyState === "complete") {
+
+        //We use checking on intercative state, because ie9 is not supported in che
+        if (document.readyState === "complete" || document.readyState === "interactive") {
             pageLoaded();
         }
     }

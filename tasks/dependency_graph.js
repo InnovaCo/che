@@ -1,61 +1,62 @@
 module.exports = function(grunt) {
 	var fs = require('fs'),
 		data = {
-			'nodes': [],
-			'links': []
+			nodes: [],
+			links: []
 		},
 		modulesCache = {},
-		priorityList = {
-			'app': 2,
-			'underscore': 1.5
-		},
-		groupList = {
-			'app': 3,
-			'underscore': 2
-		},
-		libsList = {
-			'dom!': 'DomReady'
-		},
-
-		rememberModuleName = function(name) {
-			if (modulesCache[name] != null) {
-				return modulesCache[name];
-			} else {
-				data.nodes.push({
-					id: name,
-					group: groupList[name] || 1,
-					priority: priorityList[name] || 1,
-				});
-				return modulesCache[name] = data.nodes.length - 1;
-			}
-		},
-
-		define = function(moduleName, dependency) {
-			sourceId = rememberModuleName(moduleName);
-
-			if (typeof(dependency) === 'function') {
-				dependency = null;
-			}
-
-			if (dependency && dependency.length) {
-				for (var i = 0, length = dependency.length, dependencyName; i < length; i++) {
-					dependencyName = dependency[i];
-
-					data.links.push({
-						'source': sourceId,
-						'target': rememberModuleName(libsList[dependencyName] || dependencyName)
-					});
-				};
-			}
-		},
 		sourceId;
 
 	grunt.registerMultiTask('dependencygraph', 'Build modules dependency map.', function() {
 		var options = this.options({
-				baseUrl: ""
+				baseUrl: "", // Базовый урл относительно которого рассматриваем модули.
+				libsList: {}, // Словарь соответсвий названий модулей с желаемыми названиями для отображения.
+				groupList: {}, // Список модулей и назначенные им цветовые группы.
+				priorityList: {}, // Список содулей и назначенные им коэфициенты увеличения размера нода.
+				linkDistance: 300, // Длина связей между нодами
+				charge: -700, // Заряд нодов. Если отрицательный, то они отталкиваются, если положительный то притягиваются.
+				sizeX: 1000,
+				sizeY: 1000
 			}),
-			regex = /(?:(?:define\s+\[)|(?:requirejs\s+\[))([^\]]+)/gm;
+			regex = /(?:(?:define\s+\[)|(?:requirejs\s+\[))([^\]]+)/gm,
+			rememberModuleName = function(name) {
+				if (modulesCache[name] != null) {
+					return modulesCache[name];
+				} else {
+					data.nodes.push({
+						id: name,
+						group: options.groupList[name] || 1,
+						priority: options.priorityList[name] || 1,
+					});
+					return modulesCache[name] = data.nodes.length - 1;
+				}
+			},
+			define = function(moduleName, dependency) {
+				sourceId = rememberModuleName(moduleName);
 
+				if (typeof(dependency) === 'function') {
+					dependency = null;
+				}
+
+				if (dependency && dependency.length) {
+					for (var i = 0, length = dependency.length, dependencyName; i < length; i++) {
+						dependencyName = dependency[i];
+
+						data.links.push({
+							'source': sourceId,
+							'target': rememberModuleName(options.libsList[dependencyName] || dependencyName)
+						});
+					};
+				}
+			};
+
+		// Переносим настройки графа в объект данных.
+		data.sizeX = options.sizeX;
+		data.sizeY = options.sizeY;
+		data.charge = options.charge;
+		data.linkDistance = options.linkDistance;
+
+		// Собираем файлы и обрабатываем ищем в них модули и зависимости.
 		this.files.forEach(function(f) {
 			var src = f.src.filter(function(filepath) {
 					if (!grunt.file.exists(filepath)) {

@@ -175,6 +175,14 @@ module.exports = (grunt) ->
         dest: "<%= path.dest.dependency_graph %>"
       options:
         baseUrl: "app/client/"
+        priorityList:
+          "app": 2,
+          "underscore": 1.5
+        groupList:
+          "app": 3,
+          "underscore": 2
+        libsList:
+          "dom!": "DomReady"
 
     # Watch tasks
     #watch:
@@ -189,4 +197,4 @@ module.exports = (grunt) ->
   grunt.registerTask "default", ["clean:public","lint","copy","require"]
 
   grunt.registerTask "spec", ["clean:specs","default","connect:phantom","jasmine"]
-  grunt.registerTask "full", ["clean:specs","default","connect:phantom","jasmine","groc"]
+  grunt.registerTask "full", ["clean:specs","default","connect:phantom","jasmine","groc","dependencygraph"]

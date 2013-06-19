@@ -1,17 +1,10 @@
 var width = window.innerWidth || d.documentElement.clientWidth || document.body.clientWidth,
 	height = window.innerHeight || d.documentElement.clientHeight || document.body.clientHeight,
 	color = d3.scale.category20(),
-
-	force = d3.layout.force()
-		.charge(-700)
-		.linkDistance(300)
-		.size([1000, 1000]),
-
 	svg = d3.select('body')
 		.append('svg')
 		.attr('width', 1200)
 		.attr('height', 1200),
-
 	handler = function(node, index) {
 		nodes.style('stroke-opacity', function(nodeItem) {
 			var opacity = 1;
@@ -87,6 +80,13 @@ var width = window.innerWidth || d.documentElement.clientWidth || document.body.
 	nodes;
 
 d3.json('data.json', function (error, graph) {
+	var force = d3.layout.force()
+		.charge(graph.charge)
+		.linkDistance(graph.linkDistance)
+		.size([graph.sizeX, graph.sizeY]);
+
+	// Создаем коллекции прямых и обратных связей нодов для последующей быстрой отрисовки линий 
+	// связи.
 	for (var i = 0, length = graph.links.length, link; i < length; i++) {
 		link = graph.links[i];
 		conections[link.source + '-' + link.target] = true;

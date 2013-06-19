@@ -5,7 +5,6 @@
 # в дальнейшем такое поведение нужно бы реализовать с помощью requirejs loaderAPI (например так сделано с модулем dom)
 #
 
-
 define ['events'], (events) ->
   return false if not window.history
 

@@ -116,24 +116,60 @@ module.exports = (grunt) ->
 
     # Jasmine tests
     jasmine:
-      # affix needs jquery (for jasmine fixtures)
-      src: ["public/js/app.js"]
-      options:
-        vendor: ["public/js/lib/require.js", "public/js/lib/underscore-min.js", "public/js/lib/jquery-1.9.1.min.js"]
-        specs: "spec/js/**/*_spec.js"
-        helpers: "spec/helpers/**/*.js"
-        host: "http://localhost:<%= connect.phantom.options.port %>/"
-        junit:
-          path: "reports/.junit-output/"
-        #template: require('grunt-template-jasmine-istanbul')
-        #templateOptions:
-        #  coverage: 'reports/coverage.json'
-        #  report: 'reports/coverage'
-        #template: require('grunt-template-jasmine-requirejs'),
-        #templateOptions:
-        #  requireConfig:
-        #    baseUrl: '.grunt/grunt-contrib-jasmine/src/main/js/'
+      test:
+        # affix needs jquery (for jasmine fixtures)
+        src: ["public/js/app.js"]
+        options:
+          vendor: ["public/js/lib/require.js", "public/js/lib/underscore-min.js", "public/js/lib/jquery-1.9.1.min.js"]
+          specs: "spec/js/**/*_spec.js"
+          helpers: "spec/helpers/**/*.js"
+          host: "http://localhost:<%= connect.phantom.options.port %>/"
+          junit:
+            path: "reports/.junit-output/"
         timeout: 10000
+      coverage:
+        # affix needs jquery (for jasmine fixtures)
+        src: ["public/js/app.js"]
+        options:
+          vendor: ["public/js/lib/require.js", "public/js/lib/underscore-min.js", "public/js/lib/jquery-1.9.1.min.js"]
+          specs: "spec/js/**/*_spec.js"
+          helpers: "spec/helpers/**/*.js"
+          host: "http://localhost:<%= connect.phantom.options.port %>/"
+          junit:
+            path: "reports/.junit-output/"
+  
+          template: require('grunt-template-jasmine-istanbul')
+          templateOptions:
+            coverage: 'reports/coverage.json'
+            report: [
+                type: 'html'
+                options:
+                  dir: 'reports/coverage'
+              ,
+                type: 'text-summary'
+            ]
+            thresholds:
+              lines: 75
+              statements: 75
+              branches: 75
+              functions: 90
+      ###
+      requirejs:
+        # affix needs jquery (for jasmine fixtures)
+        src: ["public/js/app.js"]
+        options:
+          vendor: ["public/js/lib/require.js", "public/js/lib/underscore-min.js", "public/js/lib/jquery-1.9.1.min.js"]
+          specs: "spec/js/**/*_spec.js"
+          helpers: "spec/helpers/**/*.js"
+          host: "http://localhost:<%= connect.phantom.options.port %>/"
+          junit:
+            path: "reports/.junit-output/"
+        template: require('grunt-template-jasmine-requirejs'),
+        templateOptions:
+          requireConfig:
+            baseUrl: '.grunt/grunt-contrib-jasmine/src/main/js/'
+        timeout: 10000
+      ###
 
     # CoffeeLint
     coffeelint:
@@ -194,5 +230,7 @@ module.exports = (grunt) ->
 
   grunt.registerTask "default", ["clean:public","lint","copy","require"]
 
-  grunt.registerTask "spec", ["clean:specs","default","connect:phantom","jasmine"]
-  grunt.registerTask "full", ["clean:specs","default","connect:phantom","jasmine","groc","dependencygraph"]
+  grunt.registerTask "spec", ["clean:specs","default","connect:phantom","jasmine:test"]
+  grunt.registerTask "full", ["clean:specs","default","connect:phantom","jasmine:test","groc","dependencygraph"]
+  grunt.registerTask "coverage", ["connect:phantom","jasmine:coverage"]
+

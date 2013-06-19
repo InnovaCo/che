@@ -13,7 +13,7 @@ define ['dom!', 'config', 'events'], (dom, config, events) ->
   # только если есть хоть один обработчик клика, на это указывает
   # наличие clicks
 
-  dom('body').on "a[#{config.reloadSectionsDataAttributeName}]", "click", (e) ->
+  dom('body').on "a[#{config.reloadSectionsDataAttributeName}],area[#{config.reloadSectionsDataAttributeName}]", "click", (e) ->
     return true if e.ctrlKey or e.altKey or e.shiftKey or e.metaKey
     if clicks?
 

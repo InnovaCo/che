@@ -153,23 +153,6 @@ module.exports = (grunt) ->
               statements: 75
               branches: 75
               functions: 90
-      ###
-      requirejs:
-        # affix needs jquery (for jasmine fixtures)
-        src: ["public/js/app.js"]
-        options:
-          vendor: ["public/js/lib/require.js", "public/js/lib/underscore-min.js", "public/js/lib/jquery-1.9.1.min.js"]
-          specs: "spec/js/**/*_spec.js"
-          helpers: "spec/helpers/**/*.js"
-          host: "http://localhost:<%= connect.phantom.options.port %>/"
-          junit:
-            path: "reports/.junit-output/"
-        template: require('grunt-template-jasmine-requirejs'),
-        templateOptions:
-          requireConfig:
-            baseUrl: '.grunt/grunt-contrib-jasmine/src/main/js/'
-        timeout: 10000
-      ###
 
     # CoffeeLint
     coffeelint:

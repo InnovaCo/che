@@ -14,6 +14,7 @@ define ['dom!', 'config', 'events'], (dom, config, events) ->
   # наличие clicks
 
   dom('body').on "a[#{config.reloadSectionsDataAttributeName}]", "click", (e) ->
+    return true if e.ctrlKey or e.altKey or e.shiftKey or e.metaKey
     if clicks?
 
       data = @getAttribute config.reloadSectionsDataAttributeName

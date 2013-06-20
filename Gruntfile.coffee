@@ -84,6 +84,11 @@ module.exports = (grunt) ->
           port: 8888
           base: "."
           keepalive: true
+      browserWatch:
+        options:
+          port: 8888
+          base: "."
+          keepalive: false
 
     open:
       specs:
@@ -212,6 +217,7 @@ module.exports = (grunt) ->
     watch:
       options:
         livereload: true
+        nospawn: true
       tests:
         files: ["spec/**/*.coffee"]
         tasks: ["spec-light"]
@@ -281,4 +287,6 @@ module.exports = (grunt) ->
   grunt.registerTask "spec-light", ["clean:specs","default","jasmine:test:build"]
   grunt.registerTask "full", ["clean:specs","default","connect:phantom","jasmine:test","groc","dependencygraph"]
   grunt.registerTask "coverage", ["connect:phantom","jasmine:coverage"]
+
+  grunt.registerTask "dev", ["open","connect:browserWatch","watch"]
 

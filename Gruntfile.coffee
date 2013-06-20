@@ -158,20 +158,20 @@ module.exports = (grunt) ->
     concat_sourcemap:
       concat:
         src: []
-        dest: "public/js/source-app.js"
+        dest: "public/js/app-sourcemap.js"
       app:
         src: ["public/js/app-require-config.js", "public/js/app-require-optimized.js"]
-        dest: "public/js/build/app.js"
+        dest: "public/js/app.js"
 
     uglify:
       app:
         files:
-          "public/js/build/app-min.js": ["public/js/build/app.js"]
-        options:
-          sourceMap: "public/js/build/app.js.map"
+          "public/js/app-min.js": ["public/js/app.js"]
+        # options:
+          # sourceMap: "public/js/app.js.map"
 
     clean:
-      optimized: ["public/js/app-require-optimized.js","public/js/source-app.js","public/js/source-app.js.map"]
+      optimized: ["public/js/app-require-optimized.js","public/js/app-sourcemap.js","public/js/app-sourcemap.js.map"]
       public: ["public/js"]
       specs: ["spec/js", "spec/helpers/js"]
 
@@ -202,10 +202,15 @@ module.exports = (grunt) ->
     if fs.existsSync sourceMapPath 
       sourceMapString = fs.readFileSync sourceMapPath, "utf-8"
       sourceMap = JSON.parse sourceMapString
+      filesRegex = /\.(js|coffee)['",]{0,}$/
+      fixedSources = []
 
       if sourceMap
-        for item, key in sourceMap.sources
-          sourceMap.sources[key] = "public/js/#{item}"
+        for item in sourceMap.sources
+          if /\.(js|coffee)['",]{0,}$/.test item
+            fixedSources.push "public/js/#{item}"
+        fixedSources.unshift "public/js/app-require-config.js"
+        sourceMap.sources = fixedSources
         grunt.config.set "concat_sourcemap.concat.src", sourceMap.sources
 
         console.log "Sourcemap has been harvested"
@@ -214,9 +219,9 @@ module.exports = (grunt) ->
     fs = require "fs"
     fixedSources = []
     sourcemapConfig = grunt.config "concat_sourcemap.concat"
-    requireConfig = grunt.config "requirejs"
-    sourceMapPath = requireConfig.compile.options.out + ".map"
-    sourceMapFileName = requireConfig.compile.options.out.substr (requireConfig.compile.options.out.lastIndexOf "/") + 1
+    concatConfig = grunt.config "concat.app"
+    sourceMapPath = concatConfig.dest + ".map"
+    sourceMapFileName = (concatConfig.dest.split "/").pop()
 
     if fs.existsSync sourcemapConfig.dest
       sourceMapString = fs.readFileSync sourcemapConfig.dest + ".map", "utf-8"
@@ -228,21 +233,20 @@ module.exports = (grunt) ->
           fixedSources.push item.replace "app/client/",""
 
       sourceMap.sources = fixedSources
-      sourceMap.sourceRoot = "../../app/client/"
+      sourceMap.sourceRoot = "../../../app/client/"
 
       fs.writeFileSync sourceMapPath, JSON.stringify sourceMap
 
-      jsFileString = fs.readFileSync requireConfig.compile.options.out, "utf-8"
-      jsFileString = jsFileString.replace /\/\/@\ssourceMappingURL.*/g, ""
+      jsFileString = fs.readFileSync concatConfig.dest, "utf-8"
+      jsFileString = jsFileString.replace /\/\/@\ssourceMappingURL=.+/g, ""
       jsFileString = "//@ sourceMappingURL=" + sourceMapFileName + ".map" + jsFileString
-      fs.writeFileSync requireConfig.compile.options.out, jsFileString
+      fs.writeFileSync concatConfig.dest, jsFileString
 
       console.log "Sourcemap has been updated"
 
   grunt.registerTask "lint", ["coffeelint"]
-  grunt.registerTask "require", ["coffee","requirejs","concat","uglify","clean:optimized"]
-  # grunt.registerTask "require", ["coffee","requirejs", "copy:sources","concat_sourcemap:test","uglify"]
-  grunt.registerTask "require2", ["coffee","requirejs","harvest_sourcemap","concat_sourcemap:concat","update_sourcemap", "concat_sourcemap:app"]
+  # grunt.registerTask "require", ["coffee","requirejs","concat","uglify","clean:optimized"]
+  grunt.registerTask "require", ["coffee","requirejs","harvest_sourcemap","concat_sourcemap:concat","concat:app","update_sourcemap","uglify","clean:optimized"]
   grunt.registerTask "livetest", ["open","connect:browser"]
 
   grunt.registerTask "default", ["clean:public","lint","copy","require"]

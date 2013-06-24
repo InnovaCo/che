@@ -1,10 +1,10 @@
 {
-  "name": "Pumpy",
-  "version": "0.0.2",
+  "name": "Che",
+  "version": "0.0.3",
   "private": true,
   "engines": {
-    "node": "0.8.x",
-    "npm": "1.1.x"
+    "node": "0.10.x",
+    "npm": "1.x.x"
   },
   "url": "https://github.com/innsand/che",
   "main": "./public/js/app.js",
@@ -32,7 +32,8 @@
     "grunt-coffeelint": "~0.0.6",
     "grunt-groc": "~0.3.0",
     "grunt-open": "~0.2.0",
-    "grunt-concat-sourcemap": "*"
+    "grunt-concat-sourcemap": "*",
+    "grunt-notify": "~0.2.4"
   },
   "some": {
     "jade": "*",

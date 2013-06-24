@@ -65,7 +65,9 @@ define [
 
             switch target
               when "icon"
-                backSection.element = dom('link[rel="shortcut icon"]')[0]
+                oldIcon = dom('link[rel="shortcut icon"]')[0]
+                continue if oldIcon?.href == section.element.href
+                backSection.element = oldIcon
                 backSection.params.ns = ['icon']
               else
                 containerElement = dom(target)[0]

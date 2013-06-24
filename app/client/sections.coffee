@@ -110,7 +110,8 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
   events.bind "history:popState", (state) ->
     if state?
       transitions.go state.index
-      if state.url? and state.sectionsHeader? and state.sectionsHeader.length
+      #if state.url? and state.sectionsHeader? and state.sectionsHeader.length and state.method?.toLowerCase() != 'post'
+      if state.url? and state.sectionsHeader?.length and state.method?.toLowerCase() != 'post'
         sectionsLoader state.url, state.method, state.sectionsHeader, state.index
     # here ask server for updated sections (history case)
 

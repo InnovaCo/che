@@ -562,7 +562,7 @@ describe 'sections module', ->
       ajax.dispatch = realAjaxDispatch
 
 
-    it "should update sections from server, when traversing sections", ->
+    it "should update sections from server, when traversing sections with sectionsHeader", ->
 
       spyOn(ajax, "dispatch").andCallThrough()
       sections._transitions.last = null
@@ -574,6 +574,7 @@ describe 'sections module', ->
         index: 0
         url: window.location.origin
         sections: "<section data-selector='one: #one'><div></div></section>"
+        sectionsHeader: "sections: header"
 
       waitsFor ->
         0 < ajax.dispatch.calls.length
@@ -583,6 +584,21 @@ describe 'sections module', ->
         expect(ajax.get).toHaveBeenCalled()
         expect(requestInfo.url).toBe(window.location.origin)
 
+    it "shouldn`t update sections from server, when traversing sections without sectionsHeader", ->
+      jasmine.Clock.useMock()
+      spyOn(ajax, "dispatch").andCallThrough()
+      sections._transitions.last = null
+      sections._transitions.current = sections._transitions.create({ index: 0, url: window.location.href, sectionsHeader: ['a: b']})
+
+      sections._transitions.create({index: 0, sections: "<div></div>"})
+
+      events.trigger "history:popState",
+        index: 0
+        url: window.location.origin
+        sections: "<section data-selector='one: #one'><div></div></section>"
+
+      jasmine.Clock.tick(1000)
+      expect(ajax.dispatch).not.toHaveBeenCalled()
 
     it "should load sections from server, when going forward", ->
 

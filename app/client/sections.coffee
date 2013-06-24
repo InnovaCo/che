@@ -110,8 +110,7 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
   events.bind "history:popState", (state) ->
     if state?
       transitions.go state.index
-      if state.url?
-       # window.location.href = state.url if not state.sectionsHeader # fallback case
+      if state.url? and state.sectionsHeader? and state.sectionsHeader.length
         sectionsLoader state.url, state.method, state.sectionsHeader, state.index
     # here ask server for updated sections (history case)
 

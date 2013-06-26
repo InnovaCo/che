@@ -11,23 +11,31 @@ define ['dom!', 'config', 'events', 'lib/serialize'], (dom, config, events, seri
   # Внутренний диспетчер событий, для вызова обработчиков клика
   clicks = null
 
+  # ----------- old code — may be need to remove ------
   # Непосредственно навешивание обработчика, который работает
   # только если есть хоть один обработчик клика, на это
   # указывает наличие clicks
-  dom('body').on "form[#{config.reloadSectionsDataAttributeName}] input[type='submit']", "click", (e) ->
-    if clicks?
+  #dom('body').on "form[#{config.reloadSectionsDataAttributeName}] input[type='submit'], form[#{config.reloadSectionsDataAttributeName}] button[type='submit']", "click", (e) ->
+  # ---------
+  # проблема в том, что самбит может быть также <button>, а может быть вообще форма без кнопки внутри, а самбититься
+  # при помощи нажатия Enter в текстовом инпуте.
 
-      # Достаем форму из родителей кнопки
-      formNode = @
-      while not found
-        if formNode.nodeName.toLowerCase() is "form"
-          found = true
-        else if formNode is document
-          return true
-        else
-          formNode = formNode.parentNode
+  # Временно пробуем все же работать с сабмитом. Кто сказал, что submit не поднимается?
+  dom('body').on "form[#{config.reloadSectionsDataAttributeName}]", "submit", (e) ->
+    return true if not clicks?
+    return true if @type is 'reset' or @type is 'button'
 
-      onSubmit(formNode, e)
+    # Достаем форму из родителей кнопки
+    formNode = @
+    while not found
+      if formNode.nodeName.toLowerCase() is "form"
+        found = true
+      else if formNode is document
+        return true
+      else
+        formNode = formNode.parentNode
+
+    onSubmit(formNode, e)
 
   processForms = (section) ->
     section = dom section ? 'body'

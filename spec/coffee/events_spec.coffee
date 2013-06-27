@@ -62,14 +62,17 @@ describe "events module", ->
       expect(handler.calls.length).toBe 3
 
     it "should call handler after binding (recall option is true)", ->
+      jasmine.Clock.useMock()
       handler = jasmine.createSpy("handler")
 
       events.trigger 'testEvent',
         testData: 'testData'
 
+      jasmine.Clock.tick 500
       events.bind "testEvent", handler, {},
         isSync: true # to call handler syncronously, tests for isSync option are coming separately
         recall: true
+
 
       expect(handler).toHaveBeenCalled()
 
@@ -267,6 +270,4 @@ describe "events module", ->
 
       expect( handlerClear ).toHaveBeenCalled()
       expect( handlerNamespace ).not.toHaveBeenCalled()
-
-
 

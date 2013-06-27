@@ -57,8 +57,13 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
 
   bindWidgetModuleEvents = (eventsList, widget) ->
     _.each eventsList, (handler, name) ->
+      options: {}
+      if handler.handler?
+        options = _.omit handler, "handler"
+        handler = handler.handler
       handler = if _.isString handler then widget[handler] else handler
-      events.bind name, handler, widget
+
+      events.bind name, handler, widget, options
       eventsList[name] = handler
 
 

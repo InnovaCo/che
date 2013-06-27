@@ -169,6 +169,34 @@ describe "widgets module", ->
 
       expect(clickSpyRoot).toHaveBeenCalled()
 
+    it "should call handlers from moduleEvents if such events fired before, when using 'recall' flag", ->
+      jasmine.Clock.useMock()
+      testValue = 0
+
+      events.trigger "oldEvent" # сразу файрим событие.
+
+      jasmine.Clock.tick(101)
+
+      checkWidget =
+        moduleEvents:
+          "oldEvent":
+            handler: "oldEventHandler"
+            recall: true
+        oldEventHandler: ->
+          testValue++
+
+      spyOn(checkWidget, "oldEventHandler").andCallThrough()
+
+      element = dom("div.widget").get(0)
+      widgetInstance = widgets._manager.add 'checkWidget', element, checkWidget
+
+      jasmine.Clock.tick(101)
+
+      runs ->
+        expect(checkWidget.oldEventHandler).toHaveBeenCalled()
+        expect(checkWidget.oldEventHandler.calls.length).toBe 1
+        expect(testValue).toBe 1
+
 
   describe 'many similar widgets on page', ->
     it 'should call their methods exactly in their own context via moduleEvents', ->
@@ -288,7 +316,6 @@ describe "widgets module", ->
         expect(checkWidget.manyWidgetsCheck.calls.length).toBe 1
         expect( dom("div.widget")[0].getAttribute "data-test-many-widgets" ).toBe null
         expect( dom("div.widget2")[0].getAttribute "data-test-many-widgets" ).toBe "yes"
-
 
 
 

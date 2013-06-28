@@ -76,7 +76,6 @@ define ['dom!', 'config', 'events', 'lib/serialize'], (dom, config, events, seri
       clicks = events.sprout()
 
     clicks.bind "form:click", callback
-    processForms()
 
   #### init.reset()
   #

@@ -50,7 +50,6 @@ define [
         else
           container = dom(@params.target)[0]
           return unless container?
-          forms.processForms @element
           # говорим контейнеру, мол, теперь внутри вот такая-то секция.
           container.setAttribute config.sectionSelectorAttributeName, "#{@name}: #{JSON.stringify @params}"
           for element in @getSectionHtml()

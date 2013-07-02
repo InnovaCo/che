@@ -6,7 +6,7 @@
 #
 
 define ['events'], (events) ->
-  return false if not window.history
+  return false if not window.history or not window.history.pushState
 
   originOnpopstate = window.onpopstate
   window.onpopstate = (popStateEvent)->

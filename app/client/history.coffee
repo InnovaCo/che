@@ -10,6 +10,8 @@ define ['events'], (events) ->
 
   originOnpopstate = window.onpopstate
   window.onpopstate = (popStateEvent)->
+    return false if not ('state' in window.history) # Chrome fired popState on very first pageLoad, but Firefox not.
+
     if originOnpopstate?
       originOnpopstate.apply window, arguments
 

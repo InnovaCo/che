@@ -8,10 +8,19 @@
 define ['events'], (events) ->
   return false if not window.history or not window.history.pushState
 
+  ###
+    Workaround with Chrome popsate on very first page load. Get idea from jquery.pjax
+  ###
+  initialUrl = window.location.href
+  popped = 'state' in window.history
+
   originOnpopstate = window.onpopstate
   window.onpopstate = (popStateEvent)->
-    return false if not ('state' in window.history) # Chrome fired popState on very first pageLoad, but Firefox not.
+    initialPop = !popped and location.href is initialUrl
+    popped = true
+    return if initialPop
 
+    console.debug("here we are")
     if originOnpopstate?
       originOnpopstate.apply window, arguments
 

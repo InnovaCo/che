@@ -12,7 +12,7 @@ define ['events'], (events) ->
     Workaround with Chrome popsate on very first page load. Get idea from jquery.pjax
   ###
   initialUrl = window.location.href
-  popped = 'state' in window.history
+  popped = 'state' of window.history
 
   originOnpopstate = window.onpopstate
   window.onpopstate = (popStateEvent)->
@@ -20,7 +20,6 @@ define ['events'], (events) ->
     popped = true
     return if initialPop
 
-    console.debug("here we are")
     if originOnpopstate?
       originOnpopstate.apply window, arguments
 

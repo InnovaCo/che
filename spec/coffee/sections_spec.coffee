@@ -655,6 +655,8 @@ describe 'sections module', ->
       reloadSectionsArr = [
         index: 1
         url: "http://sections.com/one"
+        sectionsHeader: "one: #one"
+        method: "get"
         sections: "<title>TITLE! number 1</title>
           <link href='http://test.ru/favicon1.ico' rel='shortcut icon' type='image/ico' />
           <section data-selector='one: #one'>sdkjhfksjd
@@ -663,6 +665,8 @@ describe 'sections module', ->
       ,
         index: 2
         url: "http://sections.com/two"
+        sectionsHeader: "one: #one"
+        method: "get"
         sections: "<title>TITLE! number 2</title>
           <link href='http://test.ru/favicon2.ico' rel='shortcut icon' type='image/ico' />
           <section data-selector='one: #one'><span>Yo!</span>Man!
@@ -712,6 +716,33 @@ describe 'sections module', ->
         expect($("title").text()).toBe "TITLE! number 1"
         expect($("div.backHistory#one span.widgets").text()).toBe "hello"
         expect($("link[rel='shortcut icon']").attr('href')).toBe "http://test.ru/favicon1.ico"
+
+    it "should abort ajax request, when going backward before previous request done", ->
+      allDone = no
+      requestStub =
+        abort: () -> allDone = yes
+        success: () ->
+
+      spyOn(requestStub, "abort").andCallThrough()
+
+      realAjaxDispatch = ajax.dispatch
+      fakeAjaxDispatch = (params) -> requestStub
+
+      ajax.dispatch = fakeAjaxDispatch
+
+      sections._transitions.last = null
+      sections._transitions.current = sections._transitions.create(reloadSectionsArr[0])
+
+      events.trigger "history:pushState", reloadSectionsArr[1]
+      events.trigger "history:popState", reloadSectionsArr[0]
+
+      waitsFor ->
+        allDone is yes
+
+      runs ->
+        expect(requestStub.abort).toHaveBeenCalled()
+        ajax.dispatch = realAjaxDispatch
+
 
     it "should change url to previous state", ->
       #TODO: where is test?

@@ -9,6 +9,11 @@
 define ["ajax", "events", "dom", "underscore"], (ajax, events, dom, _) ->
   sectionsRequest = null
 
+  # abort всех текущих запросов
+  # во избежание их отложенной обработки после перехода на новый state
+  events.bind "history:popState", (state) ->
+    sectionsRequest?.abort()
+
   #### Интерфейс модуля: (url, method, sectionsHeader, index, data) ->
   #
   # Кроме данных об пути, методе и необходимых секциях,

@@ -19,6 +19,9 @@ define ['events', 'utils/params', "utils/destroyer", "underscore"], (events, par
     request = createXMLHTTPObject()
     return false if not request
 
+    # hack for empty action="" attribute in forms, or empty href=""
+    url = document.location.href if url is ""
+
     # request.responseType = type
     request.open method, url, true
     request.setRequestHeader 'X-Requested-With', 'XMLHttpRequest'

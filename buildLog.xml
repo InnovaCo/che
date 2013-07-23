@@ -11,7 +11,7 @@
 
     <target name="create_report" depends="init">
         <junitreport todir="${REPORT}">
-            <fileset dir="${REPORT}">
+            <fileset dir="/reports/.junit-output/">
                 <include name="*.xml" />
             </fileset>
             <report format="frames" todir="${REPORT}/html" />

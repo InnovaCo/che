@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="test" basedir=".">
+
+	<property name="RELEASE_ROOT" value=".." />
+	<property name="REPORT" value="${RELEASE_ROOT}/Report" />
+	
+	<target name="create_report">
+		<junitreport todir="${REPORT}">
+			<fileset dir="${REPORT}">
+				<include name="*.xml" />
+			</fileset>
+			<report format="frames" todir="${REPORT}/html" />
+		</junitreport>
+
+	</target>
+
+</project>

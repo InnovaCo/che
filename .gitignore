@@ -13,7 +13,7 @@ results
 npm-debug.log
 
 .DS_Store
-_SpecRunner.html
+_SpecRunner_.html
 
 *.sublime*
 /.junit-output

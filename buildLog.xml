@@ -3,6 +3,7 @@
 
     <property name="RELEASE_ROOT" value=".." />
     <property name="REPORT" value="${RELEASE_ROOT}/Report" />
+    <property name="JUNIT_OUTPUT" value="reports/.junit-output" />
 
     <target name="init">
         <delete dir="${REPORT}" />
@@ -11,7 +12,7 @@
 
     <target name="create_report" depends="init">
         <junitreport todir="${REPORT}">
-            <fileset dir="/reports/.junit-output/">
+            <fileset dir="${JUNIT_OUTPUT}">
                 <include name="*.xml" />
             </fileset>
             <report format="frames" todir="${REPORT}/html" />

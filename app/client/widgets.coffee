@@ -99,6 +99,7 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
       prevInstance = @get name, element
       if prevInstance?
         # do some things with existing instance, if need so
+        prevInstance.wakeUp()
         return prevInstance
 
       instance = new Widget name, element, _widget

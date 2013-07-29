@@ -47,8 +47,8 @@ define ["ajax", "events", "dom", "underscore"], (ajax, events, dom, _) ->
         method: method,
         data: data,
         headers:
-          "X-Che-Sections": sectionsHeader
           "X-Che": true
+          "X-Che-Sections": sectionsHeader
           "X-Che-Params": sectionsParams
         type: "text"
         error: (request) ->

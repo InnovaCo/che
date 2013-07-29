@@ -41,8 +41,8 @@ describe "sections loader module", ->
       expect(request.open.mostRecentCall.args[2]).toBe(true)
       
       expect(request.setRequestHeader).toHaveBeenCalled()
-      expect(request.setRequestHeader.calls[1].args.join(',')).toBe "X-Che-Sections,a:#b"
-      expect(request.setRequestHeader.calls[2].args.join(',')).toBe "X-Che,true"
+      expect(request.setRequestHeader.calls[1].args.join(',')).toBe "X-Che,true"
+      expect(request.setRequestHeader.calls[2].args.join(',')).toBe "X-Che-Sections,a:#b"
       expect(request.setRequestHeader.calls[3].args.join(',')).toBe "X-Che-Params,{\"c\":true}"
 
     it "should call error handler when request is fail", ->

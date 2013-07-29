@@ -15,10 +15,11 @@ define ["clicks/forms", "clicks/anchors", "history", "events"], (forms, anchors,
   handler = (eventData) ->
     url = eventData.url ? null
     data = eventData.data ? []
+    params = eventData.params ? "{}"
     method = eventData.method ? "GET"
     formData = eventData.formData ? []
 
-    events.trigger "pageTransition:init", [url, data, method, formData]
+    events.trigger "pageTransition:init", [url, data, method, formData, params]
 
   events.bind "pageTransition:success", (data) ->
     events.trigger "pageTransition:stop", data

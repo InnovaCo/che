@@ -5,6 +5,7 @@
 
 define ['utils/popups'], (popupsModule) ->
   widgetDataAttributeName: 'data-js-widgets'
+  reloadParamsDataAttributeName: 'data-reload-params'
   reloadSectionsDataAttributeName: 'data-reload-sections'
   baseWidgetsPath: ''
   sectionTagName: "section"

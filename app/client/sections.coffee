@@ -92,7 +92,7 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
   # Проверяется, есть ли такие секции уже в кэше, если есть,
   # то используем их и параллельно смотрим на сервере
   #
-  events.bind "pageTransition:init", (url, sectionsHeader, method, formData) ->
+  events.bind "pageTransition:init", (url, sectionsHeader, method, formData, params) ->
     state = cache.get url, sectionsHeader
 
     index = transitions.last?.index + 1 or 0
@@ -100,7 +100,7 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
       state.index = index
       transitions.create state
 
-    sectionsLoader url, method, sectionsHeader, index, formData
+    sectionsLoader url, method, sectionsHeader, index, formData, params
 
 
   #### Обработка события history:popState

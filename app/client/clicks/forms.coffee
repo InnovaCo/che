@@ -46,6 +46,7 @@ define ['dom!', 'config', 'events', 'lib/serialize'], (dom, config, events, seri
 
   onSubmit = (formNode, e) ->
     data = formNode.getAttribute config.reloadSectionsDataAttributeName
+    params = formNode.getAttribute config.reloadParamsDataAttributeName
     url = formNode.getAttribute('action') or ""
     formData = serialize formNode
 
@@ -56,10 +57,12 @@ define ['dom!', 'config', 'events', 'lib/serialize'], (dom, config, events, seri
     method = formNode.getAttribute('method') or "GET"
 
     clicks.trigger "form:click",
-      url: url,
-      data: data,
-      method: method,
+      url: url
+      data: data
+      params: params
+      method: method
       formData: formData
+
     e.preventDefault()
     return false
 

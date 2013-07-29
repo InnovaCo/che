@@ -31,7 +31,7 @@ define ['events'], (events) ->
     originPushState.apply window.history, arguments
     events.trigger "history:pushState", Array::slice.call arguments
 
-  originReplaceState = window.history.pushState
+  originReplaceState = window.history.replaceState
 
   window.history.replaceState = ->
     originReplaceState.apply window.history, arguments

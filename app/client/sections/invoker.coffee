@@ -130,7 +130,7 @@ define [
     # добавляя инструкции в очередь asynQueue
     #
     _insertSections: () ->
-      sectionsParams = @state?.sectionsParams or {}
+      state = @state
 
       asyncQueue.next (sections) ->
         insertionData = {}
@@ -156,6 +156,6 @@ define [
 
       .next ->
         # Сообщаем об окончании вставки секций
-        events.trigger "sections:inserted", sectionsParams
+        events.trigger "sections:inserted", state
 
   return Invoker

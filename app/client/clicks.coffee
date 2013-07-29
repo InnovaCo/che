@@ -15,7 +15,7 @@ define ["clicks/forms", "clicks/anchors", "history", "events"], (forms, anchors,
   handler = (eventData) ->
     url = eventData.url ? null
     data = eventData.data ? []
-    params = eventData.params ? {}
+    params = eventData.params ? "{}"
     method = eventData.method ? "GET"
     formData = eventData.formData ? []
 

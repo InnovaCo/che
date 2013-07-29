@@ -31,7 +31,7 @@ describe "sections loader module", ->
 
   describe "creating correct ajax request", ->
     it "should send request with special x-che headers", ->
-      loader '/test', 'GET', 'a:#b', 1, []
+      loader '/test', 'GET', 'a:#b', 1, [], '{"c":true}'
 
       request = _.last XMLHttpRequestsList
 
@@ -43,9 +43,10 @@ describe "sections loader module", ->
       expect(request.setRequestHeader).toHaveBeenCalled()
       expect(request.setRequestHeader.calls[1].args.join(',')).toBe "X-Che-Sections,a:#b"
       expect(request.setRequestHeader.calls[2].args.join(',')).toBe "X-Che,true"
+      expect(request.setRequestHeader.calls[3].args.join(',')).toBe "X-Che-Params,{\"c\":true}"
 
     it "should call error handler when request is fail", ->
-      loader '/test', 'GET', 'a:#b', 1, []
+      loader '/test', 'GET', 'a:#b', 1, [], '{"c":true}'
 
       processError = jasmine.createSpy "processError"
 

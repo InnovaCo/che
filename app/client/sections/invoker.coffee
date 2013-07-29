@@ -22,13 +22,13 @@ define [
   "underscore"], (asyncQueue, sectionParser, Section, dom, events, loader, config, widgetsData, widgets, _) ->
 
 
-  #### Invoker(@reloadSections)
+  #### Invoker(@reloadSections, @state)
   #
   # Конструктор объекта действий при переходе, содежит в себе данные
   # для переходов в обе стороны ()
   # Принимает уже распарсенные sections.
   #
-  Invoker = (@reloadSections) ->
+  Invoker = (@reloadSections, @state) ->
 
     @_back = null
     @_forward = null
@@ -130,6 +130,8 @@ define [
     # добавляя инструкции в очередь asynQueue
     #
     _insertSections: () ->
+      sectionsParams = @state?.sectionsParams or {}
+
       asyncQueue.next (sections) ->
         insertionData = {}
         for target in _.keys sections.back
@@ -154,6 +156,6 @@ define [
 
       .next ->
         # Сообщаем об окончании вставки секций
-        events.trigger "sections:inserted"
+        events.trigger "sections:inserted", sectionsParams
 
   return Invoker

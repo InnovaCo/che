@@ -15,13 +15,16 @@ define ['dom!', 'config', 'events'], (dom, config, events) ->
 
   dom('body').on "a[#{config.reloadSectionsDataAttributeName}],area[#{config.reloadSectionsDataAttributeName}]", "click", (e) ->
     return true if e.ctrlKey or e.altKey or e.shiftKey or e.metaKey
-    if clicks?
 
+    if clicks?
       data = @getAttribute config.reloadSectionsDataAttributeName
+      params = @getAttribute config.reloadParamsDataAttributeName
       url = @getAttribute 'href'
+
       clicks.trigger "anchor:click",
-        url: url,
-        data: data,
+        url: url
+        data: data
+        params: params
         method: "GET"
 
       e.preventDefault()

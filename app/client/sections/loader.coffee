@@ -14,17 +14,21 @@ define ["ajax", "events", "dom", "underscore"], (ajax, events, dom, _) ->
   events.bind "history:popState", (state) ->
     sectionsRequest?.abort()
 
-  #### Интерфейс модуля: (url, method, sectionsHeader, index, data) ->
+  #### Интерфейс модуля: (url, method, sectionsHeader, index, data, sectionsParams) ->
   #
   # Кроме данных об пути, методе и необходимых секциях,
   # принимает параметр index, который добавляется к загруженным данным,
   # необходим для точного встраивания секций в цепь переходов, так как
   # могут быть запрошены данные для переходов в середине цепи
   #
-  (url, method, sectionsHeader, index, data = []) ->
-    getState = (url, sections) ->
+  (url, method, sectionsHeader, index, data = [], sectionsParams) ->
+    getState = (url, sections, params) ->
+      try
+        params = JSON.parse params
+
       url: url
       sectionsHeader: sectionsHeader
+      sectionsParams: params
       index: index
       method: method
       sections: sections
@@ -45,6 +49,7 @@ define ["ajax", "events", "dom", "underscore"], (ajax, events, dom, _) ->
         headers:
           "X-Che-Sections": sectionsHeader
           "X-Che": true
+          "X-Che-Params": sectionsParams
         type: "text"
         error: (request) ->
           state = getState url, sectionsHeader
@@ -52,7 +57,7 @@ define ["ajax", "events", "dom", "underscore"], (ajax, events, dom, _) ->
 
       sectionsRequest.success (request, sections) ->
         window.location.href = request.getResponseHeader "X-Che-Redirect" if request.getResponseHeader "X-Che-Redirect"
-        state = getState (request.getResponseHeader "X-Che-Url"), sections
+        state = getState (request.getResponseHeader "X-Che-Url"), sections, request.getResponseHeader "X-Che-Params"
         events.trigger "sections:loaded", state
 
     if _.isString(sectionsHeader) and sectionsHeader.indexOf(":") < 0 then queryRequest() else serverRequest()

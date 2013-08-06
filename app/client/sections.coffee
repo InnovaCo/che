@@ -113,6 +113,8 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
       #if state.url? and state.sectionsHeader? and state.sectionsHeader.length and state.method?.toLowerCase() != 'post'
       if state.url? and state.sectionsHeader?.length and state.method?.toLowerCase() != 'post'
         sectionsLoader state.url, state.method, state.sectionsHeader, state.index
+    else
+      transitions.create()
     # here ask server for updated sections (history case)
 
   #### Событие transition:current:update

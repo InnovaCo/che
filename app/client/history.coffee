@@ -20,20 +20,25 @@ define ['events'], (events) ->
     popped = true
     return if initialPop
 
+    console.debug 1, popStateEvent, popStateEvent.state
+
     if originOnpopstate?
       originOnpopstate.apply window, arguments
 
-    events.trigger "history:popState", popStateEvent.state if popStateEvent.state?
+    if 'state' of popStateEvent
+      events.trigger "history:popState", (popStateEvent.state if popStateEvent.state?)
 
   originPushState = window.history.pushState
 
   window.history.pushState = ->
+    console.debug 2, arguments
     originPushState.apply window.history, arguments
     events.trigger "history:pushState", Array::slice.call arguments
 
   originReplaceState = window.history.replaceState
 
   window.history.replaceState = ->
+    console.debug 3, arguments
     originReplaceState.apply window.history, arguments
     events.trigger "history:replaceState", Array::slice.call Array, arguments
 

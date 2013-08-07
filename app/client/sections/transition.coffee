@@ -79,7 +79,7 @@ define [
         if @_invoker? and sections?
           @_invoker.update sections
         else if sections?
-          @_invoker = new Invoker section, @state
+          @_invoker = new Invoker sections, @state
 
         @invoke()
 
@@ -111,10 +111,12 @@ define [
         if to_transition? then @next_transition.next(to_transition)
 
       if to_transition is @index or not to_transition
-        asyncQueue.next ->
+        asyncQueue.next =>
+          @restoreScroll transition, to_transition
           events.trigger "pageTransition:success",
             transition: transition
       @
+
 
     #### Transition::next([to_transition])
     #
@@ -130,7 +132,8 @@ define [
         if to_transition? then @prev_transition.prev(to_transition)
 
       if to_transition is @index or not to_transition
-        asyncQueue.next ->
+        asyncQueue.next =>
+          @restoreScroll transition, to_transition
           events.trigger "pageTransition:success",
             transition: transition
       @
@@ -148,6 +151,7 @@ define [
       events.trigger "transition:undo", @
       events.trigger "transition:current:update", @prev_transition
 
+
     #### Transition::invoke()
     #
     # Применение действий перехода. Помимо применения действий
@@ -159,6 +163,10 @@ define [
       @_invoker?.run()
       events.trigger "transition:invoked", @
       events.trigger "transition:current:update", @
+
+
+    restoreScroll: (transition, index) ->
+      window.scrollTo(transition.state.scrollPos.left or 0, transition.state.scrollPos.top or 0) if index == transition.index and transition.state.scrollPos?
 
 
   return Transition

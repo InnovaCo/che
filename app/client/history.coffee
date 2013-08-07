@@ -8,19 +8,38 @@
 define ['events'], (events) ->
   return false if not window.history or not window.history.pushState
 
+  class State
+    constructor: (options = {}) ->
+      scrollPos = @getScroll()
+
+      @che = true
+      @url = options.url or window.location.href
+      @index = options.index or 0
+      @method = options.method or "GET"
+      @sections = options.sections
+      @sectionsHeader = options.sectionsHeader or []
+      @sectionsParams = options.sectionsParams or {}
+      @scrollPos =
+        top: options.scrollTop or scrollPos.top
+        left: options.scrollLeft or scrollPos.left
+      @userReplaceState = true if options.replaceState
+
+    getScroll: ->
+      top: window.pageYOffset or document.documentElement.scrollTop
+      left: window.pageXOffset or document.documentElement.scrollLeft
+
   ###
     Workaround with Chrome popsate on very first page load. Get idea from jquery.pjax
   ###
   initialUrl = window.location.href
-  popped = 'state' of window.history
+  window.history.CheState = State
+  popped = false
 
   originOnpopstate = window.onpopstate
   window.onpopstate = (popStateEvent)->
     initialPop = !popped and location.href is initialUrl
     popped = true
     return if initialPop
-
-    console.debug 1, popStateEvent, popStateEvent.state
 
     if originOnpopstate?
       originOnpopstate.apply window, arguments
@@ -29,16 +48,12 @@ define ['events'], (events) ->
       events.trigger "history:popState", (popStateEvent.state if popStateEvent.state?)
 
   originPushState = window.history.pushState
-
-  window.history.pushState = ->
-    console.debug 2, arguments
+  window.history.pushState = (state) ->
     originPushState.apply window.history, arguments
     events.trigger "history:pushState", Array::slice.call arguments
 
   originReplaceState = window.history.replaceState
-
-  window.history.replaceState = ->
-    console.debug 3, arguments
+  window.history.replaceState = (state) ->
     originReplaceState.apply window.history, arguments
     events.trigger "history:replaceState", Array::slice.call Array, arguments
 

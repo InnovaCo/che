@@ -38,14 +38,21 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
     # и обновляем его данные
     #
     create: (state) ->
-      state = state or {index: 0, url: window.location.href, sectionsHeader: []}
+      if !state?.che
+        state = new history.CheState state
+
       if @last? and state.index <= @last.index
         transition = @go state.index
         transition.update state
         return transition
       else
         isNewState = (history.state or {}).url isnt state.url
-        method = if isNewState then "pushState" else "replaceState"
+        method = if isNewState and !state.userReplaceState then "pushState" else "replaceState"
+
+        if @current?.index != @last?.index and @current.index < state.index
+          state.index = @current.index + 1
+          @last = @current
+
         history[method] state, state.title, state.url
         @last = new Transition state, @last
         return @last
@@ -110,11 +117,11 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
   events.bind "history:popState", (state) ->
     if state?
       transitions.go state.index
-      #if state.url? and state.sectionsHeader? and state.sectionsHeader.length and state.method?.toLowerCase() != 'post'
+
       if state.url? and state.sectionsHeader?.length and state.method?.toLowerCase() != 'post'
         sectionsLoader state.url, state.method, state.sectionsHeader, state.index
-    else
-      transitions.create()
+    else if transitions.last?
+      transitions.create(new history.CheState index: transitions.last.state.index + 1, replaceState: true)
     # here ask server for updated sections (history case)
 
   #### Событие transition:current:update

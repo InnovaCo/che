@@ -24,8 +24,7 @@ define [
   # связанный список
   #
   Transition = (@state, last) ->
-    @index = @state.index = @state.index or (last?.index + 1) or 0
-
+    @index = @state.index
 
     if @state.sections?
       sections = sectionParser.parseSections @state.sections

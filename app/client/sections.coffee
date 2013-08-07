@@ -37,7 +37,9 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
     # нужный переход, применяем его (функция transitions.go)
     # и обновляем его данные
     #
-    create: (state) ->
+    create: (state = {}) ->
+      state.index = state.index or (@last?.index + 1) or 0
+
       if !state?.che
         state = new history.CheState state
 

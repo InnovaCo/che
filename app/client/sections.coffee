@@ -118,6 +118,8 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
       if state.url? and state.sectionsHeader?.length and state.method?.toLowerCase() != 'post'
         sectionsLoader state.url, state.method, state.sectionsHeader, state.index
     else if transitions.last?
+      # Если переданный state равен null, то создаем новый и убеждаемся что при этом произойдет
+      # replaceState
       transitions.create(new history.CheState index: transitions.last.state.index + 1, replaceState: true)
     # here ask server for updated sections (history case)
 

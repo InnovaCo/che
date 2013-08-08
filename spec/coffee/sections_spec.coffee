@@ -753,3 +753,14 @@ describe 'sections module', ->
     it "should change url to previous 3th state, when going to 3th prev state", ->
       #TODO: where is test?
       false
+
+    it "should create new state instead null", ->
+      jasmine.Clock.useMock()
+
+      lastTransition = sections._transitions.last
+      events.trigger "history:popState", null
+
+      jasmine.Clock.tick(1000)
+
+      expect(sections._transitions.last.prev_transition).toBe(lastTransition)
+      expect(sections._transitions.current.state.userReplaceState).toBe(true)

@@ -14,7 +14,8 @@ define [
   "sections/asyncQueue",
   "events",
   "utils/destroyer",
-  "history"], (sectionParser, Invoker, asyncQueue, events, destroyer, history) ->
+  "history",
+  "config"], (sectionParser, Invoker, asyncQueue, events, destroyer, history, config) ->
 
   transitionsCompressDepth = 5
   transitionsDestroyDepth = 10
@@ -169,7 +170,7 @@ define [
 
 
     restoreScroll: (transition, index) ->
-      window.scrollTo(transition.state.scrollPos.left or 0, transition.state.scrollPos.top or 0) if index == transition.index and transition.state.scrollPos?
+      window.scrollTo(transition.state.scrollPos.left or 0, transition.state.scrollPos.top or 0) if !!config.autoScrollOnTransitions and index == transition.index and transition.state.scrollPos?
 
 
   return Transition

@@ -13,7 +13,8 @@ define [
   "sections/invoker",
   "sections/asyncQueue",
   "events",
-  "utils/destroyer",], (sectionParser, Invoker, asyncQueue, events, destroyer) ->
+  "utils/destroyer",
+  "history"], (sectionParser, Invoker, asyncQueue, events, destroyer, history) ->
 
   transitionsCompressDepth = 5
   transitionsDestroyDepth = 10
@@ -24,7 +25,10 @@ define [
   # связанный список
   #
   Transition = (@state, last) ->
-    @index = @state.index
+    if !@state?.che
+      @state = new history.CheState @state
+
+    @index = @state.index = @state.index or (last?.index + 1) or 0
 
     if @state.sections?
       sections = sectionParser.parseSections @state.sections

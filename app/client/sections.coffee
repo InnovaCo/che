@@ -50,11 +50,6 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
       else
         isNewState = (history.state or {}).url isnt state.url
         method = if isNewState and !state.userReplaceState then "pushState" else "replaceState"
-
-        if @current?.index != @last?.index and @current.index < state.index
-          state.index = @current.index + 1
-          @last = @current
-
         history[method] state, state.title, state.url
         @last = new Transition state, @last
         return @last

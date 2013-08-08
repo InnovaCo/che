@@ -170,7 +170,7 @@ define [
 
 
     restoreScroll: (transition, index) ->
-      window.scrollTo(transition.state.scrollPos.left or 0, transition.state.scrollPos.top or 0) if !!config.autoScrollOnTransitions and index == transition.index and transition.state.scrollPos?
+      window.scrollTo(transition.state.scrollPos.left or 0, transition.state.scrollPos.top or 0) if !!config.autoScrollOnTransitions and (!index? or index == transition.index) and transition.state.scrollPos?
 
 
   return Transition

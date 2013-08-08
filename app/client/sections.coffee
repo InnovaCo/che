@@ -123,6 +123,11 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
       transitions.create(new history.CheState index: transitions.last.state.index + 1, replaceState: true)
     # here ask server for updated sections (history case)
 
+  events.bind "sections:loaded", (state) ->
+    state.scrollPos =
+      top: 0
+      left: 0
+
   #### Событие transition:current:update
   #
   # Создается первый пустой переход, он отражает текущее состояние страницы

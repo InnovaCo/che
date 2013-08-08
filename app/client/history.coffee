@@ -11,6 +11,7 @@ define ['events'], (events) ->
   class State
     constructor: (options = {}) ->
       scrollPos = @getScroll()
+      options.scrollPos = {} if !options.scrollPos?
 
       @che = true
       @url = options.url or window.location.href
@@ -20,8 +21,8 @@ define ['events'], (events) ->
       @sectionsHeader = options.sectionsHeader or []
       @sectionsParams = options.sectionsParams or {}
       @scrollPos =
-        top: options.scrollTop or scrollPos.top
-        left: options.scrollLeft or scrollPos.left
+        top: options.scrollPos.top or scrollPos.top
+        left: options.scrollPos.left or scrollPos.left
       @userReplaceState = true if options.replaceState
 
     getScroll: ->

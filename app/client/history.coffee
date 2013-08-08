@@ -10,9 +10,6 @@ define ['events'], (events) ->
 
   class State
     constructor: (options = {}) ->
-      scrollPos = @getScroll()
-      options.scrollPos = {} if !options.scrollPos?
-
       @che = true
       @url = options.url or window.location.href
       @index = options.index or 0
@@ -20,14 +17,20 @@ define ['events'], (events) ->
       @sections = options.sections
       @sectionsHeader = options.sectionsHeader or []
       @sectionsParams = options.sectionsParams or {}
-      @scrollPos =
-        top: options.scrollPos.top or scrollPos.top
-        left: options.scrollPos.left or scrollPos.left
+      @scrollPos = {}
       @userReplaceState = true if options.replaceState
+      @updateScroll options
 
     getScroll: ->
       top: window.pageYOffset or document.documentElement.scrollTop
       left: window.pageXOffset or document.documentElement.scrollLeft
+
+    updateScroll: (options = {}) ->
+      scrollPos = @getScroll()
+      options.scrollPos = {} if !options.scrollPos?
+      @scrollPos =
+        top: options.scrollPos.top or scrollPos.top
+        left: options.scrollPos.left or scrollPos.left
 
   ###
     Workaround with Chrome popsate on very first page load. Get idea from jquery.pjax

@@ -123,10 +123,16 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
       transitions.create(new history.CheState index: transitions.last.state.index + 1, replaceState: true)
     # here ask server for updated sections (history case)
 
+  # При загрузках новых секций выставляем скрол в нулевое положение
   events.bind "sections:loaded", (state) ->
     state.scrollPos =
       top: 0
       left: 0
+
+  # Если пользователь сделал дополнительное проскроливание после перехода на новую секцию, то он
+  # может выстрелить событие на обновление параметров скрола в текущем стейте.
+  events.bind "cheScrollState:update", () ->
+    transitions.current.state?.updateScroll?()
 
   #### Событие transition:current:update
   #

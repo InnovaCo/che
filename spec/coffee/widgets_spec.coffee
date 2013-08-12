@@ -317,5 +317,39 @@ describe "widgets module", ->
         expect( dom("div.widget")[0].getAttribute "data-test-many-widgets" ).toBe null
         expect( dom("div.widget2")[0].getAttribute "data-test-many-widgets" ).toBe "yes"
 
+  describe 'using defered sections switch', ->
+    it 'should call two sections switch handlers and only two "pageTransition:success" event handlers', ->
+      element = dom("div.widget").get(0)
+      switchHandlersCount = 0
+      successHandlersCount = 0
 
+      widgetInstance = widgets._manager.add 'widgetWithSwitchManager', element,
+        switchEvents:
+          "switchPage": "switchHandler"
+          "failSwitchPage": "failSwitchHandler"
+        moduleEvents:
+          "pageTransition:success": "successHandler"
+        switchHandler: (callback) ->
+          switchHandlersCount++
+          callback()
+        failSwitchHandler: (callback) ->
+          switchHandlersCount++
+        successHandler: ->
+          successHandlersCount++
 
+      events.trigger "sections:loaded",
+        sectionsParams:
+          switchEvent: "switchPage"
+
+      events.trigger "sections:loaded", {}
+
+      events.trigger "sections:loaded",
+        sectionsParams:
+          switchEvent: "failSwitchPage"
+
+      waitsFor ->
+        successHandlersCount
+
+      runs ->
+        expect(switchHandlersCount).toBe 2
+        expect(successHandlersCount).toBe 2

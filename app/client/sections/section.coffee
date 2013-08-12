@@ -7,7 +7,7 @@ define [
   "underscore"
   "clicks/forms"
   "dom"
-  ], (events, config, loader, widgets, widgetsData, _, forms, dom) ->
+], (events, config, loader, widgets, widgetsData, _, forms, dom) ->
   Section = () ->
     @name
     @params = {}

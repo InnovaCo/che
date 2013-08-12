@@ -7,8 +7,16 @@
 # (это происходит при отсутствии historyAPI)
 #
 
-
-define ["history", "events", "sections/loader", "sections/transition", "sections/cache", "utils/errorHandlers/errorHandler", "dom"],  (history, events, sectionsLoader, Transition, cache, errorHandler, dom) ->
+define [
+  "history",
+  "events",
+  "sections/loader",
+  "sections/transition",
+  "sections/cache",
+  "utils/errorHandlers/errorHandler",
+  "dom",
+  "widgets"
+], (history, events, sectionsLoader, Transition, cache, errorHandler, dom, widgets) ->
   return false if not history
 
   #### transitions
@@ -74,8 +82,31 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
   # Секции сохраняются в кэш, и далее отдаются на инициализацию
   #
   events.bind "sections:loaded", (state) ->
-    cache.save state
-    transitions.create state
+    switchEvent = state.sectionsParams?.switchEvent
+    completeHandler = ->
+      cache.save state
+      transitions.create state
+    switchManagers = []
+
+    if switchEvent
+      for widget in widgets._switchManagers
+        animationHandler = widget[widget.switchEvents[switchEvent]]
+
+        if widget._isOn and typeof animationHandler == "function"
+          switchManagers.push widget.id
+          animationHandler.call widget, ->
+            for id, i in switchManagers
+              if widget.id == id
+                switchManagers.splice i, 1
+
+                if !switchManagers.length
+                  console.debug 2, state
+                  completeHandler()
+                break
+    else
+      completeHandler()
+
+    console.debug 1, state
 
   #### Обработка события "sections:error"
   #

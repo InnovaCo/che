@@ -318,12 +318,12 @@ describe "widgets module", ->
         expect( dom("div.widget2")[0].getAttribute "data-test-many-widgets" ).toBe "yes"
 
   describe 'using defered sections switch', ->
-    it 'should call two sections switch handlers and only two "pageTransition:success" event handlers', ->
+    it 'should call three section switch handlers and six "pageTransition:success" event handlers', ->
       element = dom("div.widget").get(0)
       switchHandlersCount = 0
       successHandlersCount = 0
 
-      widgetInstance = widgets._manager.add 'widgetWithSwitchManager', element,
+      widgets._manager.add 'widgetWithSwitchManager', element,
         switchEvents:
           "switchPage": "switchHandler"
           "failSwitchPage": "failSwitchHandler"
@@ -336,6 +336,30 @@ describe "widgets module", ->
           switchHandlersCount++
         successHandler: ->
           successHandlersCount++
+
+      widgets._manager.add 'anotherWidgetWithSwitchManager', element,
+        switchEvents:
+          "switchPage": "switchHandler"
+        moduleEvents:
+          "pageTransition:success": "successHandler"
+        switchHandler: (callback) ->
+          switchHandlersCount++
+          callback()
+        successHandler: ->
+          successHandlersCount++
+
+      widgetInstance = widgets._manager.add 'sleepedWidgetWithSwitchManager', element,
+        switchEvents:
+          "switchPage": "switchHandler"
+        moduleEvents:
+          "pageTransition:success": "successHandler"
+        switchHandler: (callback) ->
+          switchHandlersCount++
+          callback()
+        successHandler: ->
+          successHandlersCount++
+
+      widgetInstance.sleepDown()
 
       events.trigger "sections:loaded",
         sectionsParams:
@@ -351,5 +375,5 @@ describe "widgets module", ->
         successHandlersCount
 
       runs ->
-        expect(switchHandlersCount).toBe 2
-        expect(successHandlersCount).toBe 2
+        expect(switchHandlersCount).toBe 3
+        expect(successHandlersCount).toBe 6

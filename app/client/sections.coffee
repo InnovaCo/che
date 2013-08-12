@@ -86,6 +86,7 @@ define [
     completeHandler = ->
       cache.save state
       transitions.create state
+    hasActiveSwitchManager = false
     switchManagers = []
 
     if switchEvent
@@ -93,6 +94,7 @@ define [
         animationHandler = widget[widget.switchEvents[switchEvent]]
 
         if widget._isOn and typeof animationHandler == "function"
+          hasActiveSwitchManager = true
           switchManagers.push widget.id
           animationHandler.call widget, ->
             for id, i in switchManagers
@@ -100,13 +102,10 @@ define [
                 switchManagers.splice i, 1
 
                 if !switchManagers.length
-                  console.debug 2, state
                   completeHandler()
                 break
-    else
-      completeHandler()
 
-    console.debug 1, state
+    completeHandler() if !hasActiveSwitchManager
 
   #### Обработка события "sections:error"
   #

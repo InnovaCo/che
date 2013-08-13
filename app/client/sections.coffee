@@ -104,8 +104,8 @@ define [
                 switchManagers.splice i, 1
 
                 if !switchManagers.length
-                  sectionIsAnimating = false
                   completeHandler()
+                  sectionIsAnimating = false
                 break
 
     completeHandler() if !hasActiveSwitchManager

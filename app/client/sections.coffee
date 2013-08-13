@@ -7,9 +7,18 @@
 # (это происходит при отсутствии historyAPI)
 #
 
-
-define ["history", "events", "sections/loader", "sections/transition", "sections/cache", "utils/errorHandlers/errorHandler", "dom"],  (history, events, sectionsLoader, Transition, cache, errorHandler, dom) ->
+define [
+  "history",
+  "events",
+  "sections/loader",
+  "sections/transition",
+  "sections/cache",
+  "utils/errorHandlers/errorHandler",
+  "dom",
+  "widgets"
+], (history, events, sectionsLoader, Transition, cache, errorHandler, dom, widgets) ->
   return false if not history
+  sectionIsAnimating = false
 
   #### transitions
   #
@@ -74,8 +83,32 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
   # Секции сохраняются в кэш, и далее отдаются на инициализацию
   #
   events.bind "sections:loaded", (state) ->
-    cache.save state
-    transitions.create state
+    switchEvent = state.sectionsParams?.switchEvent
+    completeHandler = ->
+      cache.save state
+      transitions.create state
+    hasActiveSwitchManager = false
+    switchManagers = []
+
+    if switchEvent
+      for widget in widgets._switchManagers
+        animationHandler = widget[widget.switchEvents[switchEvent]]
+
+        if widget._isOn and typeof animationHandler == "function"
+          hasActiveSwitchManager = true
+          switchManagers.push widget.id
+          sectionIsAnimating = true
+          animationHandler.call widget, ->
+            for id, i in switchManagers
+              if widget.id == id
+                switchManagers.splice i, 1
+
+                if !switchManagers.length
+                  completeHandler()
+                  sectionIsAnimating = false
+                break
+
+    completeHandler() if !hasActiveSwitchManager
 
   #### Обработка события "sections:error"
   #
@@ -93,14 +126,15 @@ define ["history", "events", "sections/loader", "sections/transition", "sections
   # то используем их и параллельно смотрим на сервере
   #
   events.bind "pageTransition:init", (url, sectionsHeader, method, formData, params) ->
-    state = cache.get url, sectionsHeader
+    if !sectionIsAnimating
+      state = cache.get url, sectionsHeader
 
-    index = transitions.last?.index + 1 or 0
-    if state?
-      state.index = index
-      transitions.create state
+      index = transitions.last?.index + 1 or 0
+      if state?
+        state.index = index
+        transitions.create state
 
-    sectionsLoader url, method, sectionsHeader, index, formData, params
+      sectionsLoader url, method, sectionsHeader, index, formData, params
 
 
   #### Обработка события history:popState

@@ -52,6 +52,13 @@ define [
       if !state?.che
         state = new history.CheState state
 
+      if !state.userReplaceState
+        if transitions.current? and !transitions.current.state.userReplaceState
+          transitions.current.state.updateScroll?()
+        state.scrollPos =
+          top: 0
+          left: 0
+
       if @last? and state.index <= @last.index
         transition = @go state.index
         transition.update state

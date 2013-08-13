@@ -780,7 +780,7 @@ describe 'sections module', ->
       expect(sections._transitions.current.state.scrollPos.top).toBe(scrollPos.top)
       expect(sections._transitions.current.state.scrollPos.left).toBe(scrollPos.left)
 
-      newTransition = sections._transitions.create()
+      newTransition = sections._transitions.create replaceState: true
 
       jasmine.Clock.tick(1000)
 
@@ -800,6 +800,36 @@ describe 'sections module', ->
       jasmine.Clock.tick(1000)
 
       expect(sections._transitions.current.index).toBe(newTransition.index)
+      expect(sections._transitions.current.state.scrollPos.top).toBe(0)
+
+    it "should reset scroll on prev transition", ->
+      jasmine.Clock.useMock()
+
+      scrollPos =
+        top: 100
+        left: 0
+
+      transition = sections._transitions.create()
+      transition.state.scrollPos = scrollPos
+
+      jasmine.Clock.tick(1000)
+
+      expect(sections._transitions.current.state.scrollPos.top).toBe(scrollPos.top)
+      expect(sections._transitions.current.state.scrollPos.left).toBe(scrollPos.left)
+
+      newTransition = sections._transitions.create()
+
+      jasmine.Clock.tick(1000)
+
+      expect(sections._transitions.current.index).toBe(newTransition.index)
+      expect(sections._transitions.current.state.scrollPos.top).toBe(0)
+      expect(sections._transitions.current.state.scrollPos.left).toBe(0)
+
+      sections._transitions.current.prev()
+
+      jasmine.Clock.tick(1000)
+
+      expect(sections._transitions.current.index).toBe(transition.index)
       expect(sections._transitions.current.state.scrollPos.top).toBe(0)
 
     it "should update scroll on user event", ->

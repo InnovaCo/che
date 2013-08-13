@@ -13,7 +13,8 @@ define [
   "sections/invoker",
   "sections/asyncQueue",
   "events",
-  "utils/destroyer",], (sectionParser, Invoker, asyncQueue, events, destroyer) ->
+  "utils/destroyer"
+], (sectionParser, Invoker, asyncQueue, events, destroyer) ->
 
   transitionsCompressDepth = 5
   transitionsDestroyDepth = 10

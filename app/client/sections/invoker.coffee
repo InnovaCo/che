@@ -19,7 +19,8 @@ define [
   "config",
   "utils/widgetsData",
   "widgets",
-  "underscore"], (asyncQueue, sectionParser, Section, dom, events, loader, config, widgetsData, widgets, _) ->
+  "underscore"
+], (asyncQueue, sectionParser, Section, dom, events, loader, config, widgetsData, widgets, _) ->
 
 
   #### Invoker(@reloadSections, @state)

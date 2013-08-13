@@ -35,12 +35,12 @@ define ["ajax", "events", "dom", "underscore"], (ajax, events, dom, _) ->
 
     queryRequest = () ->
       sectionsContainer = dom(sectionsHeader)
+
       if dom(sectionsHeader)[0]?
-        state = getState url, dom(sectionsHeader)[0].innerHTML
+        state = getState url, dom(sectionsHeader)[0].innerHTML, sectionsParams
         events.trigger "sections:loaded", state
 
     serverRequest = () ->
-
       sectionsRequest?.abort()
       sectionsRequest = ajax.dispatch
         url: url,
@@ -52,7 +52,7 @@ define ["ajax", "events", "dom", "underscore"], (ajax, events, dom, _) ->
           "X-Che-Params": sectionsParams
         type: "text"
         error: (request) ->
-          state = getState url, sectionsHeader
+          state = getState url, sectionsHeader, sectionsParams
           events.trigger "sections:error", [state, request.status, request.statusText]
 
       sectionsRequest.success (request, sections) ->

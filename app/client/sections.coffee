@@ -18,6 +18,7 @@ define [
   "widgets"
 ], (history, events, sectionsLoader, Transition, cache, errorHandler, dom, widgets) ->
   return false if not history
+  sectionIsAnimating = false
 
   #### transitions
   #
@@ -96,12 +97,14 @@ define [
         if widget._isOn and typeof animationHandler == "function"
           hasActiveSwitchManager = true
           switchManagers.push widget.id
+          sectionIsAnimating = true
           animationHandler.call widget, ->
             for id, i in switchManagers
               if widget.id == id
                 switchManagers.splice i, 1
 
                 if !switchManagers.length
+                  sectionIsAnimating = false
                   completeHandler()
                 break
 
@@ -123,14 +126,15 @@ define [
   # то используем их и параллельно смотрим на сервере
   #
   events.bind "pageTransition:init", (url, sectionsHeader, method, formData, params) ->
-    state = cache.get url, sectionsHeader
+    if !sectionIsAnimating
+      state = cache.get url, sectionsHeader
 
-    index = transitions.last?.index + 1 or 0
-    if state?
-      state.index = index
-      transitions.create state
+      index = transitions.last?.index + 1 or 0
+      if state?
+        state.index = index
+        transitions.create state
 
-    sectionsLoader url, method, sectionsHeader, index, formData, params
+      sectionsLoader url, method, sectionsHeader, index, formData, params
 
 
   #### Обработка события history:popState

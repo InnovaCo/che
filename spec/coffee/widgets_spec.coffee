@@ -377,3 +377,8 @@ describe "widgets module", ->
       runs ->
         expect(switchHandlersCount).toBe 3
         expect(successHandlersCount).toBe 6
+        expect(widgets._switchManagers.length).toBe 3
+
+        widgetInstance.destroy()
+
+        expect(widgets._switchManagers.length).toBe 2

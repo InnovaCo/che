@@ -13,8 +13,10 @@ define [
   "sections/invoker",
   "sections/asyncQueue",
   "events",
-  "utils/destroyer"
-], (sectionParser, Invoker, asyncQueue, events, destroyer) ->
+  "utils/destroyer",
+  "history",
+  "config"
+], (sectionParser, Invoker, asyncQueue, events, destroyer, history, config) ->
 
   transitionsCompressDepth = 5
   transitionsDestroyDepth = 10
@@ -25,8 +27,10 @@ define [
   # связанный список
   #
   Transition = (@state, last) ->
-    @index = @state.index = @state.index or (last?.index + 1) or 0
+    if !@state?.che
+      @state = new history.CheState @state
 
+    @index = @state.index = @state.index or (last?.index + 1) or 0
 
     if @state.sections?
       sections = sectionParser.parseSections @state.sections
@@ -80,7 +84,7 @@ define [
         if @_invoker? and sections?
           @_invoker.update sections
         else if sections?
-          @_invoker = new Invoker section, @state
+          @_invoker = new Invoker sections, @state
 
         @invoke()
 
@@ -112,10 +116,12 @@ define [
         if to_transition? then @next_transition.next(to_transition)
 
       if to_transition is @index or not to_transition
-        asyncQueue.next ->
+        asyncQueue.next =>
+          @restoreScroll transition, to_transition
           events.trigger "pageTransition:success",
             transition: transition
       @
+
 
     #### Transition::next([to_transition])
     #
@@ -131,7 +137,8 @@ define [
         if to_transition? then @prev_transition.prev(to_transition)
 
       if to_transition is @index or not to_transition
-        asyncQueue.next ->
+        asyncQueue.next =>
+          @restoreScroll transition, to_transition
           events.trigger "pageTransition:success",
             transition: transition
       @
@@ -149,6 +156,7 @@ define [
       events.trigger "transition:undo", @
       events.trigger "transition:current:update", @prev_transition
 
+
     #### Transition::invoke()
     #
     # Применение действий перехода. Помимо применения действий
@@ -160,6 +168,10 @@ define [
       @_invoker?.run()
       events.trigger "transition:invoked", @
       events.trigger "transition:current:update", @
+
+
+    restoreScroll: (transition, index) ->
+      window.scrollTo(transition.state.scrollPos.left or 0, transition.state.scrollPos.top or 0) if !!config.autoScrollOnTransitions and (!index? or index == transition.index) and transition.state.scrollPos?
 
 
   return Transition

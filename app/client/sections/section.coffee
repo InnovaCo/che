@@ -62,7 +62,7 @@ define [
         on
 
     turnOffWidgets: () ->
-      for data in widgetsData @element
+      for data in widgetsData @getSectionHtml()
         widgets.get(data.name, data.element)?.sleepDown()
 
     onInsert: () ->

@@ -5,7 +5,7 @@
 # в дальнейшем такое поведение нужно бы реализовать с помощью requirejs loaderAPI (например так сделано с модулем dom)
 #
 
-define ['events'], (events) ->
+define ["events"], (events) ->
   return false if not window.history or not window.history.pushState
 
   class State
@@ -40,7 +40,7 @@ define ['events'], (events) ->
   popped = false
 
   originOnpopstate = window.onpopstate
-  window.onpopstate = (popStateEvent)->
+  window.onpopstate = (popStateEvent) ->
     initialPop = !popped and location.href is initialUrl
     popped = true
     return if initialPop
@@ -53,6 +53,10 @@ define ['events'], (events) ->
 
   originPushState = window.history.pushState
   window.history.pushState = (state) ->
+    # При создании нового роута проставляем `popped` так как во всех браузерах кроме Хрома при
+    # возвращении назад мы попадем на изначальную страницу и переход не сработает так как браузер
+    # попадет под условие `return if initialPop`.
+    popped = true
     originPushState.apply window.history, arguments
     events.trigger "history:pushState", Array::slice.call arguments
 

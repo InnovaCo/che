@@ -15,7 +15,8 @@ define [
   "events",
   "utils/destroyer",
   "history",
-  "config"], (sectionParser, Invoker, asyncQueue, events, destroyer, history, config) ->
+  "config"
+], (sectionParser, Invoker, asyncQueue, events, destroyer, history, config) ->
 
   transitionsCompressDepth = 5
   transitionsDestroyDepth = 10

@@ -5,6 +5,7 @@
 
 define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"], (events, dom, destroyer, config, guid, _)->
   widgetsInstances = {}
+  switchManagers = []
   eventSplitter = /^(\S+)\s*(.*)$/
 
   #### bindWidgetDomEvents(eventsList, widget)
@@ -118,6 +119,7 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
     _.extend @, _widget
     @id = guid()
     @init?(@element)
+    switchManagers.push @ if @switchEvents?
     @wakeUp()
     @isInitialized = yes
 
@@ -132,6 +134,7 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
         return
       bindWidgetDomEvents @domEvents, @
       bindWidgetModuleEvents @moduleEvents, @
+
       @turnOn?()
       @_isOn = yes
       @
@@ -155,6 +158,10 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
 
     destroy: ->
       @sleepDown()
+      for manager, i in switchManagers
+        if manager = @
+          switchManagers.splice i, 1
+          break
       widgets.remove @
 
 
@@ -170,6 +177,8 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
     # Ссылка на конструктор виджетов
 
     _constructor: Widget
+
+    _switchManagers: switchManagers
 
     #### widgets.get(name, element)
     #

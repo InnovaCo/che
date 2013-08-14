@@ -9,6 +9,7 @@ define ['utils/popups'], (popupsModule) ->
   reloadSectionsDataAttributeName: 'data-reload-sections'
   baseWidgetsPath: ''
   sectionTagName: "section"
+  autoScrollOnTransitions: true
   sectionSelectorAttributeName: "data-selector"
   storage: ["fake", "localStorage", "cookies"]
   # todo сделать непереопределяемыми

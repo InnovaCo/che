@@ -6,7 +6,7 @@
 # так как согласно основной идее эти запросы отправляются всегда
 # на разные url
 #
-define ["ajax", "events", "dom", "underscore"], (ajax, events, dom, _) ->
+define ["ajax", "events", "dom", "underscore", "history"], (ajax, events, dom, _, history) ->
   sectionsRequest = null
 
   # abort всех текущих запросов
@@ -26,12 +26,13 @@ define ["ajax", "events", "dom", "underscore"], (ajax, events, dom, _) ->
       try
         params = JSON.parse params
 
-      url: url
-      sectionsHeader: sectionsHeader
-      sectionsParams: params
-      index: index
-      method: method
-      sections: sections
+      new history.CheState
+        url: url
+        sectionsHeader: sectionsHeader
+        sectionsParams: params
+        index: index
+        method: method
+        sections: sections
 
     queryRequest = () ->
       sectionsContainer = dom(sectionsHeader)
@@ -56,8 +57,9 @@ define ["ajax", "events", "dom", "underscore"], (ajax, events, dom, _) ->
           events.trigger "sections:error", [state, request.status, request.statusText]
 
       sectionsRequest.success (request, sections) ->
-        window.location.href = request.getResponseHeader "X-Che-Redirect" if request.getResponseHeader "X-Che-Redirect"
-        state = getState (request.getResponseHeader "X-Che-Url"), sections, request.getResponseHeader "X-Che-Params"
-        events.trigger "sections:loaded", state
+        if typeof(request.getResponseHeader) == "function"
+          window.location.href = request.getResponseHeader "X-Che-Redirect" if request.getResponseHeader "X-Che-Redirect"
+          state = getState (request.getResponseHeader "X-Che-Url"), sections, request.getResponseHeader "X-Che-Params"
+          events.trigger "sections:loaded", state
 
     if _.isString(sectionsHeader) and sectionsHeader.indexOf(":") < 0 then queryRequest() else serverRequest()

@@ -85,11 +85,11 @@ describe "sections loader module", ->
 
       runs ->
         expect(request).toBe(undefined)
-        expect(sectionsLoaded).toEqual({
+        expect(sectionsLoaded).toEqual(new window.history.CheState({
           url: window.location.href
           sectionsHeader : '.test'
           index : 1
           method : 'GET'
           sections : '<title></title>'
-        })
+        }))
 

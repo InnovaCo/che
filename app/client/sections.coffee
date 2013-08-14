@@ -46,15 +46,26 @@ define [
     # нужный переход, применяем его (функция transitions.go)
     # и обновляем его данные
     #
-    create: (state) ->
-      state = state or {index: 0, url: window.location.href, sectionsHeader: []}
+    create: (state = {}) ->
+      state.index = state.index or (@last?.index + 1) or 0
+
+      if !state?.che
+        state = new history.CheState state
+
+      if !state.userReplaceState
+        if transitions.current? and !transitions.current.state.userReplaceState
+          transitions.current.state.updateScroll?()
+        state.scrollPos =
+          top: 0
+          left: 0
+
       if @last? and state.index <= @last.index
         transition = @go state.index
         transition.update state
         return transition
       else
         isNewState = (history.state or {}).url isnt state.url
-        method = if isNewState then "pushState" else "replaceState"
+        method = if isNewState and !state.userReplaceState then "pushState" else "replaceState"
         history[method] state, state.title, state.url
         @last = new Transition state, @last
         return @last
@@ -144,10 +155,25 @@ define [
   events.bind "history:popState", (state) ->
     if state?
       transitions.go state.index
-      #if state.url? and state.sectionsHeader? and state.sectionsHeader.length and state.method?.toLowerCase() != 'post'
+
       if state.url? and state.sectionsHeader?.length and state.method?.toLowerCase() != 'post'
         sectionsLoader state.url, state.method, state.sectionsHeader, state.index
+    else if transitions.last?
+      # Если переданный state равен null, то создаем новый и убеждаемся что при этом произойдет
+      # replaceState
+      transitions.create(new history.CheState index: transitions.last.state.index + 1, replaceState: true)
     # here ask server for updated sections (history case)
+
+  # При загрузках новых секций выставляем скрол в нулевое положение
+  events.bind "sections:loaded", (state) ->
+    state.scrollPos =
+      top: 0
+      left: 0
+
+  # Если пользователь сделал дополнительное проскроливание после перехода на новую секцию, то он
+  # может выстрелить событие на обновление параметров скрола в текущем стейте.
+  events.bind "cheScrollState:update", () ->
+    transitions.current.state?.updateScroll?()
 
   #### Событие transition:current:update
   #

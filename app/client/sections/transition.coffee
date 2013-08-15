@@ -20,6 +20,7 @@ define [
 
   transitionsCompressDepth = 5
   transitionsDestroyDepth = 10
+  scrollHandlers = []
 
   #### Transition(@data)
   #
@@ -57,7 +58,6 @@ define [
           break
 
       prevTransition?.destroy()
-
     return @
 
   Transition:: =
@@ -171,7 +171,33 @@ define [
 
 
     restoreScroll: (transition, index) ->
-      window.scrollTo(transition.state.scrollPos.left or 0, transition.state.scrollPos.top or 0) if !!config.autoScrollOnTransitions and (!index? or index == transition.index) and transition.state.scrollPos?
+      canScroll = !!config.autoScrollOnTransitions or !!scrollHandlers.length
+      scrollPos = transition.state.scrollPos or {}
 
+      if (!transition.state.userReplaceState)
+        events.trigger "scrollHandlers:prepare", transition
+
+        for handler in scrollHandlers
+          result = handler(scrollPos, transition) or {}
+          scrollPos.top = result.top if result.top?
+          scrollPos.left = result.left if result.left?
+
+        transition.state.scrollPos = scrollPos
+
+      if (!index? or index == transition.index) and scrollPos? and canScroll
+        window.scrollTo(scrollPos.left or 0, scrollPos.top or 0)
+        events.trigger "pageTransition:scrolled", transition
+
+  # Для того чтоб более плавно контролировать скролинг страниц подписываемся на событие
+  # регистрации обработчиков скролинга.
+  events.bind "scrollHandler:register", (handler) ->
+    scrollHandlers.push handler if typeof handler == "function"
+
+  # Так же добавляем возможность отписывать обработчики скролинга.
+  events.bind "scrollHandler:unregister", (handler) ->
+    for fn, i in scrollHandlers
+      if fn == handler
+        scrollHandlers.splice i, 0
+        break
 
   return Transition

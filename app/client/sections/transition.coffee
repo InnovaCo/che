@@ -15,12 +15,12 @@ define [
   "events",
   "utils/destroyer",
   "history",
-  "config"
-], (sectionParser, Invoker, asyncQueue, events, destroyer, history, config) ->
+  "config",
+  "utils/scroll"
+], (sectionParser, Invoker, asyncQueue, events, destroyer, history, config, scrollModule) ->
 
   transitionsCompressDepth = 5
   transitionsDestroyDepth = 10
-  scrollHandlers = []
 
   #### Transition(@data)
   #
@@ -171,33 +171,14 @@ define [
 
 
     restoreScroll: (transition, index) ->
-      canScroll = !!config.autoScrollOnTransitions or !!scrollHandlers.length
+      canScroll = !!config.autoScrollOnTransitions or !!scrollModule._handlers.length
       scrollPos = transition.state.scrollPos or {}
 
-      if (!transition.state.userReplaceState)
-        events.trigger "scrollHandlers:prepare", transition
+      if (!transition.state.userReplaceState and !transition.next_transition)
+        scrollPos = scrollModule.process transition
 
-        for handler in scrollHandlers
-          result = handler(scrollPos, transition) or {}
-          scrollPos.top = result.top if result.top?
-          scrollPos.left = result.left if result.left?
-
-        transition.state.scrollPos = scrollPos
-
-      if (!index? or index == transition.index) and scrollPos? and canScroll
+      if (!index? or index == transition.index) and canScroll
         window.scrollTo(scrollPos.left or 0, scrollPos.top or 0)
         events.trigger "pageTransition:scrolled", transition
-
-  # Для того чтоб более плавно контролировать скролинг страниц подписываемся на событие
-  # регистрации обработчиков скролинга.
-  events.bind "scrollHandler:register", (handler) ->
-    scrollHandlers.push handler if typeof handler == "function"
-
-  # Так же добавляем возможность отписывать обработчики скролинга.
-  events.bind "scrollHandler:unregister", (handler) ->
-    for fn, i in scrollHandlers
-      if fn == handler
-        scrollHandlers.splice i, 0
-        break
 
   return Transition

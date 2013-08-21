@@ -172,10 +172,7 @@ define [
 
     restoreScroll: (transition, index) ->
       canScroll = !!config.autoScrollOnTransitions or !!scrollModule._handlers.length
-      scrollPos = transition.state.scrollPos or {}
-
-      if (!transition.state.userReplaceState and !transition.next_transition)
-        scrollPos = scrollModule.process transition
+      scrollPos = scrollModule.process transition
 
       if (!index? or index == transition.index) and canScroll
         window.scrollTo(scrollPos.left or 0, scrollPos.top or 0)

@@ -7,15 +7,17 @@ define [
     _handlers: scrollHandlers
 
     process: (transition) ->
-      scrollPos = transition.state.scrollPos or {}
+      scrollPos = transition.state?.scrollPos or {}
       events.trigger "scrollHandlers:prepare", transition
 
-      for handler in scrollHandlers
-        result = handler(scrollPos, transition) or {}
-        scrollPos.top = result.top if result.top?
-        scrollPos.left = result.left if result.left?
+      if (transition.state? and !transition.state.userReplaceState and !transition.next_transition)
+        for handler in scrollHandlers
+          result = handler(scrollPos, transition) or {}
+          scrollPos.top = result.top if result.top?
+          scrollPos.left = result.left if result.left?
 
-      transition.state.scrollPos = scrollPos
+        transition.state.scrollPos = scrollPos
+      scrollPos
 
     register: (handler) ->
       scrollHandlers.push handler if typeof handler == "function"

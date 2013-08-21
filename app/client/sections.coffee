@@ -49,7 +49,7 @@ define [
     create: (state = {}) ->
       state.index = state.index or (@last?.index + 1) or 0
 
-      if !state?.che
+      if state? and !state.che
         state = new history.CheState state
 
       if !state.userReplaceState

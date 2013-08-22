@@ -75,11 +75,33 @@ describe 'sections module', ->
       expect(sections._transitions.current).toBe(nextTransition)
 
     it 'should create transition and set previous created as .prev_transition', ->
+      jasmine.Clock.useMock()
+
       transition = sections._transitions.create({})
+
+      jasmine.Clock.tick(10)
+
       nextTransition = sections._transitions.create({})
 
       expect(transition).toBe(nextTransition.prev_transition)
       expect(transition.next_transition).toBe(nextTransition)
+
+    it 'should create transition and create new transition chain after returning to prev. page through history and going to diferent page', ->
+      jasmine.Clock.useMock()
+
+      startTransition = sections._transitions.current
+      transition = sections._transitions.create({})
+
+      jasmine.Clock.tick(10)
+
+      transition.prev()
+
+      jasmine.Clock.tick(10)
+
+      nextTransition = sections._transitions.create({})
+
+      expect(startTransition.next_transition).toBe(nextTransition)
+      expect(nextTransition.prev_transition).toBe(startTransition)
 
 
   describe 'invoking transitions', ->

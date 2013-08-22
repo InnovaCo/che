@@ -67,7 +67,7 @@ define [
         isNewState = (history.state or {}).url isnt state.url
         method = if isNewState and !state.userReplaceState then "pushState" else "replaceState"
         history[method] state, state.title, state.url
-        @last = new Transition state, @last
+        @last = new Transition state, (if @current?.next_transition? and @current.next_transition.index < state.index then @current else @last)
         return @last
 
     ###### transitions.go(index)

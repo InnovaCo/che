@@ -6,7 +6,15 @@
 # так как согласно основной идее эти запросы отправляются всегда
 # на разные url
 #
-define ["ajax", "events", "dom", "underscore", "history"], (ajax, events, dom, _, history) ->
+define [
+  "ajax",
+  "events",
+  "dom",
+  "underscore",
+  "history",
+  "config",
+  "utils/params"
+], (ajax, events, dom, _, history, config, params) ->
   sectionsRequest = null
 
   # abort всех текущих запросов
@@ -22,6 +30,8 @@ define ["ajax", "events", "dom", "underscore", "history"], (ajax, events, dom, _
   # могут быть запрошены данные для переходов в середине цепи
   #
   (url, method, sectionsHeader, index, data = [], sectionsParams) ->
+    sectionsLoader = arguments.callee
+
     getState = (url, sections, params) ->
       try
         params = JSON.parse params
@@ -57,9 +67,26 @@ define ["ajax", "events", "dom", "underscore", "history"], (ajax, events, dom, _
           events.trigger "sections:error", [state, request.status, request.statusText]
 
       sectionsRequest.success (request, sections) ->
+        # Если был получен редирект то пытаемся его сделать с помощью che составив
+        # правильный sectionsHeader
         if typeof(request.getResponseHeader) == "function"
-          window.location.href = request.getResponseHeader "X-Che-Redirect" if request.getResponseHeader "X-Che-Redirect"
-          state = getState (request.getResponseHeader "X-Che-Url"), sections, request.getResponseHeader "X-Che-Params"
-          events.trigger "sections:loaded", state
+          if request.getResponseHeader "X-Che-Redirect"
+            paramsList = params (request.getResponseHeader "X-Che-Redirect"), true
+
+            for field, value of paramsList
+              sectionsTemplate = config.redirectRules[field]
+              if sectionsTemplate
+                redirectSections = {}
+                redirectSections = getRedirectSections value, sectionsTemplate
+                break
+
+            redirectSections = getRedirectSections config.redirectDefaultRule, config.redirectRules[config.redirectDefaultRule] if !redirectSections?
+            sectionsLoader (request.getResponseHeader "X-Che-Redirect"), method, redirectSections, index, data, sectionsParams
+          else
+            state = getState (request.getResponseHeader "X-Che-Url"), sections, request.getResponseHeader "X-Che-Params"
+            events.trigger "sections:loaded", state
+
+    getRedirectSections = (value, params) ->
+      "#{value}: " + JSON.stringify(params)
 
     if _.isString(sectionsHeader) and sectionsHeader.indexOf(":") < 0 then queryRequest() else serverRequest()

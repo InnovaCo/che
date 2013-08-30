@@ -1,4 +1,5 @@
 define ["underscore"], (_)->
+  paramsRegex = /[?&]([^=]+)\=([^&]+)/
   params  = (data, prefix, result) ->
     result = result or []
     if _.isString data
@@ -11,7 +12,14 @@ define ["underscore"], (_)->
 
     result
 
-  (data) ->
+  (data, asObject) ->
     return (params data()).join "&" if _.isFunction data
     return (params data).join "&" if _.isObject data
+    if (typeof data == "string" and asObject)
+      result = {}
+      paramsArr = data.split "&"
+      for val, i in paramsArr
+        paramArr = paramsRegex.exec((if i then "&" else "") + val)
+        result[paramArr[1]] = paramArr[2] if paramArr?
+      return result
     return data?.toString()

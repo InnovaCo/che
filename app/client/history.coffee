@@ -37,19 +37,34 @@ define ["events"], (events) ->
   ###
   initialUrl = window.location.href
   window.history.CheState = State
+  blockHashEvent = false
   popped = false
 
-  originOnpopstate = window.onpopstate
+  originOnPopState = window.onpopstate
   window.onpopstate = (popStateEvent) ->
     initialPop = !popped and location.href is initialUrl
     popped = true
     return if initialPop
 
-    if originOnpopstate?
-      originOnpopstate.apply window, arguments
+    if originOnPopState?
+      originOnPopState.apply window, arguments
 
     if 'state' of popStateEvent
-      events.trigger "history:popState", (popStateEvent.state if popStateEvent.state?)
+      if popStateEvent.state?
+        if popStateEvent.state.che
+          blockHashEvent = true
+        events.trigger "history:popState", popStateEvent.state
+      else
+        blockHashEvent = true
+        events.trigger "history:popState"
+
+  originOnHashChange = window.onhashchange
+  window.onhashchange = () ->
+    if originOnHashChange?
+      originOnHashChange.apply window, arguments
+
+    events.trigger "history:popState" if !blockHashEvent
+    blockHashEvent = false
 
   originPushState = window.history.pushState
   window.history.pushState = (state) ->

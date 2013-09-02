@@ -15,8 +15,9 @@ define [
   "events",
   "utils/destroyer",
   "history",
-  "config"
-], (sectionParser, Invoker, asyncQueue, events, destroyer, history, config) ->
+  "config",
+  "utils/scroll"
+], (sectionParser, Invoker, asyncQueue, events, destroyer, history, config, scrollModule) ->
 
   transitionsCompressDepth = 5
   transitionsDestroyDepth = 10
@@ -57,7 +58,6 @@ define [
           break
 
       prevTransition?.destroy()
-
     return @
 
   Transition:: =
@@ -171,7 +171,11 @@ define [
 
 
     restoreScroll: (transition, index) ->
-      window.scrollTo(transition.state.scrollPos.left or 0, transition.state.scrollPos.top or 0) if !!config.autoScrollOnTransitions and (!index? or index == transition.index) and transition.state.scrollPos?
+      canScroll = !!config.autoScrollOnTransitions or !!scrollModule._handlers.length
+      scrollPos = scrollModule.process transition
 
+      if (!index? or index == transition.index) and canScroll
+        window.scrollTo(scrollPos.left or 0, scrollPos.top or 0)
+        events.trigger "pageTransition:scrolled", transition
 
   return Transition

@@ -20,7 +20,12 @@ describe 'sections/transition module', ->
       affix "span#one span"
 
     it 'should create transition and set previous created as .prev_transition', ->
+      jasmine.Clock.useMock()
+
       transition = new Transition({})
+
+      jasmine.Clock.tick(10)
+
       nextTransition = new Transition({}, transition)
 
       expect(transition).toBe(nextTransition.prev_transition)

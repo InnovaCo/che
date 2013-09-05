@@ -24,9 +24,17 @@ define ['utils/popups', 'utils/scroll'], (popupsModule, scrollModule) ->
   #    che({
   #        redirectDefaultRule: 'pageView',
   #        redirectRules: {
-  #            'pageView': {
-  #                'target': '#GlobalContent'
-  #            },
+  #            'default': [{
+  #                'ns': 'UserBarWidget',
+  #                'params': {
+  #                    'target': '#UserBarWidget'
+  #                }
+  #            },{
+  #                'ns': 'pageView',
+  #                'params': {
+  #                    'target': '#GlobalContent'
+  #                }
+  #            }],
   #            'popupWidget': {
   #                'target': '#OverlayContent',
   #                'ns': 'popup'
@@ -36,7 +44,7 @@ define ['utils/popups', 'utils/scroll'], (popupsModule, scrollModule) ->
   #
   # Если прийдет редирект с урлом "/page1?popupWidget=AuthPopupWidget&redirectTo=/page2",
   # черхитектура сделает запрос на новый урл сформирова на основе урла следующие
-  # sectionsHeader – "AuthPopupWidget: {"target":"#OverlayContent","ns":"popup"}"
+  # sectionsHeader – "UserBarWidget: {"target":"#UserBarWidget"};pageView: {"target":"#GlobalContent"};AuthPopupWidget: {"target":"#OverlayContent","ns":"popup"}"
   redirectDefaultRule: "default"
   redirectRules:
     default:

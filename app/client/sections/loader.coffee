@@ -71,22 +71,33 @@ define [
         # правильный sectionsHeader
         if typeof(request.getResponseHeader) == "function"
           if request.getResponseHeader "X-Che-Redirect"
+            redirectSections = []
             paramsList = params (request.getResponseHeader "X-Che-Redirect"), true
+            defaultSection = getRedirectSections config.redirectDefaultRule, config.redirectRules[config.redirectDefaultRule]
+            redirectSections.push defaultSection if defaultSection?
 
             for field, value of paramsList
               sectionsTemplate = config.redirectRules[field]
               if sectionsTemplate
-                redirectSections = {}
-                redirectSections = getRedirectSections value, sectionsTemplate
+                redirectSections.push getRedirectSections value, sectionsTemplate
                 break
 
-            redirectSections = getRedirectSections config.redirectDefaultRule, config.redirectRules[config.redirectDefaultRule] if !redirectSections?
-            sectionsLoader (request.getResponseHeader "X-Che-Redirect"), method, redirectSections, index, data, sectionsParams
+            sectionsLoader (request.getResponseHeader "X-Che-Redirect"), method, redirectSections.join(";"), index, data, sectionsParams
           else
             state = getState (request.getResponseHeader "X-Che-Url"), sections, request.getResponseHeader "X-Che-Params"
             events.trigger "sections:loaded", state
 
     getRedirectSections = (value, params) ->
-      "#{value}: " + JSON.stringify(params)
+      sections = []
+
+      # Проверяем масив ли у нас в параметрах и в зависимости от этого по разному
+      # собираем sectionsHeader
+      if params?
+        if _.isArray params
+          for param in params
+            sections.push "#{param.ns}: " + JSON.stringify(param.params)
+        else
+          sections.push "#{value}: " + JSON.stringify(params)
+        sections.join ";"
 
     if _.isString(sectionsHeader) and sectionsHeader.indexOf(":") < 0 then queryRequest() else serverRequest()

@@ -3,7 +3,7 @@
 # конфиги для черхитектуры
 #
 
-define ['utils/popups'], (popupsModule) ->
+define ['utils/popups', 'utils/scroll'], (popupsModule, scrollModule) ->
   widgetDataAttributeName: 'data-js-widgets'
   reloadParamsDataAttributeName: 'data-reload-params'
   reloadSectionsDataAttributeName: 'data-reload-sections'
@@ -15,6 +15,8 @@ define ['utils/popups'], (popupsModule) ->
   # todo сделать непереопределяемыми
   _modules:
     popups: popupsModule
+    scroll: scrollModule
+
   ####
   #
   # Пример задания правил редиректа:

@@ -16,7 +16,40 @@ define ['utils/popups', 'utils/scroll'], (popupsModule, scrollModule) ->
   _modules:
     popups: popupsModule
     scroll: scrollModule
-  
+
+  ####
+  #
+  # Пример задания правил редиректа:
+  #
+  #    che({
+  #        redirectDefaultRuleName: 'common',
+  #        redirectRules: {
+  #            'common': [{
+  #                'sectionName': 'UserBarWidget',
+  #                'params': {
+  #                    'target': '#UserBarWidget'
+  #                }
+  #            },{
+  #                'sectionName': 'pageView',
+  #                'params': {
+  #                    'target': '#GlobalContent'
+  #                }
+  #            }],
+  #            'popupWidget': {
+  #                'target': '#OverlayContent',
+  #                'ns': 'popup'
+  #            }
+  #        }
+  #    });
+  #
+  # Если прийдет редирект с урлом "/page1?popupWidget=AuthPopupWidget&redirectTo=/page2",
+  # черхитектура сделает запрос на новый урл сформирова на основе урла следующие
+  # sectionsHeader – "UserBarWidget: {"target":"#UserBarWidget"};pageView: {"target":"#GlobalContent"};AuthPopupWidget: {"target":"#OverlayContent","ns":"popup"}"
+  redirectDefaultRuleName: "common"
+  redirectRules:
+    common:
+      target: "body"
+
   setup: (customConfig) ->
     @[param] = value for param, value of customConfig
     @

@@ -71,33 +71,52 @@ define [
         # правильный sectionsHeader
         if typeof(request.getResponseHeader) == "function"
           if request.getResponseHeader "X-Che-Redirect"
-            redirectSections = []
             paramsList = params (request.getResponseHeader "X-Che-Redirect"), true
-            defaultSection = getRedirectSections config.redirectDefaultRuleName, config.redirectRules[config.redirectDefaultRuleName]
-            redirectSections.push defaultSection if defaultSection?
+            commonRules = config.redirectRules[config.redirectDefaultRuleName]
+            redirectRules = []
+
+            if not _.isArray commonRules
+              commonRules = [
+                sectionName: config.redirectDefaultRuleName
+                params: commonRules
+              ]
 
             for field, value of paramsList
               sectionsTemplate = config.redirectRules[field]
 
               if sectionsTemplate
-                redirectSections.push getRedirectSections value, sectionsTemplate
+                redirectRules.push
+                  sectionName: value
+                  params: sectionsTemplate
 
-            sectionsLoader (request.getResponseHeader "X-Che-Redirect"), method, redirectSections.join(";"), index, data, sectionsParams
+            redirectSections = getRedirectSections config.redirectDefaultRuleName, commonRules, redirectRules
+            sectionsLoader (request.getResponseHeader "X-Che-Redirect"), null, redirectSections.join(";"), index, null, sectionsParams
           else
             state = getState (request.getResponseHeader "X-Che-Url"), sections, request.getResponseHeader "X-Che-Params"
             events.trigger "sections:loaded", state
 
-    getRedirectSections = (value, params) ->
+    getRedirectSections = (value, params, list = []) ->
       sections = []
 
       # Проверяем масив ли у нас в параметрах и в зависимости от этого по разному
       # собираем sectionsHeader
-      if params?
-        if _.isArray params
+      if params? and _.isArray params
+        if list.length
           for param in params
-            sections.push "#{param.sectionName}: " + JSON.stringify(param.params)
+            intersects = false
+
+            for item in list
+              if item.params.target == param.params.target
+                intersects = true
+                break
+
+            list.push param if not intersects
         else
-          sections.push "#{value}: " + JSON.stringify(params)
-        sections.join ";"
+          list = params
+
+        for item in list
+          sections.push "#{item.sectionName}: " + JSON.stringify(item.params)
+
+        sections
 
     if _.isString(sectionsHeader) and sectionsHeader.indexOf(":") < 0 then queryRequest() else serverRequest()

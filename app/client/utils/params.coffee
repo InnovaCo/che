@@ -23,5 +23,5 @@ define ["underscore"], (_)->
   (data, asObject) ->
     return (params data()).join "&" if _.isFunction data
     return (params data).join "&" if _.isObject data
-    return strToObject data if typeof data == "string" and asObject
+    return (strToObject data) if typeof data == "string" and asObject
     return data?.toString()

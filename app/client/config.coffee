@@ -22,9 +22,9 @@ define ['utils/popups', 'utils/scroll'], (popupsModule, scrollModule) ->
   # Пример задания правил редиректа:
   #
   #    che({
-  #        redirectDefaultRule: 'pageView',
+  #        redirectDefaultRuleName: 'common',
   #        redirectRules: {
-  #            'default': [{
+  #            'common': [{
   #                'ns': 'UserBarWidget',
   #                'params': {
   #                    'target': '#UserBarWidget'
@@ -45,7 +45,7 @@ define ['utils/popups', 'utils/scroll'], (popupsModule, scrollModule) ->
   # Если прийдет редирект с урлом "/page1?popupWidget=AuthPopupWidget&redirectTo=/page2",
   # черхитектура сделает запрос на новый урл сформирова на основе урла следующие
   # sectionsHeader – "UserBarWidget: {"target":"#UserBarWidget"};pageView: {"target":"#GlobalContent"};AuthPopupWidget: {"target":"#OverlayContent","ns":"popup"}"
-  redirectDefaultRule: "default"
+  redirectDefaultRuleName: "common"
   redirectRules:
     default:
       target: "body"

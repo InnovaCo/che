@@ -73,14 +73,14 @@ define [
           if request.getResponseHeader "X-Che-Redirect"
             redirectSections = []
             paramsList = params (request.getResponseHeader "X-Che-Redirect"), true
-            defaultSection = getRedirectSections config.redirectDefaultRule, config.redirectRules[config.redirectDefaultRule]
+            defaultSection = getRedirectSections config.redirectDefaultRuleName, config.redirectRules[config.redirectDefaultRuleName]
             redirectSections.push defaultSection if defaultSection?
 
             for field, value of paramsList
               sectionsTemplate = config.redirectRules[field]
+
               if sectionsTemplate
                 redirectSections.push getRedirectSections value, sectionsTemplate
-                break
 
             sectionsLoader (request.getResponseHeader "X-Che-Redirect"), method, redirectSections.join(";"), index, data, sectionsParams
           else
@@ -95,7 +95,7 @@ define [
       if params?
         if _.isArray params
           for param in params
-            sections.push "#{param.ns}: " + JSON.stringify(param.params)
+            sections.push "#{param.sectionName}: " + JSON.stringify(param.params)
         else
           sections.push "#{value}: " + JSON.stringify(params)
         sections.join ";"

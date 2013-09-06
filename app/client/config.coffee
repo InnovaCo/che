@@ -47,7 +47,7 @@ define ['utils/popups', 'utils/scroll'], (popupsModule, scrollModule) ->
   # sectionsHeader – "UserBarWidget: {"target":"#UserBarWidget"};pageView: {"target":"#GlobalContent"};AuthPopupWidget: {"target":"#OverlayContent","ns":"popup"}"
   redirectDefaultRuleName: "common"
   redirectRules:
-    default:
+    common:
       target: "body"
 
   setup: (customConfig) ->

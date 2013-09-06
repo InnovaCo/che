@@ -25,12 +25,12 @@ define ['utils/popups', 'utils/scroll'], (popupsModule, scrollModule) ->
   #        redirectDefaultRuleName: 'common',
   #        redirectRules: {
   #            'common': [{
-  #                'ns': 'UserBarWidget',
+  #                'sectionName': 'UserBarWidget',
   #                'params': {
   #                    'target': '#UserBarWidget'
   #                }
   #            },{
-  #                'ns': 'pageView',
+  #                'sectionName': 'pageView',
   #                'params': {
   #                    'target': '#GlobalContent'
   #                }

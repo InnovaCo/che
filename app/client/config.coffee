@@ -34,6 +34,11 @@ define ['utils/popups', 'utils/scroll'], (popupsModule, scrollModule) ->
   #                'params': {
   #                    'target': '#GlobalContent'
   #                }
+  #            },{
+  #                'sectionName': 'EmptyWidget',
+  #                'params': {
+  #                    'target': '#OverlayContent'
+  #                }
   #            }],
   #            'popupWidget': {
   #                'target': '#OverlayContent',
@@ -45,6 +50,8 @@ define ['utils/popups', 'utils/scroll'], (popupsModule, scrollModule) ->
   # Если прийдет редирект с урлом "/page1?popupWidget=AuthPopupWidget&redirectTo=/page2",
   # черхитектура сделает запрос на новый урл сформирова на основе урла следующие
   # sectionsHeader – "UserBarWidget: {"target":"#UserBarWidget"};pageView: {"target":"#GlobalContent"};AuthPopupWidget: {"target":"#OverlayContent","ns":"popup"}"
+  # Если же в урле не будет указан popupWidget, то sectionsHeader будет равен:
+  # "UserBarWidget: {"target":"#UserBarWidget"};pageView: {"target":"#GlobalContent"};EmptyWidget: {"target":"#OverlayContent"}"
   redirectDefaultRuleName: "common"
   redirectRules:
     common:

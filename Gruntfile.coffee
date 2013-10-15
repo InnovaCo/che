@@ -176,6 +176,13 @@ module.exports = (grunt) ->
 
     # Concatenation & clean
     concat:
+      options:
+        process: (src, filepath) ->
+          baseUrl = grunt.option "baseUrl"
+          if baseUrl  and filepath.indexOf("app-require-config.js") != -1
+            src = src.replace /(baseUrl\s*:\s*)(['"])([^'"]+)(\2)/, "$1$2#{baseUrl}$4"
+
+          src
       app:
         src: ["public/js/app-require-config.js", "public/js/app-require-optimized.js"]
         dest: "public/js/app.js"

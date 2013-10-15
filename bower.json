@@ -6,7 +6,8 @@
   ],
   "description": "Черхитектура",
   "main": "public/js/app-min.js",
+  "main-debug": "public/js/app.js",
   "scripts": {
-  	"install": ["npm install", "grunt build"]
+    "install": ["npm install", "grunt build"]
   }
 }

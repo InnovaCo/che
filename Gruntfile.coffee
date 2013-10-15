@@ -288,7 +288,8 @@ module.exports = (grunt) ->
   grunt.registerTask "require", ["coffee","requirejs","harvest_sourcemap","concat:app","uglify"]
   grunt.registerTask "livetest", ["open","connect:browser"]
 
-  grunt.registerTask "default", ["clean:public","lint","copy","require","notify:complete"]
+  grunt.registerTask "build", ["clean:public", "copy","require"]
+  grunt.registerTask "default", ["lint","build","notify:complete"]
 
   grunt.registerTask "spec", ["clean:specs","default","connect:phantom","jasmine:test"]
   grunt.registerTask "spec-light", ["clean:specs","default","jasmine:test:build"]

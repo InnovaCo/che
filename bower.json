@@ -1,0 +1,12 @@
+{
+  "name": "che",
+  "version": "1.0.0",
+  "authors": [
+    "Pavel Motorin"
+  ],
+  "description": "Черхитектура",
+  "main": "public/js/app-min.js",
+  "scripts": {
+  	"install": ["npm install", "grunt build"]
+  }
+}

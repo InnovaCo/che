@@ -176,6 +176,13 @@ module.exports = (grunt) ->
 
     # Concatenation & clean
     concat:
+      options:
+        process: (src, filepath) ->
+          baseUrl = grunt.option "baseUrl"
+          if baseUrl  and filepath.indexOf("app-require-config.js") != -1
+            src = src.replace /(baseUrl\s*:\s*)(['"])([^'"]+)(\2)/, "$1$2#{baseUrl}$4"
+
+          src
       app:
         src: ["public/js/app-require-config.js", "public/js/app-require-optimized.js"]
         dest: "public/js/app.js"
@@ -288,7 +295,8 @@ module.exports = (grunt) ->
   grunt.registerTask "require", ["coffee","requirejs","harvest_sourcemap","concat:app","uglify"]
   grunt.registerTask "livetest", ["open","connect:browser"]
 
-  grunt.registerTask "default", ["clean:public","lint","copy","require","notify:complete"]
+  grunt.registerTask "build", ["clean:public", "copy","require"]
+  grunt.registerTask "default", ["lint","build","notify:complete"]
 
   grunt.registerTask "spec", ["clean:specs","default","connect:phantom","jasmine:test"]
   grunt.registerTask "spec-light", ["clean:specs","default","jasmine:test:build"]

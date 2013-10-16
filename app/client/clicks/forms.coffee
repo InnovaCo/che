@@ -7,7 +7,13 @@
 # Обрабатывает именно клики по кнопке, так как необходима
 # делегация событий, а событие submit не поднимается вверх к корню.
 
-define ['dom!', 'config', 'events', 'lib/serialize'], (dom, config, events, serialize) ->
+define [
+  "dom!",
+  "config",
+  "events",
+  "lib/serialize",
+  "utils/preprocessors/clicks"
+], (dom, config, events, serialize, clicksPreprocessor) ->
   # Внутренний диспетчер событий, для вызова обработчиков клика
   clicks = null
 
@@ -21,9 +27,9 @@ define ['dom!', 'config', 'events', 'lib/serialize'], (dom, config, events, seri
   # при помощи нажатия Enter в текстовом инпуте.
 
   # Временно пробуем все же работать с сабмитом. Кто сказал, что submit не поднимается?
-  dom('body').on "form[#{config.reloadSectionsDataAttributeName}]", "submit", (e) ->
+  dom("body").on "form[#{config.reloadSectionsDataAttributeName}]", "submit", (e) ->
     return true if not clicks?
-    return true if @type is 'reset' or @type is 'button'
+    return true if @type is "reset" or @type is "button"
 
     # Достаем форму из родителей кнопки
     formNode = @
@@ -38,7 +44,7 @@ define ['dom!', 'config', 'events', 'lib/serialize'], (dom, config, events, seri
     onSubmit(formNode, e)
 
   processForms = (section) ->
-    section = dom section ? 'body'
+    section = dom section ? "body"
     forms = section.find("form[#{config.reloadSectionsDataAttributeName}]").get()
     (form.onsubmit = (e) ->
       onSubmit e.target, e
@@ -47,22 +53,24 @@ define ['dom!', 'config', 'events', 'lib/serialize'], (dom, config, events, seri
   onSubmit = (formNode, e) ->
     data = formNode.getAttribute config.reloadSectionsDataAttributeName
     params = formNode.getAttribute config.reloadParamsDataAttributeName
-    url = formNode.getAttribute('action') or ""
+    url = formNode.getAttribute("action") or ""
     formData = serialize formNode
 
     # Достаем метод по которому должна быть отправлена форма,
     # по умолчанию это "GET".
     # Следует отметить, что "POST"-запросы за секциями не кешируются
-
-    method = formNode.getAttribute('method') or "GET"
-
-    clicks.trigger "form:click",
+    method = formNode.getAttribute("method") or "GET"
+    eventData =
       url: url
       data: data
       params: params
       method: method
       formData: formData
 
+    if (clicksPreprocessor.process eventData) == false
+      return true
+
+    clicks.trigger "form:click", eventData
     e.preventDefault()
     return false
 

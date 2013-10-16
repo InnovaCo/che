@@ -45,8 +45,9 @@ define [
             newFavicon.setAttribute "type", "image/ico"
             newFavicon.setAttribute "rel", "shortcut icon"
             newFavicon.setAttribute "href", @element.href
-            oldFavicon = dom('link[rel="shortcut icon"]')[0]
-            oldFavicon.parentNode.replaceChild newFavicon, oldFavicon if oldFavicon?
+            _.each dom('link[rel="shortcut icon"]'), (element) ->
+              element.parentNode.removeChild element
+            dom('head')[0].appendChild newFavicon
         else
           container = dom(@params.target)[0]
           return unless container?

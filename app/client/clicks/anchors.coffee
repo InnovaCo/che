@@ -4,7 +4,12 @@
 # достает данные о необходимых секциях, url и вызывает обработчика, после чего отменяет дефолтное поведение
 #
 
-define ['dom!', 'config', 'events'], (dom, config, events) ->
+define [
+  "dom!",
+  "config",
+  "events"
+  "utils/preprocessors/clicks"
+], (dom, config, events, clicksPreprocessor) ->
 
   # Внутренний диспетчер событий, для вызова обработчиков клика
   clicks = null
@@ -13,20 +18,23 @@ define ['dom!', 'config', 'events'], (dom, config, events) ->
   # только если есть хоть один обработчик клика, на это указывает
   # наличие clicks
 
-  dom('body').on "a[#{config.reloadSectionsDataAttributeName}],area[#{config.reloadSectionsDataAttributeName}]", "click", (e) ->
+  dom("body").on "a[#{config.reloadSectionsDataAttributeName}],area[#{config.reloadSectionsDataAttributeName}]", "click", (e) ->
     return true if e.ctrlKey or e.altKey or e.shiftKey or e.metaKey
 
     if clicks?
       data = @getAttribute config.reloadSectionsDataAttributeName
       params = @getAttribute config.reloadParamsDataAttributeName
-      url = @getAttribute 'href'
-
-      clicks.trigger "anchor:click",
+      url = @getAttribute "href"
+      eventData =
         url: url
         data: data
         params: params
         method: "GET"
 
+      if (clicksPreprocessor.process eventData) == false
+        return true
+
+      clicks.trigger "anchor:click", eventData
       e.preventDefault()
       return false
 

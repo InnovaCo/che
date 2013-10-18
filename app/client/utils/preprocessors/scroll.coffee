@@ -25,10 +25,10 @@ define [
       scrollPos
 
     register: (handler) ->
-      if typeof handler == "function" and (findHandler handler)?
+      if typeof handler == "function" and !(findHandler handler)?
         scrollHandlers.push handler
 
     unregister: (handler) ->
       handlerIndex = findHandler handler
-      scrollHandlers.splice handlerIndex, 0 if handlerIndex?
+      scrollHandlers.splice handlerIndex, 1 if handlerIndex?
   }

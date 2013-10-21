@@ -59,8 +59,7 @@ define [
   # "UserBarWidget: {"target":"#UserBarWidget"};pageView: {"target":"#GlobalContent"};EmptyWidget: {"target":"#OverlayContent"}"
   redirectDefaultRuleName: "common"
   redirectRules:
-    common:
-      target: "body"
+    common: null
 
   setup: (customConfig) ->
     @[param] = value for param, value of customConfig

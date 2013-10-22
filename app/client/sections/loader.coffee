@@ -75,22 +75,25 @@ define [
             commonRules = config.redirectRules[config.redirectDefaultRuleName]
             redirectRules = []
 
-            if not _.isArray commonRules
-              commonRules = [
-                sectionName: config.redirectDefaultRuleName
-                params: commonRules
-              ]
+            if commonRules?
+              if not _.isArray commonRules
+                commonRules = [
+                  sectionName: config.redirectDefaultRuleName
+                  params: commonRules
+                ]
 
-            for field, value of paramsList
-              sectionsTemplate = config.redirectRules[field]
+              for field, value of paramsList
+                sectionsTemplate = config.redirectRules[field]
 
-              if sectionsTemplate
-                redirectRules.push
-                  sectionName: value
-                  params: sectionsTemplate
+                if sectionsTemplate
+                  redirectRules.push
+                    sectionName: value
+                    params: sectionsTemplate
 
-            redirectSections = getRedirectSections config.redirectDefaultRuleName, commonRules, redirectRules
-            sectionsLoader (request.getResponseHeader "X-Che-Redirect"), null, redirectSections.join(";"), index, null, sectionsParams
+              redirectSections = getRedirectSections config.redirectDefaultRuleName, commonRules, redirectRules
+              sectionsLoader (request.getResponseHeader "X-Che-Redirect"), null, redirectSections.join(";"), index, null, sectionsParams
+            else
+              window.location.href = request.getResponseHeader "X-Che-Redirect"
           else
             state = getState (request.getResponseHeader "X-Che-Url"), sections, request.getResponseHeader "X-Che-Params"
             events.trigger "sections:loaded", state

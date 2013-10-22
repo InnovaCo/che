@@ -16,8 +16,8 @@ define [
   "utils/destroyer",
   "history",
   "config",
-  "utils/scroll"
-], (sectionParser, Invoker, asyncQueue, events, destroyer, history, config, scrollModule) ->
+  "utils/preprocessors/scroll"
+], (sectionParser, Invoker, asyncQueue, events, destroyer, history, config, scrollPreprocessor) ->
 
   transitionsCompressDepth = 5
   transitionsDestroyDepth = 10
@@ -171,8 +171,8 @@ define [
 
 
     restoreScroll: (transition, index) ->
-      canScroll = !!config.autoScrollOnTransitions or !!scrollModule._handlers.length
-      scrollPos = scrollModule.process transition
+      canScroll = !!config.autoScrollOnTransitions or !!scrollPreprocessor._handlers.length
+      scrollPos = scrollPreprocessor.process transition
 
       if (!index? or index == transition.index) and canScroll
         window.scrollTo(scrollPos.left or 0, scrollPos.top or 0)

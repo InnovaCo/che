@@ -2,6 +2,11 @@ define [
   "events"
 ], (events) ->
   scrollHandlers = []
+  findHandler = (handler) ->
+    for fn, i in scrollHandlers
+      if fn == handler
+        return i
+    return
 
   return {
     _handlers: scrollHandlers
@@ -20,11 +25,10 @@ define [
       scrollPos
 
     register: (handler) ->
-      scrollHandlers.push handler if typeof handler == "function"
+      if typeof handler == "function" and !(findHandler handler)?
+        scrollHandlers.push handler
 
     unregister: (handler) ->
-      for fn, i in scrollHandlers
-        if fn == handler
-          scrollHandlers.splice i, 0
-          break
+      handlerIndex = findHandler handler
+      scrollHandlers.splice handlerIndex, 1 if handlerIndex?
   }

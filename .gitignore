@@ -11,6 +11,7 @@ pids
 logs
 results
 npm-debug.log
+sftp-config.json
 
 .DS_Store
 _SpecRunner.html

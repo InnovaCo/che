@@ -6,7 +6,6 @@
 # Также не будет работать, если модуль history возвращает false
 # (это происходит при отсутствии historyAPI)
 #
-
 define [
   "history",
   "events",

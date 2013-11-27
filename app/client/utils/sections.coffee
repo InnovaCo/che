@@ -1,3 +1,17 @@
+#### *module* utils/sections
+#
+# Вспомогательный модуль для загрузки модулей без использования навигационого 
+# модуля.
+# Модули загружаются без событий pageTransition.
+# Модули могут быть загружены данным модулем, как вызовом на прямую, так и 
+# через параметры в ссылках.
+# 
+# Загрузка модуля на прямую:
+#     require("utils/sections").load("UserBarWidget", "#UserBarWidget")
+# 
+# Загрузка модуля через ссылку:
+#     <a href="./" data-reload-sections='UserBarWidget: #UserBarWidget' data-reload-params='{ "loadSectionsSilently": true }'>Text</a>
+#
 define [
   "sections/parser",
   "sections/invoker",

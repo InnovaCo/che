@@ -13,8 +13,9 @@ define [
   "underscore",
   "history",
   "config",
-  "utils/params"
-], (ajax, events, dom, _, history, config, params) ->
+  "utils/params",
+  "utils/sections"
+], (ajax, events, dom, _, history, config, paramsUtil, sectionsUtil) ->
   sectionsRequest = null
 
   # abort всех текущих запросов
@@ -49,7 +50,11 @@ define [
 
       if dom(sectionsHeader)[0]?
         state = getState url, dom(sectionsHeader)[0].innerHTML, sectionsParams
-        events.trigger "sections:loaded", state
+
+        if state.sectionsParams?.loadSectionsSilently
+          sectionsUtil.insert state
+        else
+          events.trigger "sections:loaded", state
 
     serverRequest = () ->
       sectionsRequest?.abort()
@@ -64,14 +69,16 @@ define [
         type: "text"
         error: (request) ->
           state = getState url, sectionsHeader, sectionsParams
-          events.trigger "sections:error", [state, request.status, request.statusText]
+
+          if not state.sectionsParams?.loadSectionsSilently
+            events.trigger "sections:error", [state, request.status, request.statusText]
 
       sectionsRequest.success (request, sections) ->
         # Если был получен редирект то пытаемся его сделать с помощью che составив
         # правильный sectionsHeader
         if typeof(request.getResponseHeader) == "function"
           if request.getResponseHeader "X-Che-Redirect"
-            paramsList = params (request.getResponseHeader "X-Che-Redirect"), true
+            paramsList = paramsUtil (request.getResponseHeader "X-Che-Redirect"), true
             commonRules = config.redirectRules[config.redirectDefaultRuleName]
             redirectRules = []
 
@@ -96,7 +103,11 @@ define [
               window.location.href = request.getResponseHeader "X-Che-Redirect"
           else
             state = getState (request.getResponseHeader "X-Che-Url"), sections, request.getResponseHeader "X-Che-Params"
-            events.trigger "sections:loaded", state
+
+            if state.sectionsParams?.loadSectionsSilently
+              sectionsUtil.insert state
+            else
+              events.trigger "sections:loaded", state
 
     getRedirectSections = (value, params, list = []) ->
       sections = []

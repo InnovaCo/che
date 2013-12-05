@@ -61,6 +61,7 @@ define [
           "X-Che": true
           "X-Che-Sections": sectionsHeader
           "X-Che-Params": sectionsParams
+          "Cache-Control": "no-cache" # Из-за проблем с кешем в ИЕ добавляем заголовок инвалидирующий кеш при каждом запросе.
         type: "text"
         error: (request) ->
           state = getState url, sectionsHeader, sectionsParams

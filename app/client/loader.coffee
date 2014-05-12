@@ -37,7 +37,6 @@ define [
     # ищет все блоки виджетов и отдает их на загрузку в loadWidgetModule
     #
     search: (node, ready) ->
-      
       loader.widgets widgetsData(node), ready
 
 

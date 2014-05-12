@@ -21,12 +21,13 @@ define [
     @
 
   Section:: =
-    turnOn: (callback) ->
+    turnOn: (before, after) ->
       @loadStyles =>
-        callback?()
+        before?()
         @turnOnWidgets()
         @insertIntoDOM()
         @onInsert()
+        after?()
 
     loadStyles: (callback) ->
       depList = []

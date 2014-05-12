@@ -21,21 +21,32 @@ define [
     @
 
   Section:: =
-    turnOn: () ->
-      @turnOnWidgets()
-      @insertIntoDOM()
-      @onInsert()
+    turnOn: (callback) ->
+      @loadStyles =>
+        callback?()
+        @turnOnWidgets()
+        @insertIntoDOM()
+        @onInsert()
 
-    turnOff: () ->
+    loadStyles: (callback) ->
+      depList = []
+      for element in dom(@getSectionHtml()).find("[#{config.widgetCssAttributeName}]").get()
+        depList.push "css!#{element.getAttribute config.widgetCssAttributeName}" if element.getAttribute?
+      if depList.length
+        require depList, callback
+      else
+        callback?()
+
+    turnOff: ->
       @turnOffWidgets()
       @removeFromDOM()
       @onRemove()
 
-    removeFromDOM: () ->
+    removeFromDOM: ->
       for element in @getSectionHtml()
         element.parentNode.removeChild element if element.parentNode?
 
-    insertIntoDOM: () ->
+    insertIntoDOM: ->
       return unless @params.target
       switch @params.target
         when "icon"
@@ -55,22 +66,19 @@ define [
           for element in @getSectionHtml()
             container.appendChild element
 
-    turnOnWidgets: () ->
-      loader.search @getSectionHtml(), (widgetsList) =>
-        # удобно, но пока кажется избыточным такой notify
-        #notifyAll "turnedOn", "-widgets", widgetsList
-        on
+    turnOnWidgets: ->
+      loader.search @getSectionHtml()
 
-    turnOffWidgets: () ->
+    turnOffWidgets: ->
       for data in widgetsData @getSectionHtml()
         widgets.get(data.name, data.element)?.sleepDown()
 
-    onInsert: () ->
+    onInsert: ->
       postfix = "inserted"
       @notifyAll postfix
       @processNamespaces postfix
 
-    onRemove: () ->
+    onRemove: ->
       postfix = "removed"
       @notifyAll postfix
       @processNamespaces postfix

@@ -146,8 +146,7 @@ define [
         #context.pause()  —— из-за этой штуки получается странный баг
         # — cancel http запросов браузера
 
-        section.back.turnOff()
-        section.forward.turnOn()
+        section.forward.turnOn -> section.back.turnOff()
 
         # возобновление выполнения очереди
         #context.resume()  —— FIXME: странный cancel

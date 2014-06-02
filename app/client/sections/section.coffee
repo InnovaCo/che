@@ -29,6 +29,10 @@ define [
         @onInsert()
         after?()
 
+        # Из-за того что браузеры отменяют загрузку ресурсов после удаления DOM элементов, то после
+        # смены секций мы возобновляем загрузку ресурсов за счет резолва html строки в DOM элемент.
+        dom @getSectionHtml()
+
     loadStyles: (callback) ->
       depList = []
       for element in dom(@getSectionHtml()).find("[#{config.widgetCssAttributeName}]").get()

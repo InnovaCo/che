@@ -141,9 +141,9 @@ define [
 
       .each (section, target, context) ->
         context.pause()
-        section.forward.turnOn -> 
-          context.resume()
+        section.forward.turnOn ->
           section.back.turnOff()
+        , context.resume
 
       .next ->
         # Сообщаем об окончании вставки секций

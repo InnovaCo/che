@@ -8,6 +8,8 @@ define [
   "clicks/forms"
   "dom"
 ], (events, config, loader, widgets, widgetsData, _, forms, dom) ->
+  extensionRegex = /\.css$/
+
   Section = () ->
     @name
     @params = {}
@@ -35,10 +37,28 @@ define [
 
     loadStyles: (callback) ->
       depList = []
+      headElement = dom('head')[0]
+      hasExternalPlugin = require.specified "css"
+
       for element in dom(@getSectionHtml()).find("[#{config.widgetCssAttributeName}]").get()
-        depList.push "css!#{element.getAttribute config.widgetCssAttributeName}" if element.getAttribute?
+        if element.getAttribute?
+          cssPath = element.getAttribute config.widgetCssAttributeName
+          cssPath = "#{cssPath.replace(extensionRegex, "")}.css" if cssPath?
+
+          if not hasExternalPlugin
+            linkNode = document.createElement "link"
+            linkNode.rel = "stylesheet"
+            linkNode.type = "text/css"
+            linkNode.href = cssPath
+            headElement.appendChild linkNode
+          depList.push "css!#{cssPath}"
+
       if depList.length
-        require depList, callback
+        if hasExternalPlugin
+          require depList, callback
+        else
+          console.warn "External plugin for loading css is not found. Creating direct links..."
+          callback?()
       else
         callback?()
 

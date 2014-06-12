@@ -190,7 +190,7 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
     if this instanceof domQuery
       return selector if selector instanceof domQuery
       if _.isString(selector)
-        selector = selector.replace /^\s+|\s+$/, ""
+        selector = selector.replace /^\s+|\s+$/g, ""
         if selector.charAt(0) is "<" and selector.charAt(selector.length - 1) is ">" and selector.length >= 3
           elements = parseHtml selector
         else

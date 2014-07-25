@@ -40,6 +40,13 @@ define ['events', 'utils/params', "utils/destroyer", "underscore"], (events, par
     request.onreadystatechange = ->
       return if request.readyState isnt 4 or request.status is 0
 
+      switch request.status
+        when 301, 302, 303
+          newLocation = request.getResponseHeader? "Location"
+          if newLocation?
+            window.location.href = newLocation
+            return
+
       if request.status isnt 200 and request.status isnt 304
         eventsSprout.trigger "error", [request, null]
         eventsSprout.trigger "complete", [request, null]

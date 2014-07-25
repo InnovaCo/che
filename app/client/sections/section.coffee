@@ -56,7 +56,7 @@ define [
             container.appendChild element
 
     turnOnWidgets: () ->
-      loader.search @getSectionHtml(), (widgetsList) =>
+      loader.search @getSectionHtml(), (widgetsList) ->
         # удобно, но пока кажется избыточным такой notify
         #notifyAll "turnedOn", "-widgets", widgetsList
         on

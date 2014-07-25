@@ -101,8 +101,6 @@ define [
               sectionsLoader (request.getResponseHeader "X-Che-Redirect"), null, redirectSections.join(";"), index, null, sectionsParams
             else
               window.location.href = request.getResponseHeader "X-Che-Redirect"
-          else if request.getResponseHeader "Location"
-            window.location.href = request.getResponseHeader "Location"
           else
             state = getState (request.getResponseHeader "X-Che-Url"), sections, request.getResponseHeader "X-Che-Params"
 

@@ -55,7 +55,10 @@ define [
 
       if depList.length
         if hasExternalPlugin
-          require depList, callback
+          # Если загрузчик поддерживает обработчик завершения загрузки стилей, то чтоб стили 
+          # точно успели применится делаем задержку в 100мс перед возобновлением пайплайна смены 
+          # секций.
+          require depList, -> setTimeout callback, 100
         else
           console.warn "External plugin for loading css is not found. Creating direct links..."
           callback?()

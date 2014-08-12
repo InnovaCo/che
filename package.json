@@ -33,7 +33,7 @@
     "grunt-groc": "~0.3.0",
     "grunt-open": "~0.2.0",
     "grunt-concat-sourcemap": "*",
-    "grunt-notify": "~0.2.4"
+    "grunt-notify": "~0.3.0"
   },
   "some": {
     "jade": "*",

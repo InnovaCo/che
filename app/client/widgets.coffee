@@ -85,7 +85,7 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
   widgets =
     _instances: {}
     _id_attr: (name) ->
-      return "data-#{name}-id".replace /\/|\?|=|&/g, "-"
+      return "data-#{name}-id".replace /[\/?=&!]/g, "-"
 
     remove: (widget) ->
       widget.element.removeAttribute @_id_attr widget.name

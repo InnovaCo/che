@@ -8,6 +8,8 @@ define [
   "clicks/forms"
   "dom"
 ], (events, config, loader, widgets, widgetsData, _, forms, dom) ->
+  extensionRegex = /\.css$/
+
   Section = () ->
     @name
     @params = {}
@@ -21,21 +23,58 @@ define [
     @
 
   Section:: =
-    turnOn: () ->
-      @turnOnWidgets()
-      @insertIntoDOM()
-      @onInsert()
+    turnOn: (before, after) ->
+      @loadStyles =>
+        before?()
+        @turnOnWidgets()
+        @insertIntoDOM()
+        @onInsert()
+        after?()
 
-    turnOff: () ->
+        # Из-за того что браузеры отменяют загрузку ресурсов после удаления DOM элементов, то после
+        # смены секций мы возобновляем загрузку ресурсов за счет резолва html строки в DOM элемент.
+        dom @getSectionHtml()
+
+    loadStyles: (callback) ->
+      depList = []
+      headElement = dom('head')[0]
+      hasExternalPlugin = require.specified "css"
+
+      for element in dom(@getSectionHtml()).find("[#{config.widgetCssAttributeName}]").get()
+        if element.getAttribute?
+          cssPath = element.getAttribute config.widgetCssAttributeName
+          cssPath = "#{cssPath.replace(extensionRegex, "")}.css" if cssPath?
+
+          if not hasExternalPlugin
+            linkNode = document.createElement "link"
+            linkNode.rel = "stylesheet"
+            linkNode.type = "text/css"
+            linkNode.href = cssPath
+            headElement.appendChild linkNode
+          depList.push "css!#{cssPath}"
+
+      if depList.length
+        if hasExternalPlugin
+          # Если загрузчик поддерживает обработчик завершения загрузки стилей, то чтоб стили 
+          # точно успели применится делаем задержку в 100мс перед возобновлением пайплайна смены 
+          # секций.
+          require depList, -> setTimeout callback, 100
+        else
+          console.warn "External plugin for loading css is not found. Creating direct links..."
+          callback?()
+      else
+        callback?()
+
+    turnOff: ->
       @turnOffWidgets()
       @removeFromDOM()
       @onRemove()
 
-    removeFromDOM: () ->
+    removeFromDOM: ->
       for element in @getSectionHtml()
         element.parentNode.removeChild element if element.parentNode?
 
-    insertIntoDOM: () ->
+    insertIntoDOM: ->
       return unless @params.target
       switch @params.target
         when "icon"
@@ -55,22 +94,19 @@ define [
           for element in @getSectionHtml()
             container.appendChild element
 
-    turnOnWidgets: () ->
-      loader.search @getSectionHtml(), (widgetsList) =>
-        # удобно, но пока кажется избыточным такой notify
-        #notifyAll "turnedOn", "-widgets", widgetsList
-        on
+    turnOnWidgets: ->
+      loader.search @getSectionHtml()
 
-    turnOffWidgets: () ->
+    turnOffWidgets: ->
       for data in widgetsData @getSectionHtml()
         widgets.get(data.name, data.element)?.sleepDown()
 
-    onInsert: () ->
+    onInsert: ->
       postfix = "inserted"
       @notifyAll postfix
       @processNamespaces postfix
 
-    onRemove: () ->
+    onRemove: ->
       postfix = "removed"
       @notifyAll postfix
       @processNamespaces postfix

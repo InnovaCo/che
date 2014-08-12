@@ -9,6 +9,7 @@ define [
   "utils/preprocessors/clicks"
 ], (popupsModule, scrollPreprocessor, clicksPreprocessor) ->
   widgetDataAttributeName: "data-js-widgets"
+  widgetCssAttributeName: "data-css-widgets"
   reloadParamsDataAttributeName: "data-reload-params"
   reloadSectionsDataAttributeName: "data-reload-sections"
   baseWidgetsPath: ""

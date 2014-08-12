@@ -137,21 +137,13 @@ define [
           insertionData[target] =
             back: sections.back[target]
             forward: sections.forward[target]
-
         insertionData
 
       .each (section, target, context) ->
-        # приостановка выполнения очереди, так как дальше опять
-        # идет асинхронная
-        #context.pause()  —— из-за этой штуки получается странный баг
-        # — cancel http запросов браузера
-
-        section.back.turnOff()
-        section.forward.turnOn()
-
-        # возобновление выполнения очереди
-        #context.resume()  —— FIXME: странный cancel
-        # http запросов картинок и т.д. в браузере
+        context.pause()
+        section.forward.turnOn ->
+          section.back.turnOff()
+        , context.resume
 
       .next ->
         # Сообщаем об окончании вставки секций

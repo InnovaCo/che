@@ -211,6 +211,7 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
       @selector = selector
       _.each elements, (element, index) =>
         @[index] = element
+      return undefined
     else
       new domQuery selector
 

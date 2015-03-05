@@ -5,4 +5,3 @@
 		root.che = factory(root._);
 	}
 }(this, function (_) {
-	var availableModules = [];

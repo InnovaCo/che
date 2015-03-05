@@ -5,7 +5,7 @@ describe "[Log module]", ->
 
   beforeEach ->
     logger = null
-    require ["utils/log"], (logModule) ->
+    require ["che!utils/log"], (logModule) ->
       logger = logModule
 
     waitsFor ->

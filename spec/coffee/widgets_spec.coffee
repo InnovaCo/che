@@ -41,7 +41,7 @@ describe "widgets module", ->
 
 
     widgets = null
-    require ['widgets', 'dom', 'events'], (widgetsModule, domModule, eventsModule) ->
+    require ['che!widgets', 'che!dom', 'che!events'], (widgetsModule, domModule, eventsModule) ->
       widgets = widgetsModule
       dom = domModule
       events = eventsModule

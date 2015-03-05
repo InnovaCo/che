@@ -2,9 +2,9 @@ describe "clicks module", ->
   anchors = events = clicks = null
 
   require [
-    'events',
-    'clicks/anchors',
-    'clicks'
+    'che!events',
+    'che!clicks/anchors',
+    'che!clicks'
     ], (eventsModule, anchorsModule, clicksModule) ->
     events = eventsModule
     anchors = anchorsModule

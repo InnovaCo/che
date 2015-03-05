@@ -16,25 +16,8 @@ define (require) ->
     require ['utils/errorHandlers/errorHandler', 'utils/errorHandlers/console'], (errorHanler, consoleHandler) ->
       errorHanler.addErrorHandler consoleHandler
 
-  che.modules = availableModules
-
-  che.require = (deps, callback) ->
-    require deps, callback, "app", true
-
-  che.has = (moduleName) ->
-    availableModules.indexOf(moduleName) >= 0
-
-  che.patchLoader = (require, define) ->
-    load = require.load
-    require.load = (context, moduleName) ->
-      args = arguments
-      timer = setTimeout =>
-        load.apply @, args
-      , 100
-      if che.has moduleName
-        che.require [moduleName], (module) ->
-          clearTimeout timer
-          define moduleName, -> module
-          context.completeLoad moduleName
+  che.load = (name, req, onload) ->
+    module = require name
+    onload module if module
 
   che

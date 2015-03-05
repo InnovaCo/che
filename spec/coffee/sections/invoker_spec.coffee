@@ -5,8 +5,8 @@ describe 'sections/invoker module', ->
   Invoker =
   queue = null
   require [
-    'sections/invoker'
-    'sections/asyncQueue'
+    'che!sections/invoker'
+    'che!sections/asyncQueue'
     ], (invokerModule, queueModule) ->
     Invoker = invokerModule
     queue = queueModule

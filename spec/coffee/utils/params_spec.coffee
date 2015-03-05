@@ -1,7 +1,7 @@
 describe "utils/params module", ->
   params = null
   beforeEach ->
-    require ["utils/params"], (paramsModule) ->
+    require ["che!utils/params"], (paramsModule) ->
       params = paramsModule
 
     waitsFor ->

@@ -3,7 +3,7 @@ describe 'guid module', ->
     guid = null
     beforeEach ->
       guid = null
-      require ['utils/guid'], (guidModule) ->
+      require ['che!utils/guid'], (guidModule) ->
         guid = guidModule
 
       waitsFor ->

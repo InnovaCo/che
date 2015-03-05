@@ -16,7 +16,7 @@ describe "[LocalStorage module]", ->
   storage = null
 
   beforeEach ->
-    require ["utils/storage/localStorage"], (storageModule) ->
+    require ["che!utils/storage/localStorage"], (storageModule) ->
       storage = storageModule
 
     waitsFor ->

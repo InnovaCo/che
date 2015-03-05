@@ -24,7 +24,8 @@ buildOptions =
   optimize: "none"
   out: "<%= path.dest.client %>/app.js"
   onBuildWrite: (moduleName, path, contents) ->
-    ";availableModules.push('#{moduleName}');#{contents}"
+    console.log moduleName
+    contents
 
 gruntConfig =
   path:
@@ -196,11 +197,11 @@ gruntConfig =
     options:
       livereload: true
       nospawn: false
-    tests:
-      files: ["<%= path.source.spec %>/**/*.coffee"]
-      tasks: ["spec-light", "notify:complete"]
     client:
       files: ["<%= path.source.client %>/**/*.coffee"]
+      tasks: ["default"]
+    tests:
+      files: ["<%= path.source.spec %>/**/*.coffee", "<%= path.source.jasmine_helpers %>/**/*.coffee"]
       tasks: ["spec-light", "notify:complete"]
 
   notify:
@@ -229,7 +230,7 @@ module.exports = (grunt) ->
   grunt.registerTask "livetest", ["open", "connect:browser"]
 
   grunt.registerTask "spec", ["lint", "build", "build-specs", "connect:phantom", "jasmine:test"]
-  grunt.registerTask "spec-light", ["lint", "build", "build-specs", "jasmine:test:build"]
+  grunt.registerTask "spec-light", ["coffeelint:specs", "build-specs", "jasmine:test:build"]
   grunt.registerTask "full", ["spec", "groc", "dependencygraph", "notify:complete"]
   grunt.registerTask "coverage", ["connect:phantom", "jasmine:coverage"]
 

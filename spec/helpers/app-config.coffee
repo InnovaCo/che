@@ -1,5 +1,8 @@
 require.config
   baseUrl: "build"
-
-# Для совместимости патчим загрузчик чтоб можно было запрашивать внутренние модули черхитектуры.
-che.patchLoader require, define
+  paths:
+    "che": "../public/js/app"
+    "underscore": "../node_modules/underscore/underscore-min"
+  shim:
+    underscore:
+      exports: "_"

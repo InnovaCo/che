@@ -13,18 +13,18 @@ describe 'sections module', ->
   sectionsLoader = null
   cache = null
   require [
-    'sections',
-    'sections/asyncQueue',
-    'sections/invoker',
-    'sections/loader',
-    'sections/parser',
-    'events',
-    'widgets',
-    'utils/storage/storageFactory',
-    'history',
-    'ajax',
-    'lib/async',
-    'sections/cache'
+    'che!sections',
+    'che!sections/asyncQueue',
+    'che!sections/invoker',
+    'che!sections/loader',
+    'che!sections/parser',
+    'che!events',
+    'che!widgets',
+    'che!utils/storage/storageFactory',
+    'che!history',
+    'che!ajax',
+    'che!lib/async',
+    'che!sections/cache'
   ], (sectionsModule, queueModule, invokerModule, loaderModule, parserModule, eventsModule, widgetsModule, storageFactory, browserHistoryModule, ajaxModule, asyncModule, cacheModule) ->
     sections = sectionsModule
     queue = queueModule
@@ -450,7 +450,11 @@ describe 'sections module', ->
       widgets.create "widgets/gradient", $("#one span")[0]
       widgets.create "widgets/opacity", $("#two span")[0]
 
-      require ["widgets/gradient", "widgets/rotation", "widgets/opacity"], () ->
+      require [
+        "widgets/gradient"
+        "widgets/rotation"
+        "widgets/opacity"
+      ], () ->
         allwidgetsReady = yes
 
       waitsFor ->

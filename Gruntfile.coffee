@@ -16,6 +16,8 @@ buildOptions =
     "sections"
     "utils/log"
     "utils/ticker"
+    "utils/logWriter"
+    "utils/errorHandlers/console"
   ],
   almond: true
   wrap:
@@ -23,9 +25,6 @@ buildOptions =
     endFile: "<%= path.source.wrappers %>/end.frag"
   optimize: "none"
   out: "<%= path.dest.client %>/app.js"
-  onBuildWrite: (moduleName, path, contents) ->
-    console.log moduleName
-    contents
 
 gruntConfig =
   path:

@@ -16,8 +16,14 @@ define (require) ->
     require ['utils/errorHandlers/errorHandler', 'utils/errorHandlers/console'], (errorHanler, consoleHandler) ->
       errorHanler.addErrorHandler consoleHandler
 
+    # Подключает модули 'loader', 'lib/domReady'
+    require ['loader', 'clicks', 'sections']
+
   che.load = (name, req, onload) ->
     module = require name
-    onload module if module
+    if module
+      onload module
+    else
+      onload.error "che missing #{name}"
 
   che

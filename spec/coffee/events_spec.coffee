@@ -2,7 +2,7 @@ describe "events module", ->
   events = null
   beforeEach ->
     events = null
-    require ["che!events"], (eventsModule) ->
+    require ["events"], (eventsModule) ->
       events = eventsModule.sprout()
       events.list = {}
     waitsFor ->

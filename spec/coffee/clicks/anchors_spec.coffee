@@ -1,7 +1,7 @@
 describe "clicks/anchors module", ->
   anchors = null
 
-  require ['che!clicks/anchors'], (anchorsModule) ->
+  require ['clicks/anchors'], (anchorsModule) ->
     anchors = anchorsModule
 
   waitsFor ->

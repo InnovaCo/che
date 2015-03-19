@@ -17,7 +17,7 @@ describe "ajax module", ->
 
       request
 
-    require ["che!ajax"], (ajaxModule) ->
+    require ["ajax"], (ajaxModule) ->
       ajax = ajaxModule
 
     waitsFor ->

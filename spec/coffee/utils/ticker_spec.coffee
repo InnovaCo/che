@@ -3,7 +3,7 @@ describe "utils/ticker module", ->
   callback = null
   beforeEach ->
     callback = jasmine.createSpy('callback')
-    require ["che!utils/ticker"], (tickerModule) ->
+    require ["utils/ticker"], (tickerModule) ->
       ticker = tickerModule
 
     jasmine.Clock.useMock()

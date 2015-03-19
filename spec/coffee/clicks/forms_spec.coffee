@@ -1,7 +1,7 @@
 describe "clicks/forms module", ->
   forms = null
 
-  require ['che!clicks/forms'], (formsModule) ->
+  require ['clicks/forms'], (formsModule) ->
     forms = formsModule
 
   waitsFor ->

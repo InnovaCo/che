@@ -9,9 +9,9 @@ describe "[Popups module]", ->
     sections = null
     events = null
     require [
-      "che!sections"
-      "che!events"
-      "che!utils/popups"
+      "sections"
+      "events"
+      "utils/popups"
     ], (sectionsModule, eventsModule, popupsModule) ->
       sections = sectionsModule
       events = eventsModule

@@ -13,18 +13,18 @@ describe 'sections module', ->
   sectionsLoader = null
   cache = null
   require [
-    'che!sections',
-    'che!sections/asyncQueue',
-    'che!sections/invoker',
-    'che!sections/loader',
-    'che!sections/parser',
-    'che!events',
-    'che!widgets',
-    'che!utils/storage/storageFactory',
-    'che!history',
-    'che!ajax',
-    'che!lib/async',
-    'che!sections/cache'
+    'sections',
+    'sections/asyncQueue',
+    'sections/invoker',
+    'sections/loader',
+    'sections/parser',
+    'events',
+    'widgets',
+    'utils/storage/storageFactory',
+    'history',
+    'ajax',
+    'lib/async',
+    'sections/cache'
   ], (sectionsModule, queueModule, invokerModule, loaderModule, parserModule, eventsModule, widgetsModule, storageFactory, browserHistoryModule, ajaxModule, asyncModule, cacheModule) ->
     sections = sectionsModule
     queue = queueModule

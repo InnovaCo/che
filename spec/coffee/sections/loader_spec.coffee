@@ -18,9 +18,9 @@ describe "sections loader module", ->
       request
 
     require [
-      "che!sections/loader"
-      "che!utils/errorHandlers/errorHandler"
-      "che!events"
+      "sections/loader"
+      "utils/errorHandlers/errorHandler"
+      "events"
     ], (loaderModule, errorHandlerModule, eventsModule) ->
       loader = loaderModule
       errorHandler = errorHandlerModule

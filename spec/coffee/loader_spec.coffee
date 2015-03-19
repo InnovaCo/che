@@ -5,7 +5,7 @@ describe "loader  module", ->
 
   beforeEach ->
     loader = null
-    require ["che!loader"], (preloaderModule) ->
+    require ["loader"], (preloaderModule) ->
       loader = preloaderModule
       loadSpy = spyOn(loader, "widgets").andCallThrough()
 

@@ -2,7 +2,7 @@ describe "config module", ->
   config = null
   originalConfig = null
   
-  require ['che!config'], (configModule) ->
+  require ['config'], (configModule) ->
     originalConfig = configModule
 
   beforeEach ->

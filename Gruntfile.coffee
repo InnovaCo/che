@@ -123,7 +123,6 @@ gruntConfig =
         keepRunner: true
         vendor: [
           "<%= path.packages %>/underscore/underscore-min.js"
-          "<%= path.dest.client %>/app.js"
           "<%= path.packages %>/requirejs/require.js"
           "<%= path.dest.jasmine_helpers %>/app-config.js"
           "<%= path.packages %>/jquery/jquery.min.js"
@@ -140,7 +139,6 @@ gruntConfig =
       options:
         vendor: [
           "<%= path.packages %>/underscore/underscore-min.js"
-          "<%= path.dest.client %>/app.js"
           "<%= path.packages %>/requirejs/require.js"
           "<%= path.dest.jasmine_helpers %>/app-config.js"
           "<%= path.packages %>/jquery/jquery.min.js"

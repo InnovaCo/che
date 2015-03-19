@@ -2,7 +2,7 @@ describe 'dom module', ->
   dom = null
   triggerMouseEvent = domEvents.triggerMouseEvent
   beforeEach ->
-    require ['che!dom'], (domModule) ->
+    require ['dom'], (domModule) ->
       dom = domModule
     waitsFor ->
       dom?
@@ -173,7 +173,7 @@ describe 'dom module', ->
     domReady = null
     beforeEach ->
       domReady = null
-      require ['che!lib/domReady'], (domReadyModule) ->
+      require ['lib/domReady'], (domReadyModule) ->
         domReady = domReadyModule
 
       waitsFor ->
@@ -181,7 +181,7 @@ describe 'dom module', ->
 
     it 'should call return dom module, when required as loader', ->
       module = null
-      require ['che!dom!'], (dom) ->
+      require ['dom!'], (dom) ->
         module = dom
 
       waitsFor ->

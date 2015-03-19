@@ -7,10 +7,10 @@ describe "[StorageFactory module]", ->
 
   beforeEach ->
     require [
-      "che!utils/storage/storageFactory",
-      "che!utils/storage/fakeStorage",
-      "che!utils/storage/localStorage",
-      "che!utils/storage/cookieStorage"
+      "utils/storage/storageFactory",
+      "utils/storage/fakeStorage",
+      "utils/storage/localStorage",
+      "utils/storage/cookieStorage"
     ],
     (storageFactoryModule, storageFakeModule, storageLocalStorageModule, storageCookieModule) ->
       storageFactory = storageFactoryModule

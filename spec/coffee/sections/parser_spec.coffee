@@ -1,6 +1,6 @@
 describe 'sections/parser module', ->
   parser =
-  require ['che!sections/parser'], (parserModule) ->
+  require ['sections/parser'], (parserModule) ->
     Parser = parserModule
 
 

@@ -5,8 +5,8 @@ describe 'sections/transition module', ->
   Transition =
   queue = null
   require [
-    'che!sections/transition'
-    'che!sections/asyncQueue'
+    'sections/transition'
+    'sections/asyncQueue'
     ], (transitionModule, queueModule) ->
     Transition = transitionModule
     queue = queueModule

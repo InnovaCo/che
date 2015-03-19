@@ -19,11 +19,22 @@ define (require) ->
     # Подключает модули 'loader', 'lib/domReady'
     require ['loader', 'clicks', 'sections']
 
-  che.load = (name, req, onload) ->
-    module = require name
-    if module
-      onload module
-    else
-      onload.error "che missing #{name}"
+  # Объявляем минимально необходимый публичный интерфейс.
+  che.config = require "config"
+  che.events = require "events"
+  che.loader = require "loader"
+  che.history = require "history"
+
+  che.dom = require "dom"
+  che.ajax = require "ajax"
+  che.domReady = require "lib/domReady"
+
+  che.clicks = require "clicks"
+  che.forms = require "clicks/forms"
+  che.anchors = require "clicks/anchors"
+  che.sectionsLoader = require "sections/loader"
+
+  che.clicksPreprocessor = require "utils/preprocessors/clicks"
+  che.scrollPreprocessor = require "utils/preprocessors/scroll"
 
   che

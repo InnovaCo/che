@@ -8,12 +8,13 @@
 # делегация событий, а событие submit не поднимается вверх к корню.
 
 define [
-  "dom!",
+  "dom",
   "config",
   "events",
+  "lib/domReady",
   "lib/serialize",
   "utils/preprocessors/clicks"
-], (dom, config, events, serialize, clicksPreprocessor) ->
+], (dom, config, events, domReady, serialize, clicksPreprocessor) ->
   # Внутренний диспетчер событий, для вызова обработчиков клика
   clicks = null
 
@@ -27,21 +28,22 @@ define [
   # при помощи нажатия Enter в текстовом инпуте.
 
   # Временно пробуем все же работать с сабмитом. Кто сказал, что submit не поднимается?
-  dom("body").on "form[#{config.reloadSectionsDataAttributeName}]", "submit", (e) ->
-    return true if not clicks?
-    return true if @type is "reset" or @type is "button"
+  domReady ->
+    dom("body").on "form[#{config.reloadSectionsDataAttributeName}]", "submit", (e) ->
+      return true if not clicks?
+      return true if @type is "reset" or @type is "button"
 
-    # Достаем форму из родителей кнопки
-    formNode = @
-    while not found
-      if formNode.nodeName.toLowerCase() is "form"
-        found = true
-      else if formNode is document
-        return true
-      else
-        formNode = formNode.parentNode
+      # Достаем форму из родителей кнопки
+      formNode = @
+      while not found
+        if formNode.nodeName.toLowerCase() is "form"
+          found = true
+        else if formNode is document
+          return true
+        else
+          formNode = formNode.parentNode
 
-    onSubmit(formNode, e)
+      onSubmit(formNode, e)
 
   processForms = (section) ->
     section = dom section ? "body"

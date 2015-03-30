@@ -298,11 +298,4 @@ define ["utils/guid", "lib/domReady", "underscore"], (guid, domReady, _) ->
     replaceWith: (element) ->
       @[0] = @[0].parentNode.replaceChild element[0] or element, @[0]
 
-
-  domQuery.load = (name, req, onLoad, config) ->
-    domReady.load name, req, () ->
-      onLoad domQuery
-    , config
-    domQuery
-
   domQuery

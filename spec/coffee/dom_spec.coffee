@@ -178,24 +178,3 @@ describe 'dom module', ->
 
       waitsFor ->
         domReady isnt null
-
-    it 'should call return dom module, when required as loader', ->
-      module = null
-      require ['dom!'], (dom) ->
-        module = dom
-
-      waitsFor ->
-        module?
-      runs ->
-        expect(module).toBe dom
-
-    it 'should call onload with null in build mode', ->
-      onload = jasmine.createSpy 'onload'
-      dom.load "onload", null, onload,
-        isBuild: true
-
-      expect(onload).toHaveBeenCalled()
-      expect(onload.mostRecentCall.args[0]).toBe(dom)
-
-
-

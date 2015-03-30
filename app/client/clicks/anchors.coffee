@@ -5,11 +5,12 @@
 #
 
 define [
-  "dom!",
-  "config",
+  "dom"
+  "config"
   "events"
+  "lib/domReady"
   "utils/preprocessors/clicks"
-], (dom, config, events, clicksPreprocessor) ->
+], (dom, config, events, domReady, clicksPreprocessor) ->
 
   # Внутренний диспетчер событий, для вызова обработчиков клика
   clicks = null
@@ -18,25 +19,26 @@ define [
   # только если есть хоть один обработчик клика, на это указывает
   # наличие clicks
 
-  dom("body").on "a[#{config.reloadSectionsDataAttributeName}],area[#{config.reloadSectionsDataAttributeName}]", "click", (e) ->
-    return true if e.ctrlKey or e.altKey or e.shiftKey or e.metaKey
+  domReady ->
+    dom("body").on "a[#{config.reloadSectionsDataAttributeName}],area[#{config.reloadSectionsDataAttributeName}]", "click", (e) ->
+      return true if e.ctrlKey or e.altKey or e.shiftKey or e.metaKey
 
-    if clicks?
-      data = @getAttribute config.reloadSectionsDataAttributeName
-      params = @getAttribute config.reloadParamsDataAttributeName
-      url = @getAttribute "href"
-      eventData =
-        url: url
-        data: data
-        params: params
-        method: "GET"
+      if clicks?
+        data = @getAttribute config.reloadSectionsDataAttributeName
+        params = @getAttribute config.reloadParamsDataAttributeName
+        url = @getAttribute "href"
+        eventData =
+          url: url
+          data: data
+          params: params
+          method: "GET"
 
-      if (clicksPreprocessor.process eventData) == false
-        return true
+        if (clicksPreprocessor.process eventData) == false
+          return true
 
-      clicks.trigger "anchor:click", eventData
-      e.preventDefault()
-      return false
+        clicks.trigger "anchor:click", eventData
+        e.preventDefault()
+        return false
 
   #### init(callback)
   #

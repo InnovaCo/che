@@ -3,21 +3,25 @@
 #
 define (require) ->
   che = (customConfig) ->
-    require ['config'], (config) ->
-      # Переопределяем дефолтные параметры конфига, если надо
-      config.setup customConfig if customConfig
+    config = require "config"
+    errorHanler = require "utils/errorHandlers/errorHandler"
+    consoleHandler = require "utils/errorHandlers/console"
 
-      # Подключаем опциональные модули
-      customConfig.modules ?= []
-      for module in customConfig.modules when config._modules[module]?
-        che.module = config._modules[module]
+    # Переопределяем дефолтные параметры конфига, если надо
+    config.setup customConfig if customConfig
+    customConfig.modules ?= []
+
+    # Подключаем опциональные модули
+    for module in customConfig.modules when config._modules[module]?
+      che.module = config._modules[module]
 
     # Добавляем обработчики ошибок
-    require ['utils/errorHandlers/errorHandler', 'utils/errorHandlers/console'], (errorHanler, consoleHandler) ->
-      errorHanler.addErrorHandler consoleHandler
+    errorHanler.addErrorHandler consoleHandler
 
-    # Подключает модули 'loader', 'lib/domReady'
-    require ['loader', 'clicks', 'sections']
+    # Запускаем рантайм черхитектуры
+    sections = require "sections"
+    clicks = require "clicks"
+    loader = require "loader"
 
   # Объявляем минимально необходимый публичный интерфейс.
   che.config = require "config"

@@ -1,6 +1,6 @@
 {
   "name": "che",
-  "version": "1.0.4",
+  "version": "2.0.0",
   "authors": [
     "Pavel Motorin"
   ],
@@ -8,6 +8,9 @@
   "main": "public/js/app-min.js",
   "main-debug": "public/js/app.js",
   "scripts": {
-    "install": ["npm install", "grunt build"]
+    "install": [
+      "npm install",
+      "grunt build"
+    ]
   }
 }

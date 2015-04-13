@@ -5,7 +5,7 @@ describe "clicks module", ->
     'events',
     'clicks/anchors',
     'clicks'
-    ], (eventsModule, anchorsModule, clicksModule) ->
+  ], (eventsModule, anchorsModule, clicksModule) ->
     events = eventsModule
     anchors = anchorsModule
     clicks = clicksModule

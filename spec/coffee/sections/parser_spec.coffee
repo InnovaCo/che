@@ -1,8 +1,6 @@
 describe 'sections/parser module', ->
   parser =
-  require [
-    'sections/parser'
-    ], (parserModule) ->
+  require ['sections/parser'], (parserModule) ->
     Parser = parserModule
 
 

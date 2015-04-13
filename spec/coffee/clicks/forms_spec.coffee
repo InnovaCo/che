@@ -1,9 +1,7 @@
 describe "clicks/forms module", ->
   forms = null
 
-  require [
-    'clicks/forms'
-    ], (formsModule) ->
+  require ['clicks/forms'], (formsModule) ->
     forms = formsModule
 
   waitsFor ->

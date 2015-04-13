@@ -17,7 +17,11 @@ describe "sections loader module", ->
 
       request
 
-    require ["sections/loader", "utils/errorHandlers/errorHandler", "events"], (loaderModule, errorHandlerModule, eventsModule) ->
+    require [
+      "sections/loader"
+      "utils/errorHandlers/errorHandler"
+      "events"
+    ], (loaderModule, errorHandlerModule, eventsModule) ->
       loader = loaderModule
       errorHandler = errorHandlerModule
       events = eventsModule

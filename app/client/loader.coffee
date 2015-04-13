@@ -5,13 +5,13 @@
 
 
 define [
-  'widgets',
-  'config',
-  'events'
-  'utils/widgetsData',
-  'underscore',
-  'dom!',
-  ], (widgets, config, events, widgetsData, _) ->
+  "widgets"
+  "config"
+  "events"
+  "lib/domReady"
+  "utils/widgetsData"
+  "underscore"
+], (widgets, config, events, domReady, widgetsData, _) ->
    # Интерфейс модуля, вынесены локальные функции для более удобного тестирования
 
   loader =
@@ -40,7 +40,7 @@ define [
       loader.widgets widgetsData(node), ready
 
 
-  # сразу запускает поиск виджетов
-  loader.search()
+  # по событию DOMContentLoaded запускает поиск виджетов
+  domReady -> loader.search()
 
   loader

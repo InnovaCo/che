@@ -450,7 +450,11 @@ describe 'sections module', ->
       widgets.create "widgets/gradient", $("#one span")[0]
       widgets.create "widgets/opacity", $("#two span")[0]
 
-      require ["widgets/gradient", "widgets/rotation", "widgets/opacity"], () ->
+      require [
+        "widgets/gradient"
+        "widgets/rotation"
+        "widgets/opacity"
+      ], () ->
         allwidgetsReady = yes
 
       waitsFor ->

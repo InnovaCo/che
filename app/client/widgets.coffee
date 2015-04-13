@@ -195,7 +195,7 @@ define ["events", "dom", "utils/destroyer", "config", "utils/guid", "underscore"
     create: (name, element, ready) ->
       if not (///^http///).test name
         name = config.baseWidgetsPath + name
-      require [name], (widget) ->
+      window.require? [name], (widget) ->
         instance = widgets.add name, element, widget
         ready?(instance)
 

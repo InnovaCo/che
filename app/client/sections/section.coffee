@@ -38,7 +38,7 @@ define [
     loadStyles: (callback) ->
       depList = []
       headElement = dom('head')[0]
-      hasExternalPlugin = require.specified "css"
+      hasExternalPlugin = window.require?.specified "css"
 
       for element in dom(@getSectionHtml()).find("[#{config.widgetCssAttributeName}]").get()
         if element.getAttribute?
@@ -55,10 +55,10 @@ define [
 
       if depList.length
         if hasExternalPlugin
-          # Если загрузчик поддерживает обработчик завершения загрузки стилей, то чтоб стили 
-          # точно успели применится делаем задержку в 100мс перед возобновлением пайплайна смены 
+          # Если загрузчик поддерживает обработчик завершения загрузки стилей, то чтоб стили
+          # точно успели применится делаем задержку в 100мс перед возобновлением пайплайна смены
           # секций.
-          require depList, -> setTimeout callback, 100
+          window.require depList, -> setTimeout callback, 100
         else
           console.warn "External plugin for loading css is not found. Creating direct links..."
           callback?()

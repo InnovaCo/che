@@ -3,7 +3,6 @@
 #
 define (require) ->
   che = (customConfig) ->
-    console.log 'custom config', customConfig
     config = require "config"
     errorHanler = require "utils/errorHandlers/errorHandler"
     consoleHandler = require "utils/errorHandlers/console"

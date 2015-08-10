@@ -14,8 +14,9 @@ define [
   "sections/cache",
   "utils/errorHandlers/errorHandler",
   "dom",
-  "widgets"
-], (history, events, sectionsLoader, Transition, cache, errorHandler, dom, widgets) ->
+  "widgets",
+  "config"
+], (history, events, sectionsLoader, Transition, cache, errorHandler, dom, widgets, config) ->
   return false if not history
   sectionIsAnimating = false
 
@@ -163,12 +164,18 @@ define [
       transitions.create(new history.CheState index: transitions.last.state.index + 1, replaceState: true)
     # here ask server for updated sections (history case)
 
-  #### Событие transition:current:update
-  #
-  # Создается первый пустой переход, он отражает текущее состояние страницы
-  #
-  events.trigger "transition:current:update", transitions.create()
 
   return {
+    init: (config) ->
+      unless config.noFirstTransition
+        #### Событие transition:current:update
+        #
+        # Создается первый пустой переход, он отражает текущее состояние страницы
+        # 10.08.2015: постепенно отказываемся от Черхитектуры. Так как страницы
+        # загружаются в обычном режиме, такой переход только создаёт проблемы,
+        # так как появляется лишний элемент в истории (на каждую загрузку!)
+        # и иногда проявляются трудноуловимые баги
+        events.trigger "transition:current:update", transitions.create()
+
     _transitions: transitions
   }

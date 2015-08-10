@@ -13,6 +13,7 @@ define [
   reloadParamsDataAttributeName: "data-reload-params"
   reloadSectionsDataAttributeName: "data-reload-sections"
   baseWidgetsPath: ""
+  noFirstTransition: false
   sectionTagName: "section"
   autoScrollOnTransitions: true
   sectionSelectorAttributeName: "data-selector"

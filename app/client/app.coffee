@@ -3,6 +3,7 @@
 #
 define (require) ->
   che = (customConfig) ->
+    console.log 'custom config', customConfig
     config = require "config"
     errorHanler = require "utils/errorHandlers/errorHandler"
     consoleHandler = require "utils/errorHandlers/console"
@@ -22,6 +23,8 @@ define (require) ->
     sections = require "sections"
     clicks = require "clicks"
     loader = require "loader"
+
+    sections.init(config)
 
   # Объявляем минимально необходимый публичный интерфейс.
   che.config = require "config"

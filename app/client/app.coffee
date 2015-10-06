@@ -23,6 +23,8 @@ define (require) ->
     clicks = require "clicks"
     loader = require "loader"
 
+    sections.init(config)
+
   # Объявляем минимально необходимый публичный интерфейс.
   che.config = require "config"
   che.events = require "events"

@@ -47,6 +47,7 @@ define [
     #
     create: (state = {}) ->
       state.index = state.index or (@last?.index + 1) or 0
+      isInvisible = state.invisible
 
       if state? and !state.che
         state = new history.CheState state
@@ -64,8 +65,9 @@ define [
         return transition
       else
         isNewState = (history.state or {}).url isnt state.url
-        method = if isNewState and !state.userReplaceState then "pushState" else "replaceState"
-        history[method] state, state.title, state.url
+        unless isInvisible
+          method = if isNewState and !state.userReplaceState then "pushState" else "replaceState"
+          history[method] state, state.title, state.url
         @last = new Transition state, (if @current?.next_transition?.index < state.index then @current else @last)
         return @last
 
@@ -163,12 +165,20 @@ define [
       transitions.create(new history.CheState index: transitions.last.state.index + 1, replaceState: true)
     # here ask server for updated sections (history case)
 
-  #### Событие transition:current:update
-  #
-  # Создается первый пустой переход, он отражает текущее состояние страницы
-  #
-  events.trigger "transition:current:update", transitions.create()
 
   return {
+    init: (config) ->
+      #### Событие transition:current:update
+      #
+      # Создается первый пустой переход, он отражает текущее состояние страницы
+      # 10.08.2015: постепенно отказываемся от Черхитектуры. Так как страницы
+      # загружаются в обычном режиме, такой переход только создаёт проблемы,
+      # так как появляется лишний элемент в истории (на каждую загрузку!)
+      # и иногда проявляются трудноуловимые баги. Чтобы решить проблему,
+      # передаём в метод `transition.create()` атрибут invisible, который указывает,
+      # что переход нужно сделать незаметным (без модификации истории)
+      events.trigger "transition:current:update", transitions.create(invisible: config.noFirstTransition)
+      
+
     _transitions: transitions
   }

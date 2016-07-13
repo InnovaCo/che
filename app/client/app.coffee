@@ -39,6 +39,9 @@ define (require) ->
   che.forms = require "clicks/forms"
   che.anchors = require "clicks/anchors"
   che.sectionsLoader = require "sections/loader"
+  
+  che.widgets = require "widgets"
+  che.widgetsData = require "utils/widgetsData"
 
   che.clicksPreprocessor = require "utils/preprocessors/clicks"
   che.scrollPreprocessor = require "utils/preprocessors/scroll"

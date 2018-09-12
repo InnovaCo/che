@@ -20,7 +20,7 @@
 
 ## Тестирование ##
 
-Тесты написаны с использованием библиотеки [jasmine](http://pivotal.github.com/jasmine/).
+Тесты написаны с использованием библиотеки [jasmine](https://jasmine.github.io/).
 
 Чтобы запускать тесты из консоли необходимо установить [PhantomJS](http://phantomjs.org/). 
 Инструкцию по установке для вашей системы можно найти [там же](http://phantomjs.org/download.html).
